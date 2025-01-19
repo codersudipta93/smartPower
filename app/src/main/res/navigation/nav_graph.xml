@@ -13,7 +13,6 @@
         android:label="SplashFragment"
         tools:layout="@layout/fragment_splash"
         >
-
                 <action
                     android:id="@+id/action_splashFragment_to_loginFragment"
                     app:destination="@id/id_loginFragment" />
@@ -26,20 +25,19 @@
         android:label="LoginFragment"
         tools:layout="@layout/fragment_login"
         >
-
+        <action
+            android:id="@+id/action_id_loginFragment_to_id_homeFragment"
+            app:destination="@id/id_homeFragment" />
     </fragment>
 
-<!--    <fragment-->
-<!--        android:id="@+id/deviceActivation"-->
-<!--        android:name="com.example.parkingagent.UI.fragments.deviceActivation.DeviceActivationFragment"-->
-<!--        android:label="MyOrderFragment"-->
-<!--        tools:layout="@layout/fragment_device_activation"-->
-<!--        >-->
+    <fragment
+        android:id="@+id/id_homeFragment"
+        android:name="com.example.parkingagent.UI.fragments.home.HomeFragment"
+        android:label="HomeFragment"
+        tools:layout="@layout/fragment_home"
+        >
 
-<!--        <action-->
-<!--            android:id="@+id/action_myOrderFragment_to_orderDetailsFragment"-->
-<!--            app:destination="@id/orderDetailsFragment" />-->
-<!--    </fragment>-->
+    </fragment>
 
 
 

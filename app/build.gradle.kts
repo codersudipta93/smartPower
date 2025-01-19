@@ -4,6 +4,7 @@ plugins {
     id("org.jetbrains.kotlin.kapt")
 //    id("dagger.hilt.android.plugin")
     id("com.google.dagger.hilt.android")
+    id("kotlin-parcelize")
 
 }
 
@@ -97,6 +98,7 @@ dependencies {
     implementation(libs.printerx)
 
     implementation(libs.lottie)
+    implementation(libs.dotlottie.android)
 
     implementation(libs.sdp.android)
 

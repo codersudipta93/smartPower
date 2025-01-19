@@ -1,31 +1,121 @@
 package com.example.parkingagent.UI.fragments.LoginFragment
 
+import android.app.AlertDialog
+import android.os.Build
 import androidx.fragment.app.viewModels
 import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
+import com.example.parkingagent.MainActivity
 import com.example.parkingagent.R
+import com.example.parkingagent.UI.base.BaseFragment
+import com.example.parkingagent.databinding.FragmentLoginBinding
+import com.example.parkingagent.utils.scanner.DeviceInfoManager
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
-class LoginFragment : Fragment() {
-
-    companion object {
-        fun newInstance() = LoginFragment()
-    }
+@AndroidEntryPoint
+class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.DeviceInfoListener {
 
     private val viewModel: LoginViewModel by viewModels()
+    private lateinit var deviceInfoManager: DeviceInfoManager
+    private lateinit var deviceId: String
+//    private lateinit var deviceImeiNumber: String
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
 
-        // TODO: Use the ViewModel
+    override fun getLayoutResourceId(): Int {
+        return R.layout.fragment_login
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return inflater.inflate(R.layout.fragment_login, container, false)
+    override fun initView() {
+        super.initView()
+
+        deviceInfoManager = DeviceInfoManager(this)
+        binding.btnLoginContinue.setOnClickListener({
+            deviceInfoManager.checkAndRequestPermissions()
+        })
+
     }
+
+    private fun showActivationCodeDialog() {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_activation_code, null)
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .create()
+
+        val etActivationCode = dialogView.findViewById<EditText>(R.id.etActivationCode)
+        val btnSubmitCode = dialogView.findViewById<Button>(R.id.btnSubmitCode)
+
+        btnSubmitCode.setOnClickListener {
+            val activationCode = etActivationCode.text.toString().trim()
+
+            if (activationCode.isEmpty()) {
+                etActivationCode.error = "Please enter activation code"
+            } else {
+                dialog.dismiss()
+                callActivationApi(activationCode)
+            }
+        }
+
+        dialog.show()
+    }
+
+    fun callActivationApi(activationCode:String){
+        (requireActivity() as MainActivity).binding.loading.visibility=View.VISIBLE
+        viewModel.callActivationApi(activationCode,deviceId,"863241056928621")
+    }
+
+    override fun observe() {
+        super.observe()
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.mutualSharedflow.collectLatest {
+                    (requireActivity() as MainActivity).binding.loading.visibility=View.GONE
+                    when (it) {
+
+                        is LoginViewModel.LoginEvents.ActivationCodeSuccess -> {
+                            findNavController().navigate(R.id.action_id_loginFragment_to_id_homeFragment)
+                        }
+
+                        is LoginViewModel.LoginEvents.ActivationCodeFailed -> {
+                            Toast.makeText(context,it.message,Toast.LENGTH_LONG).show()
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+
+    override fun onDeviceInfoFetched(deviceId: String?, imei: String?) {
+        if (deviceId != null) {
+            this.deviceId=deviceId
+        }
+//        if (imei != null) {
+//            this.deviceImeiNumber=imei
+//        }
+
+       Log.d("deviceId",this.deviceId.toString())
+        Log.d("deviceImeiNumber",imei.toString())
+        Log.d("ANDROID_ID", Settings.Secure.getString(requireContext().contentResolver, Settings.Secure.ANDROID_ID))
+        Log.d("SERIAL_NUMBER",Build.SERIAL.toString())
+        showActivationCodeDialog()
+
+
+    }
+
+
 }

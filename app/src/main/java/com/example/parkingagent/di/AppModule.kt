@@ -41,7 +41,7 @@ object AppModule {
         okHttpClient: OkHttpClient
     ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("45.249.111.51/SmartPowerAPI/api/")
+            .baseUrl("http://45.249.111.51/SmartPowerAPI/api/")
             .addConverterFactory(GsonConverterFactory.create())
             .addConverterFactory(ScalarsConverterFactory.create())
             .client(okHttpClient)
