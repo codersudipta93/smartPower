@@ -59,6 +59,7 @@ dependencies {
     implementation(libs.androidx.legacy.support.v4)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.security.crypto.ktx)
+    implementation(libs.androidx.paging.runtime.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -103,5 +104,8 @@ dependencies {
     implementation(libs.sdp.android)
 
     implementation(libs.androidx.security.crypto.ktx)
+
+    implementation(libs.zxing.android.embedded)
+
 
 }

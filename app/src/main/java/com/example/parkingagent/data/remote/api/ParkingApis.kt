@@ -5,6 +5,7 @@ import com.example.parkingagent.data.remote.models.GetVehicleList.VehicleListRes
 import com.example.parkingagent.data.remote.models.VehicleParking.VehicleParkingReqBody
 import com.example.parkingagent.data.remote.models.VehicleParking.VehicleParkingResponse
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
 
@@ -13,7 +14,9 @@ interface ParkingApis {
 @POST("Device/VehicleParking")
 fun vehicleParking(@Body vehicleParkingReqBody: VehicleParkingReqBody): Call<VehicleParkingResponse>
 
+
 @POST("Device/VehicleInTodayButNotOut")
-fun getVehicleList(@Body vehicleListReqBody: VehicleListReqBody):Call<VehicleListResponse>
+suspend fun getVehicleList(@Body vehicleListReqBody: VehicleListReqBody): Response<VehicleListResponse>
+
 
 }

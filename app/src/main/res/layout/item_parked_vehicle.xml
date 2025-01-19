@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    >
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/_70sdp"
+    android:background="@color/white"
+    android:layout_marginHorizontal="@dimen/_12sdp"
+    android:layout_marginVertical="@dimen/_5sdp"
+    >
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/id_icon_car"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/icon_car"
+        android:layout_marginHorizontal="@dimen/_15sdp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
+    <TextView
+        android:id="@+id/id_vehicleId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_color_dark"
+        android:fontFamily="@font/gilroy_medium"
+        android:textSize="@dimen/_12sdp"
+        android:text="WB24-0123"
+        android:layout_marginStart="@dimen/_15sdp"
+        app:layout_constraintTop_toTopOf="@id/id_icon_car"
+        app:layout_constraintStart_toEndOf="@id/id_icon_car"
+        />
+
+    <TextView
+        android:id="@+id/id_secondParams"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="4 Wheeler | 12:53:24"
+        android:fontFamily="@font/gilroy_regular"
+        android:textSize="@dimen/_12sdp"
+        android:textColor="@color/gray"
+        app:layout_constraintBottom_toBottomOf="@id/id_icon_car"
+        app:layout_constraintStart_toStartOf="@id/id_vehicleId"
+        />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/icon_right_arrow"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginRight="@dimen/_12sdp"
+        />
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

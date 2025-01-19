@@ -39,6 +39,33 @@
 
     </fragment>
 
+    <fragment
+        android:id="@+id/id_parkedVehicleFragment"
+        android:name="com.example.parkingagent.UI.fragments.ParkedVehicle.ParkedVehicleFragment"
+        android:label="ParkedVehicleFragment"
+        tools:layout="@layout/fragment_parked_vehicle"
+        >
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/id_fragment_profile"
+        android:name="com.example.parkingagent.UI.fragments.profile.ProfileFragment"
+        android:label="ProfileFragment"
+        tools:layout="@layout/fragment_profile"
+        >
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/id_fragment_more"
+        android:name="com.example.parkingagent.UI.fragments.more.MoreFragment"
+        android:label="MoreFragment"
+        tools:layout="@layout/fragment_more"
+        >
+
+    </fragment>
+
 
 
 </navigation>
