@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/splashFragment"
+    >
+
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="com.example.parkingagent.UI.fragments.SplashScreen.SplashFragment"
+        android:label="SplashFragment"
+        tools:layout="@layout/fragment_splash"
+        >
+
+                <action
+                    android:id="@+id/action_splashFragment_to_loginFragment"
+                    app:destination="@id/id_loginFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/id_loginFragment"
+        android:name="com.example.parkingagent.UI.fragments.LoginFragment.LoginFragment"
+        android:label="LoginFragment"
+        tools:layout="@layout/fragment_login"
+        >
+
+    </fragment>
+
+<!--    <fragment-->
+<!--        android:id="@+id/deviceActivation"-->
+<!--        android:name="com.example.parkingagent.UI.fragments.deviceActivation.DeviceActivationFragment"-->
+<!--        android:label="MyOrderFragment"-->
+<!--        tools:layout="@layout/fragment_device_activation"-->
+<!--        >-->
+
+<!--        <action-->
+<!--            android:id="@+id/action_myOrderFragment_to_orderDetailsFragment"-->
+<!--            app:destination="@id/orderDetailsFragment" />-->
+<!--    </fragment>-->
+
+
+
+</navigation>

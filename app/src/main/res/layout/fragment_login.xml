@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".08"
+            />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".92"
+            />
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintHeight_percent="0.09"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            android:src="@drawable/parking_lot"
+            android:layout_marginTop="50dp"
+            />
+
+
+        <TextView
+            android:id="@+id/txt_welcome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Welcome!"
+            android:textSize="24sp"
+            android:textColor="@color/black"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias=".27"
+            />
+
+        <TextView
+            android:id="@+id/txt_email"
+            android:textColor="@color/text_color_dark"
+            android:text="User Id"
+            app:layout_constraintTop_toBottomOf="@id/txt_welcome"
+            android:layout_marginTop="45dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            android:fontFamily="@font/gilroy_medium"
+            />
+
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edt_email"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/txt_email"
+            android:layout_marginTop="16dp"
+            android:textColorHint="@color/gray"
+            android:hint="Enter your User Id here"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            android:background="@drawable/bg_email_edit_text"
+            android:padding="15dp"
+            android:fontFamily="@font/gilroy_regular"
+            />
+
+        <TextView
+            android:id="@+id/txt_password"
+            android:textColor="@color/text_color_dark"
+            android:text="Password"
+            app:layout_constraintTop_toBottomOf="@id/edt_email"
+            android:layout_marginTop="24sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            android:fontFamily="@font/gilroy_medium"
+            />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/et_password_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            app:layout_constraintTop_toBottomOf="@id/txt_password"
+            app:hintEnabled="false"
+            app:passwordToggleEnabled="true"
+
+            android:background="@null"
+            app:boxStrokeWidth="-50dp"
+            app:boxStrokeWidthFocused="-50dp"
+            android:layout_marginTop="16dp"
+            >
+            <EditText
+                android:id="@+id/edt_password"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="Enter your Password here"
+                android:textSize="14sp"
+                android:padding="15dp"
+                android:inputType="textPassword"
+                android:textColorHint="@color/gray"
+                android:fontFamily="@font/gilroy_regular"
+                android:background="@drawable/bg_email_edit_text"
+
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_login_continue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:backgroundTint="@color/primary"
+            android:padding="15dp"
+            android:text="Continue"
+            android:textSize="14sp"
+            app:cornerRadius="10dp"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintTop_toBottomOf="@id/et_password_layout" />
+
+
+        <!--    <com.airbnb.lottie.LottieAnimationView-->
+        <!--        android:id="@+id/loading"-->
+        <!--        android:layout_width="0dp"-->
+        <!--        android:layout_height="0dp"-->
+        <!--        app:layout_constraintHeight_percent=".07"-->
+        <!--        app:layout_constraintDimensionRatio="1:1"-->
+        <!--        app:layout_constraintTop_toTopOf="@id/btn_login_continue"-->
+        <!--        app:layout_constraintBottom_toBottomOf="@id/btn_login_continue"-->
+        <!--        app:layout_constraintStart_toStartOf="@id/btn_login_continue"-->
+        <!--        app:layout_constraintEnd_toEndOf="@id/btn_login_continue"-->
+        <!--        app:lottie_rawRes="@raw/loading"-->
+        <!--        android:elevation="@dimen/_10sdp"-->
+        <!--        app:lottie_autoPlay="true"-->
+        <!--        app:lottie_loop="true"-->
+        <!--        />-->
+        <!--        android:visibility="@{viewModel.loadingEvent ? View.VISIBLE : View.INVISIBLE}"-->
+
+        <!--        />-->
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
