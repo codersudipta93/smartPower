@@ -19,6 +19,7 @@ activity = "1.10.0"
 constraintlayout = "2.2.0"
 navigationFragmentKtx = "2.8.5"
 okhttp = "4.10.0"
+paylibRelease = "2.0.17"
 printerx = "1.0.17"
 retrofit = "2.9.0"
 legacySupportV4 = "1.0.0"
@@ -57,6 +58,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+paylib-release = { module = "com.sunmi:PayLib-release", version.ref = "paylibRelease" }
 printerx = { module = "com.sunmi:printerx", version.ref = "printerx" }
 lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }

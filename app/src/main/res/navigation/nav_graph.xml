@@ -27,7 +27,10 @@
         >
         <action
             android:id="@+id/action_id_loginFragment_to_id_homeFragment"
-            app:destination="@id/id_homeFragment" />
+            app:destination="@id/id_homeFragment"
+            app:popUpTo="@id/id_loginFragment"
+            app:popUpToInclusive="true"
+            />
     </fragment>
 
     <fragment
@@ -64,6 +67,27 @@
         tools:layout="@layout/fragment_more"
         >
 
+    </fragment>
+
+    <fragment
+        android:id="@+id/id_fragment_nfc"
+        android:name="com.example.parkingagent.UI.fragments.nfcFragment.NfcReadFragment"
+        android:label="NfcReadFragment"
+        tools:layout="@layout/fragment_nfc_read"
+        >
+        <action
+            android:id="@+id/action_id_fragment_nfc_to_id_fragment_nfc_write"
+            app:destination="@id/id_fragment_nfc_write"
+            />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/id_fragment_nfc_write"
+        android:name="com.example.parkingagent.UI.fragments.nfcFragment.NfcWriteFragment"
+        android:label="NfcWriteFragment"
+        tools:layout="@layout/fragment_nfc_write"
+        >
     </fragment>
 
 

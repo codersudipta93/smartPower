@@ -107,5 +107,19 @@ dependencies {
 
     implementation(libs.zxing.android.embedded)
 
+//    implementation(libs.paylib.release)
 
+
+    implementation(files("libs/PayLib-release-2.0.17.aar"))
+
+    // SUNMI Pay SDK (local AAR)
+//    implementation(files("libs/PayLib-release-2.0.17.aar"))  // Uncomment when using local AAR
+
+    // EMV Split Library configuration
+//    implementation(fileTree(mapOf(
+//        "dir" to "libs",
+//        "include" to listOf("*.jar")
+//    )))
+//
+//    implementation(files("libs/sunmiemvl2split-1.0.1.jar"))
 }

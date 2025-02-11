@@ -18,6 +18,12 @@
         android:id="@+id/id_fragment_profile"
         android:icon="@drawable/profile"
         android:title="" />
+
+    <item
+        android:id="@+id/id_fragment_nfc"
+        android:icon="@drawable/icon_nfc"
+        android:title="" />
+
     <item
         android:id="@+id/id_fragment_more"
         android:icon="@drawable/more"

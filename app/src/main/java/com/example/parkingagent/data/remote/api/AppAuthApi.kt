@@ -1,5 +1,7 @@
 package com.example.parkingagent.data.remote.api
 
+import com.example.parkingagent.data.remote.models.AgentLogin.AgentLoginReqBody
+import com.example.parkingagent.data.remote.models.AgentLogin.AgentLoginResponseBody
 import com.example.parkingagent.data.remote.models.DeviceActivationModel.DeviceActivationReqBody
 import com.example.parkingagent.data.remote.models.DeviceActivationModel.DeviceActivationResponse
 import com.example.parkingagent.data.remote.models.GetVehicleList.VehicleListReqBody
@@ -15,5 +17,8 @@ interface AppAuthApi {
 
      @POST("Device/GetDeviceHeartBeat")
      fun getDeviceHeartBeat(@Body vehicleListReqBody: VehicleListReqBody):Call<DeviceActivationResponse>
+
+     @POST("Device/AgentLogin")
+     fun agentLogin(@Body agentLoginReqBody: AgentLoginReqBody):Call<AgentLoginResponseBody>
 
 }

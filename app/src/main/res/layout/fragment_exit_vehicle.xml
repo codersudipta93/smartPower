@@ -5,8 +5,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".UI.fragments.home.HomeFragment"
-        android:background="@color/white">
+        android:background="@color/white"
+        tools:context=".UI.fragments.ExitVehicle.ExitVehicleFragment">
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline_start"
@@ -29,8 +29,9 @@
             android:layout_marginVertical="15dp"
             android:background="@drawable/bg_email_edit_text"
             android:fontFamily="@font/gilroy_regular"
-            android:hint="Enter Vehicle Number here"
+            android:hint="Vehicle Number"
             android:padding="15dp"
+            android:editable="false"
             android:textColor="@color/text_color_dark"
             android:textColorHint="@color/gray"
             android:textSize="14sp"
@@ -38,54 +39,38 @@
             app:layout_constraintStart_toStartOf="@id/guideline_start"
             app:layout_constraintEnd_toEndOf="@id/guideline_end" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInputLayoutVehicleType"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edt_entryDateTime"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_15sdp"
+            android:layout_marginVertical="15dp"
+            android:background="@drawable/bg_email_edit_text"
+            android:fontFamily="@font/gilroy_regular"
+            android:hint="Entry Date Time"
+            android:padding="15dp"
+            android:editable="false"
+            android:textColor="@color/text_color_dark"
+            android:textColorHint="@color/gray"
+            android:textSize="14sp"
             app:layout_constraintTop_toBottomOf="@id/edt_vehicleNo"
             app:layout_constraintStart_toStartOf="@id/guideline_start"
-            app:layout_constraintEnd_toEndOf="@id/guideline_end">
+            app:layout_constraintEnd_toEndOf="@id/guideline_end" />
 
-            <AutoCompleteTextView
-                android:id="@+id/vehicleTypeDropdown"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="15dp"
-                android:background="@drawable/bg_email_edit_text"
-                android:fontFamily="@font/gilroy_regular"
-                android:hint="Select Vehicle Type"
-                android:textColor="@color/text_color_dark"
-                android:textColorHint="@color/gray"
-                android:textSize="14sp" />
-        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_park"
+            android:id="@+id/btn_exit"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
             android:backgroundTint="@color/primary"
             android:padding="15dp"
-            android:text="Park Now"
+            android:text="Exit"
             android:textColor="@color/white"
             android:textSize="14sp"
             app:cornerRadius="10dp"
-            app:layout_constraintTop_toBottomOf="@id/textInputLayoutVehicleType"
+            app:layout_constraintTop_toBottomOf="@id/edt_entryDateTime"
             app:layout_constraintStart_toStartOf="@id/guideline_start"
             app:layout_constraintEnd_toEndOf="@id/guideline_end" />
-
-
-        <ListView
-            android:id="@+id/deviceListView"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="16dp"
-            app:layout_constraintTop_toBottomOf="@id/btn_park"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@id/guideline_start"
-            app:layout_constraintEnd_toEndOf="@id/guideline_end"
-            />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

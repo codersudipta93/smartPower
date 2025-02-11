@@ -15,8 +15,7 @@ class SharedPreferenceManager @Inject constructor(
 
     private val sharedPreferences = EncryptedSharedPreferences.create(context, TOKEN_MANAGER_NAME, masterKey,
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM )
 
     fun getAccessToken(): String? = sharedPreferences.getString(TOKEN_KEY, null)
 
@@ -44,12 +43,23 @@ class SharedPreferenceManager @Inject constructor(
         return sharedPreferences.getBoolean(IS_LOGGED_IN,false)
     }
 
+    fun setEntityId(entity_id:Int){
+        sharedPreferences.edit {
+            putInt(entityId,entity_id)
+        }
+    }
+
+    fun getEntityId():Int{
+        return sharedPreferences.getInt(entityId,0)
+    }
+
 
     companion object {
 
         const val TOKEN_MANAGER_NAME = "dale_arts_token_pref"
         const val TOKEN_KEY = "auth_token"
         const val IS_LOGGED_IN = "is_logged_in"
+        const val entityId="entity_id"
     }
 
 }

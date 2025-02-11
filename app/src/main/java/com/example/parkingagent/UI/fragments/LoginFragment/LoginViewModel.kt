@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.parkingagent.data.local.SharedPreferenceManager
 import com.example.parkingagent.data.remote.api.AppAuthApi
+import com.example.parkingagent.data.remote.models.AgentLogin.AgentLoginReqBody
+import com.example.parkingagent.data.remote.models.AgentLogin.AgentLoginResponseBody
 import com.example.parkingagent.data.remote.models.DeviceActivationModel.DeviceActivationReqBody
 import com.example.parkingagent.data.remote.models.DeviceActivationModel.DeviceActivationResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,6 +41,7 @@ class LoginViewModel @Inject constructor(
 //                    LoginEvents.ActivationCodeSuccess(response.body()!!)
                     viewModelScope.launch {
                         if(response.isSuccessful && response.body()!=null && response.body()?.status==true){
+                            sessionManager.setEntityId(response.body()?.entityId?:0)
                             _mutualSharedflow.emit(LoginEvents.ActivationCodeSuccess(response.body()!!))
                         }
                         else{
@@ -64,8 +67,46 @@ class LoginViewModel @Inject constructor(
 
     }
 
+    fun callAgentLogin(email:String,password:String,deviceId: String){
+        val reqBody=AgentLoginReqBody(email,deviceId,password)
+
+        val loginCall=client.agentLogin(reqBody)
+
+        loginCall.enqueue(object : Callback<AgentLoginResponseBody>{
+            override fun onResponse(
+                call: Call<AgentLoginResponseBody>,
+                response: Response<AgentLoginResponseBody>
+            ) {
+
+                viewModelScope.launch {
+                    if (response.body()?.status==true){
+                        _mutualSharedflow.emit(LoginEvents.LoginSuccess(response.body()!!))
+                        if (sessionManager.getEntityId()!=0){
+
+                        }
+
+                    }
+                    else {
+                        _mutualSharedflow.emit(LoginEvents.ActivationCodeFailed(response.body()?.msg ?:"Something went wrong"))
+                    }
+                }
+
+            }
+
+            override fun onFailure(call: Call<AgentLoginResponseBody>, t: Throwable) {
+
+                viewModelScope.launch {
+                    _mutualSharedflow.emit(LoginEvents.ActivationCodeFailed(t.message ?:"Something went wrong"))
+                }
+            }
+
+        })
+    }
+
 
     sealed class LoginEvents {
+        class LoginSuccess(data: AgentLoginResponseBody) : LoginEvents()
+
         class ActivationCodeSuccess(data: DeviceActivationResponse) : LoginEvents()
 
         class ActivationCodeFailed(val message: String) : LoginEvents()

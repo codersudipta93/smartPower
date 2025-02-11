@@ -2,6 +2,8 @@ package com.example.parkingagent.data.remote.api
 
 import com.example.parkingagent.data.remote.models.GetVehicleList.VehicleListReqBody
 import com.example.parkingagent.data.remote.models.GetVehicleList.VehicleListResponse
+import com.example.parkingagent.data.remote.models.GuestRegistration.GuestRegistrationReqBody
+import com.example.parkingagent.data.remote.models.GuestRegistration.GuestRegistrationResponse
 import com.example.parkingagent.data.remote.models.VehicleParking.VehicleParkingReqBody
 import com.example.parkingagent.data.remote.models.VehicleParking.VehicleParkingResponse
 import retrofit2.Call
@@ -17,6 +19,10 @@ fun vehicleParking(@Body vehicleParkingReqBody: VehicleParkingReqBody): Call<Veh
 
 @POST("Device/VehicleInTodayButNotOut")
 suspend fun getVehicleList(@Body vehicleListReqBody: VehicleListReqBody): Response<VehicleListResponse>
+
+@POST("Device/GuestRegistration")
+fun guestRegistration(@Body guestRegistrationReqBody: GuestRegistrationReqBody): Call<GuestRegistrationResponse>
+
 
 
 }

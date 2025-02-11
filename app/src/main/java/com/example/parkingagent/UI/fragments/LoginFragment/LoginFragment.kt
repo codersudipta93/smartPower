@@ -20,6 +20,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.parkingagent.MainActivity
 import com.example.parkingagent.R
 import com.example.parkingagent.UI.base.BaseFragment
+import com.example.parkingagent.data.local.SharedPreferenceManager
 import com.example.parkingagent.databinding.FragmentLoginBinding
 import com.example.parkingagent.utils.scanner.DeviceInfoManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -32,6 +33,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.Dev
     private val viewModel: LoginViewModel by viewModels()
     private lateinit var deviceInfoManager: DeviceInfoManager
     private lateinit var deviceId: String
+    private lateinit var sessionManager: SharedPreferenceManager
 //    private lateinit var deviceImeiNumber: String
 
 
@@ -41,11 +43,27 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.Dev
 
     override fun initView() {
         super.initView()
-
+        sessionManager= SharedPreferenceManager(requireContext())
         deviceInfoManager = DeviceInfoManager(this)
         binding.btnLoginContinue.setOnClickListener({
             deviceInfoManager.checkAndRequestPermissions()
         })
+
+    }
+
+    private fun agentLogin(){
+
+        if (binding.edtEmail.text?.trim()?.isEmpty() == true){
+            binding.edtEmail.error="Please enter User Id"
+            return
+        }
+        if (binding.edtPassword.text?.trim()?.isEmpty() == true){
+            binding.edtPassword.error="Please enter password"
+            return
+        }
+
+        (requireActivity() as MainActivity).binding.loading.visibility=View.VISIBLE
+        viewModel.callAgentLogin(binding.edtEmail.text.toString(),binding.edtPassword.text.toString(),this.deviceId)
 
     }
 
@@ -86,6 +104,16 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.Dev
                     (requireActivity() as MainActivity).binding.loading.visibility=View.GONE
                     when (it) {
 
+                        is LoginViewModel.LoginEvents.LoginSuccess -> {
+                            if (sessionManager.getEntityId()==0){
+                                showActivationCodeDialog()
+                            }
+                            else {
+                                findNavController().navigate(R.id.action_id_loginFragment_to_id_homeFragment)
+                            }
+
+                        }
+
                         is LoginViewModel.LoginEvents.ActivationCodeSuccess -> {
                             findNavController().navigate(R.id.action_id_loginFragment_to_id_homeFragment)
                         }
@@ -112,7 +140,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.Dev
         Log.d("deviceImeiNumber",imei.toString())
         Log.d("ANDROID_ID", Settings.Secure.getString(requireContext().contentResolver, Settings.Secure.ANDROID_ID))
         Log.d("SERIAL_NUMBER",Build.SERIAL.toString())
-        showActivationCodeDialog()
+        agentLogin()
 
 
     }
