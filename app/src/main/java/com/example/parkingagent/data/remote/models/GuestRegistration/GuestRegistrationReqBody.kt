@@ -26,5 +26,8 @@ data class GuestRegistrationReqBody(
 	val balance: String? = null,
 
 	@field:SerializedName("isActive")
-	val isActive: Boolean? = false
+	val isActive: Boolean? = false,
+
+	@field:SerializedName("VehicleTypeId")
+	val VehicleTypeId: Int? = 1
 ) : Parcelable

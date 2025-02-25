@@ -5,7 +5,7 @@ import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 
 @Parcelize
-data class VehicleParkingResponse(
+data class VehicleParkingCardResponse(
 
 	@field:SerializedName("msg")
 	val msg: String? = null,
@@ -16,30 +16,33 @@ data class VehicleParkingResponse(
 	@field:SerializedName("VehicleNo")
 	val vehicleNo: String? = null,
 
-	@field:SerializedName("VehicleTypeId")
-	val vehicleTypeId: Int? = null,
-
-	@field:SerializedName("IOType")
-	val iOType: Int? = null,
-
 	@field:SerializedName("DeviceId")
 	val deviceId: String? = null,
 
 	@field:SerializedName("ChargableAmount")
-	val chargableAmount: String? = null,
-
-	@field:SerializedName("VehicleParkingId")
-	val vehicleParkingId: Int? = null,
-
-	@field:SerializedName("InTime")
-	val inTime: String? = null,
+	val chargableAmount: Double? = null,
 
 	@field:SerializedName("OutTime")
 	val outTime: String? = null,
 
 	@field:SerializedName("Duration")
 	val duration: String? = null,
-//
-//	@field:SerializedName("Date")
-//	val duration: String? = null
+
+	@field:SerializedName("CardNo")
+	val cardNo: String? = null,
+
+	@field:SerializedName("IOType")
+	val iOType: Int? = null,
+
+	@field:SerializedName("InTime")
+	val inTime: String? = null,
+
+	@field:SerializedName("UserId")
+	val userId: Int? = null,
+
+	@field:SerializedName("VehicleParkingId")
+	val vehicleParkingId: Int? = null,
+
+	@field:SerializedName("ParkingTime")
+	val parkingTime: String? = null
 ) : Parcelable

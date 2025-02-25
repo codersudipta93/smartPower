@@ -105,11 +105,13 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.Dev
                     when (it) {
 
                         is LoginViewModel.LoginEvents.LoginSuccess -> {
+
                             if (sessionManager.getEntityId()==0){
                                 showActivationCodeDialog()
                             }
                             else {
-                                findNavController().navigate(R.id.action_id_loginFragment_to_id_homeFragment)
+//                                findNavController().navigate(R.id.action_id_loginFragment_to_id_homeFragment)
+                                findNavController().navigate(R.id.action_id_loginFragment_to_id_menuFragment)
                             }
 
                         }

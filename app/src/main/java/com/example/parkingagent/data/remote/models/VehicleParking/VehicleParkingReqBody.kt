@@ -17,5 +17,8 @@ data class VehicleParkingReqBody(
 	val vehicleTypeId: String? = null,
 
 	@field:SerializedName("DeviceId")
-	val deviceId: String? = null
+	val deviceId: String? = null,
+
+	@field:SerializedName("ParkingMode")
+	val parkingMode: String? = null
 ) : Parcelable

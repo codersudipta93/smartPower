@@ -28,8 +28,11 @@
         <action
             android:id="@+id/action_id_loginFragment_to_id_homeFragment"
             app:destination="@id/id_homeFragment"
-            app:popUpTo="@id/id_loginFragment"
-            app:popUpToInclusive="true"
+            />
+
+        <action
+            android:id="@+id/action_id_loginFragment_to_id_menuFragment"
+            app:destination="@id/id_menuFragment"
             />
     </fragment>
 
@@ -60,11 +63,20 @@
 
     </fragment>
 
+<!--    <fragment-->
+<!--        android:id="@+id/id_fragment_more"-->
+<!--        android:name="com.example.parkingagent.UI.fragments.more.MoreFragment"-->
+<!--        android:label="MoreFragment"-->
+<!--        tools:layout="@layout/fragment_more"-->
+<!--        >-->
+
+<!--    </fragment>-->
+
     <fragment
-        android:id="@+id/id_fragment_more"
-        android:name="com.example.parkingagent.UI.fragments.more.MoreFragment"
-        android:label="MoreFragment"
-        tools:layout="@layout/fragment_more"
+        android:id="@+id/id_fragment_card_in"
+        android:name="com.example.parkingagent.UI.fragments.cardInOut.CardInFragment"
+        android:label="CardInFragment"
+        tools:layout="@layout/fragment_card_in"
         >
 
     </fragment>
@@ -88,6 +100,33 @@
         android:label="NfcWriteFragment"
         tools:layout="@layout/fragment_nfc_write"
         >
+    </fragment>
+
+    <fragment
+        android:id="@+id/id_menuFragment"
+        android:name="com.example.parkingagent.UI.fragments.MenuFragment"
+        android:label="MenuFragment"
+        tools:layout="@layout/fragment_menu"
+        >
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/id_qrOutFragment"
+        android:name="com.example.parkingagent.UI.fragments.qrInOut.QrOutFragment"
+        android:label="QrOutFragment"
+        tools:layout="@layout/fragment_qr_out"
+        >
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/id_fragment_card_out"
+        android:name="com.example.parkingagent.UI.fragments.cardInOut.CardOutFragment"
+        android:label="CardOutFragment"
+        tools:layout="@layout/fragment_card_out"
+        >
+
     </fragment>
 
 

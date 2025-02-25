@@ -5,6 +5,8 @@ import com.example.parkingagent.data.remote.models.AgentLogin.AgentLoginResponse
 import com.example.parkingagent.data.remote.models.DeviceActivationModel.DeviceActivationReqBody
 import com.example.parkingagent.data.remote.models.DeviceActivationModel.DeviceActivationResponse
 import com.example.parkingagent.data.remote.models.GetVehicleList.VehicleListReqBody
+import com.example.parkingagent.data.remote.models.Menu.MenuRequest
+import com.example.parkingagent.data.remote.models.Menu.MenuResponse
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.Header
@@ -20,5 +22,8 @@ interface AppAuthApi {
 
      @POST("Device/AgentLogin")
      fun agentLogin(@Body agentLoginReqBody: AgentLoginReqBody):Call<AgentLoginResponseBody>
+
+     @POST("Device/AppMenuList")
+     fun getMenu(@Body menuRequest: MenuRequest):Call<MenuResponse>
 
 }

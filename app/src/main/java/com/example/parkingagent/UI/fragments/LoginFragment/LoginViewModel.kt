@@ -28,7 +28,7 @@ class LoginViewModel @Inject constructor(
 
 
     fun callActivationApi(activationCode: String,deviceId:String,deviceIMEINumber:String) {
-        val requestBody = DeviceActivationReqBody(deviceId,"2",deviceIMEINumber,activationCode)
+        val requestBody = DeviceActivationReqBody(deviceId,sessionManager.getUserId().toString(),deviceIMEINumber,activationCode)
 
 
             val activationCall= client.activateDevice(requestBody)
@@ -81,6 +81,7 @@ class LoginViewModel @Inject constructor(
                 viewModelScope.launch {
                     if (response.body()?.status==true){
                         _mutualSharedflow.emit(LoginEvents.LoginSuccess(response.body()!!))
+                        response.body()?.userId?.let { sessionManager.setUserId(it) }
                         if (sessionManager.getEntityId()!=0){
 
                         }

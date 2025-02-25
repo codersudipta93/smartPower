@@ -8,6 +8,7 @@ import android.nfc.tech.Ndef
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.parkingagent.R
 import com.example.parkingagent.databinding.FragmentProfileBinding
@@ -94,39 +95,77 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     /**
      * Reads an NDEF message from the NFC tag.
      */
-    private fun readFromTag(tag: Tag) {
+
+    private fun readJsonFromTag(tag: Tag): String? {
         try {
             val ndef = Ndef.get(tag)
-            ndef?.connect()
-            val ndefMessage: NdefMessage? = ndef?.ndefMessage
-            val result = StringBuilder()
-            if (ndefMessage != null) {
-                for (record in ndefMessage.records) {
-                    val text = when {
-                        // Handle well-known text records (with status byte and language code).
-                        record.tnf == NdefRecord.TNF_WELL_KNOWN &&
-                                record.type.contentEquals(NdefRecord.RTD_TEXT) -> {
-                            val payload = record.payload
-                            val textEncoding = if ((payload[0].toInt() and 0x80) == 0) Charsets.UTF_8 else Charsets.UTF_16
-                            val languageCodeLength = payload[0].toInt() and 0x3F
-                            String(payload, languageCodeLength + 1, payload.size - languageCodeLength - 1, textEncoding)
-                        }
-                        // Handle MIME media records (where the payload is directly the text).
-                        record.tnf == NdefRecord.TNF_MIME_MEDIA &&
-                                String(record.type, Charsets.US_ASCII) == "text/plain" -> {
-                            String(record.payload, Charsets.UTF_8)
-                        }
-                        else -> "Unsupported record type"
-                    }
-                    result.append(text).append("\n")
+            if (ndef == null) {
+                activity?.runOnUiThread {
+                    Toast.makeText(context, "Tag doesn't support NDEF.", Toast.LENGTH_LONG).show()
                 }
-                Log.d("NFC", "Read content: ${result.toString()}")
-            } else {
-                Log.d("NFC", "No NDEF message found on tag.")
-                result.append("No NDEF message found.")
+                return null
             }
-            ndef?.close()
+            ndef.connect()
+            val ndefMessage = ndef.ndefMessage
+            ndef.close()
+
+            // Loop through all records in the NDEF message
+            for (record in ndefMessage.records) {
+                if (record.tnf == NdefRecord.TNF_MIME_MEDIA &&
+                    record.type.contentEquals("application/json".toByteArray(Charsets.US_ASCII))) {
+                    val jsonData = String(record.payload, Charsets.UTF_8)
+                    activity?.runOnUiThread {
+                        Toast.makeText(context, "Data read from tag.", Toast.LENGTH_LONG).show()
+                    }
+                    return jsonData
+                }
+            }
+            activity?.runOnUiThread {
+                Toast.makeText(context, "No JSON data found on tag.", Toast.LENGTH_LONG).show()
+            }
+        } catch (e: Exception) {
+            Log.d("errorhappen", e.message.toString())
+            activity?.runOnUiThread {
+                Toast.makeText(context, "Failed to read NFC tag: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+        return null
+    }
+
+    private fun readFromTag(tag: Tag) {
+        try {
+//            val ndef = Ndef.get(tag)
+//            ndef?.connect()
+//            val ndefMessage: NdefMessage? = ndef?.ndefMessage
+//            val result = StringBuilder()
+//            if (ndefMessage != null) {
+//                for (record in ndefMessage.records) {
+//                    val text = when {
+//                        // Handle well-known text records (with status byte and language code).
+//                        record.tnf == NdefRecord.TNF_WELL_KNOWN &&
+//                                record.type.contentEquals(NdefRecord.RTD_TEXT) -> {
+//                            val payload = record.payload
+//                            val textEncoding = if ((payload[0].toInt() and 0x80) == 0) Charsets.UTF_8 else Charsets.UTF_16
+//                            val languageCodeLength = payload[0].toInt() and 0x3F
+//                            String(payload, languageCodeLength + 1, payload.size - languageCodeLength - 1, textEncoding)
+//                        }
+//                        // Handle MIME media records (where the payload is directly the text).
+//                        record.tnf == NdefRecord.TNF_MIME_MEDIA &&
+//                                String(record.type, Charsets.US_ASCII) == "text/plain" -> {
+//                            String(record.payload, Charsets.UTF_8)
+//                        }
+//                        else -> "Unsupported record type"
+//                    }
+//                    result.append(text).append("\n")
+//                }
+//                Log.d("NFC", "Read content: ${result.toString()}")
+//            } else {
+//                Log.d("NFC", "No NDEF message found on tag.")
+//                result.append("No NDEF message found.")
+//            }
+//            ndef?.close()
             // Update UI on the main thread.
+            val result=readJsonFromTag(tag)
             requireActivity().runOnUiThread {
                 binding.tvCardInfo.text = result.toString()
             }

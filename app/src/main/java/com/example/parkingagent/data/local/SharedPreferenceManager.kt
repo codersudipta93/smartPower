@@ -53,6 +53,16 @@ class SharedPreferenceManager @Inject constructor(
         return sharedPreferences.getInt(entityId,0)
     }
 
+    fun setUserId(user_id:Int){
+        sharedPreferences.edit {
+            putInt("user_id",user_id)
+        }
+    }
+
+    fun getUserId():Int{
+        return sharedPreferences.getInt("user_id",0)
+    }
+
 
     companion object {
 

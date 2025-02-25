@@ -4,6 +4,8 @@ import com.example.parkingagent.data.remote.models.GetVehicleList.VehicleListReq
 import com.example.parkingagent.data.remote.models.GetVehicleList.VehicleListResponse
 import com.example.parkingagent.data.remote.models.GuestRegistration.GuestRegistrationReqBody
 import com.example.parkingagent.data.remote.models.GuestRegistration.GuestRegistrationResponse
+import com.example.parkingagent.data.remote.models.VehicleParking.VehicleParkingCardReqBody
+import com.example.parkingagent.data.remote.models.VehicleParking.VehicleParkingCardResponse
 import com.example.parkingagent.data.remote.models.VehicleParking.VehicleParkingReqBody
 import com.example.parkingagent.data.remote.models.VehicleParking.VehicleParkingResponse
 import retrofit2.Call
@@ -15,6 +17,9 @@ interface ParkingApis {
 
 @POST("Device/VehicleParking")
 fun vehicleParking(@Body vehicleParkingReqBody: VehicleParkingReqBody): Call<VehicleParkingResponse>
+
+@POST("Device/VehicleParkingCard")
+fun vehicleParkingCard(@Body vehicleParkingReqBody: VehicleParkingCardReqBody): Call<VehicleParkingCardResponse>
 
 
 @POST("Device/VehicleInTodayButNotOut")

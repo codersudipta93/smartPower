@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        >
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".08"
+            />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline_end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".92"
+            />
+
+
+
+        <TextView
+            android:id="@+id/txt_contact"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Contact Number"
+            android:textColor="@color/black"
+            android:fontFamily="@font/gilroy_medium"
+            android:textSize="14sp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edt_contact"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_color_dark"
+            android:textSize="14sp"
+            android:textColorHint="@color/gray"
+            android:padding="15dp"
+            android:fontFamily="@font/gilroy_regular"
+            android:hint="Contact Number"
+            android:inputType="phone"
+            android:maxLength="12"
+            android:background="@drawable/bg_email_edit_text"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            app:layout_constraintTop_toBottomOf="@id/txt_contact"
+            />
+
+        <TextView
+            android:id="@+id/txt_vehicle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Vehicle Number"
+            android:textColor="@color/black"
+            android:fontFamily="@font/gilroy_medium"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintTop_toBottomOf="@id/edt_contact"
+            />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edt_vehicleNo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_color_dark"
+            android:textSize="14sp"
+            android:textColorHint="@color/gray"
+            android:padding="15dp"
+            android:fontFamily="@font/gilroy_regular"
+            android:hint="Enter Vehicle Number"
+            android:maxLength="12"
+            android:background="@drawable/bg_email_edit_text"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            app:layout_constraintTop_toBottomOf="@id/txt_vehicle"
+            />
+
+        <TextView
+            android:id="@+id/txt_vehicle_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Vehicle Type"
+            android:textColor="@color/black"
+            android:fontFamily="@font/gilroy_medium"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintTop_toBottomOf="@id/edt_vehicleNo"
+            android:visibility="gone"
+            />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edt_vehicle_type"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:textColor="@color/text_color_dark"
+            android:textSize="14sp"
+            android:textColorHint="@color/gray"
+            android:padding="15dp"
+            android:fontFamily="@font/gilroy_regular"
+            android:hint="Vehicle Type"
+            android:background="@drawable/bg_email_edit_text"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            app:layout_constraintTop_toBottomOf="@id/txt_vehicle_type"
+            />
+
+        <TextView
+            android:id="@+id/txt_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Amount"
+            android:textColor="@color/black"
+            android:fontFamily="@font/gilroy_medium"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintTop_toBottomOf="@id/edt_vehicle_type"
+            />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edt_amount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_color_dark"
+            android:textSize="14sp"
+            android:textColorHint="@color/gray"
+            android:padding="15dp"
+            android:fontFamily="@font/gilroy_regular"
+            android:hint="Balance Amount"
+            android:maxLength="12"
+            android:inputType="numberDecimal"
+            android:background="@drawable/bg_email_edit_text"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            app:layout_constraintTop_toBottomOf="@id/txt_amount"
+            />
+
+
+        <TextView
+            android:id="@+id/txt_in_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="In Time"
+            android:textColor="@color/black"
+            android:fontFamily="@font/gilroy_medium"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintTop_toBottomOf="@id/edt_amount"
+            />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edt_in_time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_color_dark"
+            android:textSize="14sp"
+            android:textColorHint="@color/gray"
+            android:padding="15dp"
+            android:fontFamily="@font/gilroy_regular"
+            android:hint="In Time"
+            android:background="@drawable/bg_email_edit_text"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            app:layout_constraintTop_toBottomOf="@id/txt_in_time"
+            />
+
+        <TextView
+            android:id="@+id/id_out_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Out Time"
+            android:textColor="@color/black"
+            android:fontFamily="@font/gilroy_medium"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintTop_toBottomOf="@id/edt_in_time"
+            />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edt_out_time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_color_dark"
+            android:textSize="14sp"
+            android:textColorHint="@color/gray"
+            android:padding="15dp"
+            android:fontFamily="@font/gilroy_regular"
+            android:hint="Out Time"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            app:layout_constraintTop_toBottomOf="@id/id_out_time"
+            />
+
+        <TextView
+            android:id="@+id/txt_charge_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Charge Amount"
+            android:textColor="@color/black"
+            android:fontFamily="@font/gilroy_medium"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintTop_toBottomOf="@id/edt_out_time"
+            />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edt_charge_amount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_color_dark"
+            android:textSize="14sp"
+            android:textColorHint="@color/gray"
+            android:padding="15dp"
+            android:fontFamily="@font/gilroy_regular"
+            android:hint="Charge amount"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            app:layout_constraintTop_toBottomOf="@id/txt_charge_amount"
+            />
+
+        <TextView
+            android:id="@+id/txt_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Duration"
+            android:textColor="@color/black"
+            android:fontFamily="@font/gilroy_medium"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintTop_toBottomOf="@id/edt_charge_amount"
+            />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edt_duration"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_color_dark"
+            android:textSize="14sp"
+            android:textColorHint="@color/gray"
+            android:padding="15dp"
+            android:fontFamily="@font/gilroy_regular"
+            android:hint="Duration"
+            android:background="@drawable/bg_email_edit_text"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            app:layout_constraintTop_toBottomOf="@id/txt_duration"
+            />
+
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_guest_register"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:backgroundTint="@color/primary"
+            android:padding="15dp"
+            android:text="Continue"
+            android:textSize="14sp"
+            app:cornerRadius="10dp"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,6 +1,7 @@
-package com.example.parkingagent.UI.fragments.home
+package com.example.parkingagent.UI.fragments.qrInOut
 
 import androidx.lifecycle.ViewModel
+
 import androidx.lifecycle.viewModelScope
 import com.example.parkingagent.data.local.SharedPreferenceManager
 import com.example.parkingagent.data.remote.api.ParkingApis
@@ -17,19 +18,19 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class QrInOutViewModel @Inject constructor(
     val client:ParkingApis,
     val sharedPreferenceManager: SharedPreferenceManager
-):ViewModel(){
+) : ViewModel() {
 
     private val _mutualSharedflow= MutableSharedFlow<ParkingVehicleEvents>()
     val mutualSharedflow: SharedFlow<ParkingVehicleEvents> = _mutualSharedflow
 
-    fun parkedVehicle(vehicleNumber:String,VehicleTypeId:String,deviceId:String){
-        val vehicleParkingReqqBody=VehicleParkingReqBody("0",vehicleNumber, VehicleTypeId,deviceId,"QR")
+    fun parkedVehicle(vehicleNumber:String,deviceId:String){
+        val vehicleParkingReqqBody= VehicleParkingReqBody("1",vehicleNumber, "2",deviceId,"QR")
         val parkingVehicleCall=client.vehicleParking(vehicleParkingReqqBody)
 
-        parkingVehicleCall.enqueue(object:Callback<VehicleParkingResponse>{
+        parkingVehicleCall.enqueue(object: Callback<VehicleParkingResponse> {
             override fun onResponse(
                 call: Call<VehicleParkingResponse>,
                 response: Response<VehicleParkingResponse>
@@ -63,6 +64,4 @@ class HomeViewModel @Inject constructor(
 
         class VehicleParkingFailed(val message:String):ParkingVehicleEvents()
     }
-
-
 }

@@ -18,9 +18,11 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.parkingagent.databinding.ActivityMainBinding
+import com.example.parkingagent.utils.BluetoothConnectionManager
 import com.example.parkingagent.utils.SharedViewModel
 import com.example.parkingagent.utils.Utils
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
@@ -34,6 +36,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var runnable: Runnable
 
     public val sharedViewModel:SharedViewModel by viewModels()
+
+    @Inject
+    lateinit var btManager: BluetoothConnectionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +60,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        btManager.initialize()
+
     }
 
     override fun onResume() {
@@ -65,6 +72,11 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         handler.removeCallbacks(runnable) // Stop periodic API call
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        btManager.closeConnection()
     }
 
     private fun observeHeartBeatApi() {
@@ -103,7 +115,7 @@ class MainActivity : AppCompatActivity() {
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.id_loginFragment,R.id.splashFragment
+                R.id.id_loginFragment,R.id.splashFragment,R.id.id_menuFragment,R.id.id_fragment_nfc,R.id.id_fragment_nfc_write,R.id.id_qrOutFragment,R.id.id_fragment_card_in,R.id.id_fragment_card_out
                     -> {
                     binding.appBarMain.toolbar.visibility= View.GONE
                     binding.bottomNavigation.visibility= View.GONE

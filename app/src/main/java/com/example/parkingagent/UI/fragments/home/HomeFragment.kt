@@ -23,10 +23,15 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.parkingagent.MainActivity
 import com.example.parkingagent.R
 import com.example.parkingagent.UI.base.BaseFragment
 import com.example.parkingagent.databinding.FragmentHomeBinding
 import com.example.parkingagent.utils.Utils
+import com.google.gson.JsonObject
+import com.sunmi.printerx.PrinterSdk
+import com.sunmi.printerx.style.BaseStyle
+import com.sunmi.printerx.style.QrStyle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -39,12 +44,12 @@ import java.util.Locale
 @AndroidEntryPoint
 class HomeFragment : BaseFragment<FragmentHomeBinding>() {
 
-    private lateinit var bluetoothAdapter: BluetoothAdapter
+//    private lateinit var bluetoothAdapter: BluetoothAdapter
     private lateinit var deviceListView: ListView
     private val devices = mutableListOf<BluetoothDevice>()
     private lateinit var deviceAdapter: ArrayAdapter<String>
 
-    public var socket: BluetoothSocket? = null
+//    public var socket: BluetoothSocket? = null
 
     private val viewModel: HomeViewModel by viewModels()
     private var selectedVehicleTypeId: String? = null
@@ -56,8 +61,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     override fun initView() {
         super.initView()
 
-        setupBluetoothAdapter()
-        setupDeviceListView()
+//        setupBluetoothAdapter()
+//        setupDeviceListView()
         setupVehicleTypeDropdown()
         setupButtonListeners()
         observeViewModel()
@@ -66,49 +71,49 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     /**
      * Initialize Bluetooth adapter using BluetoothManager.
      */
-    private fun setupBluetoothAdapter() {
-        val bluetoothManager =
-            requireContext().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        bluetoothAdapter = bluetoothManager.adapter ?: run {
-            Toast.makeText(requireContext(), "Bluetooth not available", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        // Request Bluetooth permissions if not granted
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.BLUETOOTH_CONNECT
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(
-                    Manifest.permission.BLUETOOTH_CONNECT,
-                    Manifest.permission.BLUETOOTH_SCAN
-                ),
-                100
-            )
-        }
-
-        // Register BroadcastReceiver for device discovery
-        val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
-        requireContext().registerReceiver(receiver, filter)
-        bluetoothAdapter.startDiscovery()
-    }
+//    private fun setupBluetoothAdapter() {
+//        val bluetoothManager =
+//            requireContext().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+//        bluetoothAdapter = bluetoothManager.adapter ?: run {
+//            Toast.makeText(requireContext(), "Bluetooth not available", Toast.LENGTH_SHORT).show()
+//            return
+//        }
+//
+//        // Request Bluetooth permissions if not granted
+//        if (ContextCompat.checkSelfPermission(
+//                requireContext(),
+//                Manifest.permission.BLUETOOTH_CONNECT
+//            ) != PackageManager.PERMISSION_GRANTED
+//        ) {
+//            ActivityCompat.requestPermissions(
+//                requireActivity(),
+//                arrayOf(
+//                    Manifest.permission.BLUETOOTH_CONNECT,
+//                    Manifest.permission.BLUETOOTH_SCAN
+//                ),
+//                100
+//            )
+//        }
+//
+//        // Register BroadcastReceiver for device discovery
+//        val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
+//        requireContext().registerReceiver(receiver, filter)
+//        bluetoothAdapter.startDiscovery()
+//    }
 
     /**
      * Initialize the ListView for displaying discovered devices.
      */
-    private fun setupDeviceListView() {
-        deviceListView = binding.deviceListView
-        deviceAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1)
-        deviceListView.adapter = deviceAdapter
-
-        deviceListView.setOnItemClickListener { _, _, position, _ ->
-            val device = devices[position]
-            connectToDevice(device)
-        }
-    }
+//    private fun setupDeviceListView() {
+//        deviceListView = binding.deviceListView
+//        deviceAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1)
+//        deviceListView.adapter = deviceAdapter
+//
+//        deviceListView.setOnItemClickListener { _, _, position, _ ->
+//            val device = devices[position]
+//            connectToDevice(device)
+//        }
+//    }
 
     /**
      * Set up the vehicle type dropdown.
@@ -154,6 +159,12 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                         is HomeViewModel.ParkingVehicleEvents.VehicleParkingSuccessful -> {
                             showToast("Vehicle parked successfully!")
 
+                            printReceipt(event.vehicleParkingResponse.vehicleNo?:"Unknown",event.vehicleParkingResponse.vehicleTypeId.toString(),
+                                event.vehicleParkingResponse.inTime.toString()
+                            )
+
+                            (requireActivity() as MainActivity).btManager.sendData("1".toByteArray())
+
                         }
                         is HomeViewModel.ParkingVehicleEvents.VehicleParkingFailed -> {
                             showToast("Failed to park vehicle: ${event.message}")
@@ -168,29 +179,29 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
      * Handle device connection.
      */
 
-    @SuppressLint("MissingPermission")
-    private fun connectToDevice(device: BluetoothDevice) {
-        bluetoothAdapter.cancelDiscovery()
-        val uuid = device.uuids?.firstOrNull()?.uuid
-        if (uuid == null) {
-            showToast("No UUID available for device")
-            return
-        }
-
-        try {
-             if (socket==null || socket?.isConnected==false){
-                 socket = device.createRfcommSocketToServiceRecord(uuid)
-                 socket?.connect()
-//                 socket.close()
-             }
-            showToast("Connected to ${device.name}")
-            sendIntegerToBluetoothDevice(socket!!,1)
-
-        } catch (e: IOException) {
-            Log.e("Bluetooth", "Connection failed", e)
-            showToast("Connection failed")
-        }
-    }
+//    @SuppressLint("MissingPermission")
+//    private fun connectToDevice(device: BluetoothDevice) {
+//        bluetoothAdapter.cancelDiscovery()
+//        val uuid = device.uuids?.firstOrNull()?.uuid
+//        if (uuid == null) {
+//            showToast("No UUID available for device")
+//            return
+//        }
+//
+//        try {
+//             if (socket==null || socket?.isConnected==false){
+//                 socket = device.createRfcommSocketToServiceRecord(uuid)
+//                 socket?.connect()
+////                 socket.close()
+//             }
+//            showToast("Connected to ${device.name}")
+//            sendIntegerToBluetoothDevice(socket!!,1)
+//
+//        } catch (e: IOException) {
+//            Log.e("Bluetooth", "Connection failed", e)
+//            showToast("Connection failed")
+//        }
+//    }
 
     fun sendIntegerToBluetoothDevice(socket: BluetoothSocket, value: Int) {
         try {
@@ -227,9 +238,99 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     @SuppressLint("MissingPermission")
     override fun onDestroy() {
         super.onDestroy()
-        bluetoothAdapter.cancelDiscovery()
+//        bluetoothAdapter.cancelDiscovery()
         requireContext().unregisterReceiver(receiver)
     }
+
+
+    private fun printReceipt(vehicleNumber: String, vehicleType: String, entryDateTime: String) {
+        // Create JSON object
+        val jsonObject = JsonObject().apply {
+            addProperty("vehicleNumber", vehicleNumber)
+            addProperty("vehicleType", vehicleType)
+            addProperty(
+                "entryDateTime",
+                SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+            )
+        }
+
+        Log.d("jsonObject",jsonObject.toString())
+
+        PrinterSdk.getInstance().getPrinter(this.context, object : PrinterSdk.PrinterListen {
+            override fun onDefPrinter(p0: PrinterSdk.Printer?) {
+
+                p0?.canvasApi()?.initCanvas(
+                    BaseStyle.getStyle()
+                        .setWidth(330)
+                        .setHeight(380));
+
+                p0?.canvasApi()?.renderQrCode(jsonObject.toString(),
+                    QrStyle.getStyle()
+                        .setPosX(5)
+                        .setPosY(10).
+                        setWidth(300)
+                        .setHeight(300));
+
+                p0?.canvasApi()?.printCanvas(1,null)
+            }
+
+            override fun onPrinters(p0: MutableList<PrinterSdk.Printer>?) {
+                Toast.makeText(requireContext(),"Print successful",Toast.LENGTH_LONG).show();
+            }
+
+        })
+
+        // Generate QR Code
+//        val qrBitmap = generateQrCode(jsonObject.toString())
+//
+//        // Print using Sunmi Printer
+//        PrinterSdk.getInstance().getPrinter(requireContext(), object : PrinterSdk.PrinterListen {
+//            override fun onDefPrinter(printer: PrinterSdk.Printer?) {
+//                printer?.lineApi()?.apply {
+//                    // Print header
+//                    initLine(BaseStyle.getStyle().setAlign(Align.CENTER))
+//                    printText("Parking Receipt\n", null)
+//                    printText("---------------\n", null)
+//
+//                    // Print vehicle details
+//                    initLine(BaseStyle.getStyle().setAlign(Align.LEFT))
+//                    printText("Vehicle Number: $vehicleNumber\n", null)
+//                    printText("Vehicle Type: $vehicleType\n", null)
+//                    printText(
+//                        "Entry Time: ${
+//                            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
+//                                Date()
+//                            )
+//                        }\n", null
+//                    )
+//
+//                    // Print QR code
+//                    if (qrBitmap != null) {
+//                        initLine(BaseStyle.getStyle().setAlign(Align.CENTER))
+//                        printQrCode(qrBitmap, QrStyle.getStyle())
+//                    }
+//
+//                    // Footer
+//                    printText("\nThank you for visiting!\n", null)
+//                    printText("----------------------\n", null)
+//                }
+//            }
+//
+//            override fun onPrinters(printers: MutableList<PrinterSdk.Printer>?) {
+//                // Log printers if needed
+//            }
+//        })
+    }
+
+//    private fun generateQrCode(data: String): Bitmap? {
+//        return try {
+//            val barcodeEncoder = BarcodeEncoder()
+//            barcodeEncoder.encodeBitmap(data, BarcodeFormat.QR_CODE, 300, 300)
+//        } catch (e: Exception) {
+//            showToast("Error generating QR Code")
+//            null
+//        }
+//    }
 
 
     private fun showToast(message: String) {

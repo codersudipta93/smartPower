@@ -24,8 +24,8 @@
         android:icon="@drawable/icon_nfc"
         android:title="" />
 
-    <item
-        android:id="@+id/id_fragment_more"
-        android:icon="@drawable/more"
-        android:title="" />
+<!--    <item-->
+<!--        android:id="@+id/id_fragment_more"-->
+<!--        android:icon="@drawable/more"-->
+<!--        android:title="" />-->
 </menu>
