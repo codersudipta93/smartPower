@@ -32,6 +32,7 @@ class NfcWriteFragment : BaseFragment<FragmentNfcWriteBinding>() {
     private var jsonData:String?=null
     private var selectedVehicleTypeId: String? = null
 
+
     private fun setupVehicleTypeDropdown() {
         val vehicleTypes = listOf("Two-Wheeler", "Four-Wheeler")
         val adapter =
