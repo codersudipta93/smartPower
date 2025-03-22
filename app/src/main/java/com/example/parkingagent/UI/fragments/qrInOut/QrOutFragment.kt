@@ -228,6 +228,7 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
                         is QrInOutViewModel.ParkingVehicleEvents.VehicleParkingSuccessful -> {
                             showToast(it.vehicleParkingResponse.msg.toString())
                             binding.edtOutTime.setText(it.vehicleParkingResponse.outTime ?: "N/A")
+
                             binding.edtDuration.setText(it.vehicleParkingResponse.duration ?: "N/A")
                             binding.edtChargableAmount.setText(it.vehicleParkingResponse.chargableAmount?.toString() ?: "N/A")
 //                            clearFields()
