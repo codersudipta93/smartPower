@@ -6,9 +6,11 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.parkingagent.R
+import com.example.parkingagent.data.remote.models.Menu.MenuDataItem
 
-class MenuAdapter(private val menuList: List<String>, private val onItemClick: (String) -> Unit) :
+class MenuAdapter(private val menuList: List<MenuDataItem>, private val onItemClick: (MenuDataItem) -> Unit) :
     RecyclerView.Adapter<MenuAdapter.MenuViewHolder>() {
 
     class MenuViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -23,8 +25,14 @@ class MenuAdapter(private val menuList: List<String>, private val onItemClick: (
 
     override fun onBindViewHolder(holder: MenuViewHolder, position: Int) {
         val menuItem = menuList[position]
-        holder.menuText.text = menuItem
-        holder.menuIcon.setImageResource(R.drawable.ic_launcher_foreground) // Change this if you have different icons
+        holder.menuText.text = menuItem.menuName
+
+        holder.menuIcon.setImageResource(R.drawable.icon_car)  // Change this if you have different icons
+        // Use Glide to load the image from the URL into the ImageView
+        Glide.with(holder.itemView.context)
+            .load(menuItem.icon)
+            .error(R.drawable.icon_car)
+            .into(holder.menuIcon)
         holder.itemView.setOnClickListener { onItemClick(menuItem) }
     }
 

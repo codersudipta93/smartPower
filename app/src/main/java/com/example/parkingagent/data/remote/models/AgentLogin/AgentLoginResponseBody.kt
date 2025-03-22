@@ -26,5 +26,8 @@ data class AgentLoginResponseBody(
 	val password: String? = null,
 
 	@field:SerializedName("Status")
-	val status: Boolean? = null
+	val status: Boolean? = null,
+
+	@field:SerializedName("Token")
+	val token: String? = null,
 ) : Parcelable

@@ -67,8 +67,8 @@ class LoginViewModel @Inject constructor(
 
     }
 
-    fun callAgentLogin(email:String,password:String,deviceId: String){
-        val reqBody=AgentLoginReqBody(email,deviceId,password)
+    fun callAgentLogin(email:String,password:String,deviceId: String,deviceIMEINumber: String){
+        val reqBody=AgentLoginReqBody(email,deviceId,password,deviceIMEINumber)
 
         val loginCall=client.agentLogin(reqBody)
 
@@ -81,6 +81,7 @@ class LoginViewModel @Inject constructor(
                 viewModelScope.launch {
                     if (response.body()?.status==true){
                         _mutualSharedflow.emit(LoginEvents.LoginSuccess(response.body()!!))
+                        sessionManager.saveAccessToken("Bearer "+response.body()?.token)
                         response.body()?.userId?.let { sessionManager.setUserId(it) }
                         if (sessionManager.getEntityId()!=0){
 

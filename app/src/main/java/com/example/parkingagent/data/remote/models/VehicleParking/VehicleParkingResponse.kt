@@ -42,4 +42,7 @@ data class VehicleParkingResponse(
 //
 //	@field:SerializedName("Date")
 //	val duration: String? = null
+
+	@field:SerializedName("Location")
+	val location: String? = null
 ) : Parcelable

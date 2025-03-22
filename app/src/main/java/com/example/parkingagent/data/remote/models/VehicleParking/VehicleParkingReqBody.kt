@@ -7,6 +7,9 @@ import com.google.gson.annotations.SerializedName
 @Parcelize
 data class VehicleParkingReqBody(
 
+	@field:SerializedName("UserId")
+	val userId: Int? = null,
+
 	@field:SerializedName("IOType")
 	val iOType: String? = null,
 
@@ -20,5 +23,8 @@ data class VehicleParkingReqBody(
 	val deviceId: String? = null,
 
 	@field:SerializedName("ParkingMode")
-	val parkingMode: String? = null
+	val parkingMode: String? = null,
+
+//	@field:SerializedName("Token")
+//	val Token: String? = null,
 ) : Parcelable

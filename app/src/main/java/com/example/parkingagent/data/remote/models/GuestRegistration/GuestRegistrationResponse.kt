@@ -31,6 +31,9 @@ data class GuestRegistrationResponse(
 	@field:SerializedName("GuestName")
 	val guestName: String? = null,
 
-	@field:SerializedName("Balance")
-	val balance: Double? = null
+//	@field:SerializedName("Balance")
+//	val balance: Double? = null
+
+	@field:SerializedName("CardExpiryDate")
+	val cardExpiryDate: String? = null,
 ) : Parcelable

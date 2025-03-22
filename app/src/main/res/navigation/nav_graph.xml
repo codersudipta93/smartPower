@@ -17,6 +17,11 @@
                     android:id="@+id/action_splashFragment_to_loginFragment"
                     app:destination="@id/id_loginFragment" />
 
+        <action
+            android:id="@+id/action_splashFragment_to_menuFragment"
+            app:destination="@+id/id_menuFragment"
+            />
+
     </fragment>
 
     <fragment
@@ -33,6 +38,8 @@
         <action
             android:id="@+id/action_id_loginFragment_to_id_menuFragment"
             app:destination="@id/id_menuFragment"
+            app:popUpTo="@id/splashFragment"
+            app:popUpToInclusive="true"
             />
     </fragment>
 
@@ -109,6 +116,11 @@
         tools:layout="@layout/fragment_menu"
         >
 
+        <action
+            android:id="@+id/action_menuFragment_to_loginFragment"
+            app:destination="@+id/id_loginFragment"
+            />
+
     </fragment>
 
     <fragment
@@ -125,6 +137,35 @@
         android:name="com.example.parkingagent.UI.fragments.cardInOut.CardOutFragment"
         android:label="CardOutFragment"
         tools:layout="@layout/fragment_card_out"
+        >
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/id_boomBarrierFragment"
+        android:name="com.example.parkingagent.UI.fragments.boomBarrier.BoomBarrierFragment"
+        android:label="BoomBarrierFragment"
+        tools:layout="@layout/fragment_boom_barrier"
+        >
+
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/id_prkingMenuFragment"
+        android:name="com.example.parkingagent.UI.fragments.menu.ParkingMenuFragment"
+        android:label="ParkingMenuFragment"
+        tools:layout="@layout/fragment_parking_menu"
+        >
+
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/id_cardSettingsFragment"
+        android:name="com.example.parkingagent.UI.fragments.menu.CardSettingsFragment"
+        android:label="CardSettingsFragment"
+        tools:layout="@layout/fragment_card_settings"
         >
 
     </fragment>

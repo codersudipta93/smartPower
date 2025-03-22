@@ -114,7 +114,7 @@ class CardInFragment : BaseFragment<FragmentCardInBinding>() {
                 Toast.makeText(context, "Successfully wrote data to tag.", Toast.LENGTH_LONG).show()
             }
         } catch (e: Exception) {
-            Log.d("errorhappen", e.message.toString())
+//            Log.d("errorhappen", e.message.toString())
             activity?.runOnUiThread {
                 Toast.makeText(context, "Failed to write NFC tag: ${e.message}", Toast.LENGTH_LONG).show()
             }
@@ -122,6 +122,64 @@ class CardInFragment : BaseFragment<FragmentCardInBinding>() {
     }
 
     // Modified function: read the JSON from the tag, update it with an "InTime" field, and then write it back.
+//    private fun readJsonFromTag(tag: Tag) {
+//        try {
+//            val ndef = Ndef.get(tag)
+//            if (ndef == null) {
+//                activity?.runOnUiThread {
+//                    Toast.makeText(context, "Tag doesn't support NDEF.", Toast.LENGTH_LONG).show()
+//                }
+//                return
+//            }
+//            ndef.connect()
+//            val ndefMessage = ndef.ndefMessage
+//            ndef.close()
+//
+//            var jsonFound = false
+//            // Loop through all records in the NDEF message
+//            for (record in ndefMessage.records) {
+//                if (record.tnf == NdefRecord.TNF_MIME_MEDIA &&
+//                    record.type.contentEquals("application/json".toByteArray(Charsets.US_ASCII))) {
+//                    val jsonData = String(record.payload, Charsets.UTF_8)
+//                    activity?.runOnUiThread {
+//                        Toast.makeText(context, "Data read from tag.", Toast.LENGTH_LONG).show()
+//                        (requireActivity() as MainActivity).binding.loading.visibility = View.VISIBLE
+//                    }
+//                    // Parse the JSON and add the "InTime" field.
+//                    val jsonObject = JSONObject(jsonData)
+//                    val currentTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+//                    jsonObject.put("InTime", currentTime)
+//                    jsonObject.put("OutTime", "")
+//                    val updatedJsonData = jsonObject.toString()
+////                    Log.d("CardInFragment", "Updated JSON: $updatedJsonData")
+//
+//                    // Write the updated JSON back to the NFC tag.
+////                    writeJsonToTag(tag, updatedJsonData)
+//                    jsonFound = true
+//                    break
+//                }
+//            }
+//            if (!jsonFound) {
+//                activity?.runOnUiThread {
+//                    Toast.makeText(context, "No JSON data found on tag. Please issue card", Toast.LENGTH_LONG).show()
+//                }
+//            }
+//            else {
+//                val cardId = tag.id.joinToString(separator = "") { String.format("%02X", it) }
+//                // Pass the card ID to your ViewModel.
+//                viewModel.parkVehicle(cardId)
+//
+//            }
+//
+//
+//        } catch (e: Exception) {
+////            Log.d("errorhappen", e.message.toString())
+//            activity?.runOnUiThread {
+//                Toast.makeText(context, "Failed to read NFC tag: ${e.message}", Toast.LENGTH_LONG).show()
+//            }
+//        }
+//    }
+
     private fun readJsonFromTag(tag: Tag) {
         try {
             val ndef = Ndef.get(tag)
@@ -141,21 +199,32 @@ class CardInFragment : BaseFragment<FragmentCardInBinding>() {
                 if (record.tnf == NdefRecord.TNF_MIME_MEDIA &&
                     record.type.contentEquals("application/json".toByteArray(Charsets.US_ASCII))) {
                     val jsonData = String(record.payload, Charsets.UTF_8)
-                    activity?.runOnUiThread {
-                        Toast.makeText(context, "Data read from tag.", Toast.LENGTH_LONG).show()
-                        (requireActivity() as MainActivity).binding.loading.visibility = View.VISIBLE
-                    }
-                    // Parse the JSON and add the "InTime" field.
-                    val jsonObject = JSONObject(jsonData)
-                    val currentTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
-                    jsonObject.put("InTime", currentTime)
-                    jsonObject.put("OutTime", "")
-                    val updatedJsonData = jsonObject.toString()
-                    Log.d("CardInFragment", "Updated JSON: $updatedJsonData")
-
-                    // Write the updated JSON back to the NFC tag.
-                    writeJsonToTag(tag, updatedJsonData)
                     jsonFound = true
+
+                    // Parse the JSON data and get the expiryDate field
+                    val jsonObject = JSONObject(jsonData)
+                    val expiryDateStr = jsonObject.optString("expiryDate", "")
+                    if (expiryDateStr.isEmpty()) {
+                        activity?.runOnUiThread {
+                            Toast.makeText(context, "Expiry date not found on card.", Toast.LENGTH_LONG).show()
+                        }
+                        return
+                    }
+
+                    // Parse the expiry date (assuming format "yyyy-MM-dd")
+                    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                    val expiryDate = dateFormat.parse(expiryDateStr)
+                    val currentDate = Date()
+
+                    activity?.runOnUiThread {
+                        if (expiryDate != null && currentDate.before(expiryDate)) {
+                            // Card is valid – proceed to park vehicle.
+                            val cardId = tag.id.joinToString(separator = "") { String.format("%02X", it) }
+                            viewModel.parkVehicle(cardId)
+                        } else {
+                            Toast.makeText(context, "Card has expired.", Toast.LENGTH_LONG).show()
+                        }
+                    }
                     break
                 }
             }
@@ -164,21 +233,13 @@ class CardInFragment : BaseFragment<FragmentCardInBinding>() {
                     Toast.makeText(context, "No JSON data found on tag. Please issue card", Toast.LENGTH_LONG).show()
                 }
             }
-            else {
-                val cardId = tag.id.joinToString(separator = "") { String.format("%02X", it) }
-                // Pass the card ID to your ViewModel.
-                viewModel.parkVehicle(cardId)
-
-            }
-
-
         } catch (e: Exception) {
-//            Log.d("errorhappen", e.message.toString())
             activity?.runOnUiThread {
                 Toast.makeText(context, "Failed to read NFC tag: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
     }
+
 
     override fun observe() {
         super.observe()

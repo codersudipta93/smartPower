@@ -27,8 +27,8 @@ class ExitVehicleViewModel @Inject constructor(
     val mutualSharedflow: SharedFlow<ParkingVehicleEvents> = _mutualSharedflow
 
     fun parkedVehicle(vehicleNumber:String,deviceId:String){
-        val vehicleParkingReqqBody= VehicleParkingReqBody("1",vehicleNumber, "2",deviceId)
-        val parkingVehicleCall=client.vehicleParking(vehicleParkingReqqBody)
+        val vehicleParkingReqqBody= VehicleParkingReqBody(sharedPreferenceManager.getUserId(),"1",vehicleNumber, "2",deviceId)
+        val parkingVehicleCall=client.vehicleParking(sharedPreferenceManager.getAccessToken().toString(),vehicleParkingReqqBody)
 
         parkingVehicleCall.enqueue(object: Callback<VehicleParkingResponse> {
             override fun onResponse(

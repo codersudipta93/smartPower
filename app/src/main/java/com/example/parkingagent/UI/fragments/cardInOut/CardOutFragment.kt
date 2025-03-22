@@ -76,43 +76,6 @@ class CardOutFragment:BaseFragment<FragmentCardOutBinding>() {
         )
     }
 
-    // This function writes the provided JSON string to the NFC tag.
-    private fun writeJsonToTag(tag: Tag, jsonData: String) {
-        try {
-            val ndef = Ndef.get(tag)
-            if (ndef == null) {
-                activity?.runOnUiThread {
-                    Toast.makeText(context, "Tag doesn't support NDEF.", Toast.LENGTH_LONG).show()
-                }
-                return
-            }
-            ndef.connect()
-            if (!ndef.isWritable) {
-                activity?.runOnUiThread {
-                    Toast.makeText(context, "Tag is not writable.", Toast.LENGTH_LONG).show()
-                }
-                ndef.close()
-                return
-            }
-            // Create an NDEF record with MIME type "application/json"
-            val mimeRecord = NdefRecord.createMime(
-                "application/json",
-                jsonData.toByteArray(Charsets.UTF_8)
-            )
-            val ndefMessage = NdefMessage(arrayOf(mimeRecord))
-            ndef.writeNdefMessage(ndefMessage)
-            ndef.close()
-            activity?.runOnUiThread {
-                Toast.makeText(context, "Successfully wrote data to tag.", Toast.LENGTH_LONG).show()
-            }
-            (requireActivity() as MainActivity).btManager.sendData("1".toByteArray())
-        } catch (e: Exception) {
-//            Log.d("errorhappen", e.message.toString())
-            activity?.runOnUiThread {
-                Toast.makeText(context, "Failed to write NFC tag: ${e.message}", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
 
     // Modified function: read the JSON from the tag, update it with an "InTime" field, and then write it back.
     private fun readJsonFromTag(tag: Tag) {
@@ -122,58 +85,32 @@ class CardOutFragment:BaseFragment<FragmentCardOutBinding>() {
             val ndefMessage = ndef.ndefMessage
             ndef.close()
 
+            viewModel.parkVehicle(tag.id.joinToString(separator = "") { String.format("%02X", it) },1)
             for (record in ndefMessage.records) {
                 if (record.tnf == NdefRecord.TNF_MIME_MEDIA &&
                     record.type.contentEquals("application/json".toByteArray(Charsets.US_ASCII))) {
                     val jsonData = String(record.payload, Charsets.UTF_8)
                     val jsonObject = JSONObject(jsonData)
 
-                    val inTimeStr = jsonObject.optString("InTime", "")
                     val vehicleNo=jsonObject.optString("vehicle_no", "")
                     val contact=jsonObject.optString("contact", "")
 //                    Log.d("jksahfkja",inTimeStr);
-                    if (inTimeStr.isNotEmpty() && inTimeStr != "") {
-                        val inTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).parse(inTimeStr)
-                        val outTime = Date()
-                        val outTimeStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(outTime)
 
-                        val durationMillis = outTime.time - (inTime?.time ?: outTime.time)
-                        val durationHours = TimeUnit.MILLISECONDS.toHours(durationMillis) + 1
-                        val chargeAmount = durationHours * 10 // ₹10 per hour
-
-                        val currentAmount = jsonObject.optInt("amount", 0)
-                        val updatedAmount = (currentAmount - chargeAmount).coerceAtLeast(0)
-
-                        jsonObject.put("OutTime", "")
-                        jsonObject.put("amount", updatedAmount)
-                        jsonObject.put("InTime","")
-
-
+                    if (!vehicleNo.isNullOrBlank()){
                         activity?.runOnUiThread {
-//                            binding.txtCardId.text = "Card ID: " + tag.id.joinToString(" ") { String.format("%02X", it) }
-                            binding.edtInTime.setText(inTimeStr)
-                            binding.edtOutTime.setText(outTimeStr)
                             binding.edtVehicleNo.setText(vehicleNo)
-                            binding.edtContact.setText(contact)
-                            binding.edtDuration.setText(durationHours.toString())
-//                            binding.txtDuration.text = "Duration: $durationHours hours"
-                            binding.edtChargeAmount.setText(chargeAmount.toString())
-                            binding.edtAmount.setText(updatedAmount.toString())
                         }
-
-                        writeJsonToTag(tag, jsonObject.toString())
-
-                        viewModel.parkVehicle(tag.id.joinToString(separator = "") { String.format("%02X", it) },1)
                     }
-                    else{
+
+                    if (!contact.isNullOrBlank()){
                         activity?.runOnUiThread {
-                            Toast.makeText(
-                                context,
-                                "Vehicle Already Checked Out",
-                                Toast.LENGTH_LONG
-                            ).show()
+                            binding.edtContact.setText(contact)
                         }
                     }
+
+
+
+
                 }
             }
         } catch (e: Exception) {
@@ -198,7 +135,10 @@ class CardOutFragment:BaseFragment<FragmentCardOutBinding>() {
                         }
                         is CardInOutViewModel.VehicleCardEvents.VehicleCardParked -> {
                             binding.edtDuration.setText(it.data.duration)
+                            binding.edtInTime.setText(it.data.inTime)
+                            binding.edtOutTime.setText(it.data.outTime)
                             Toast.makeText(context, it.data.msg, Toast.LENGTH_LONG).show()
+                            (requireActivity() as MainActivity).btManager.sendData("1".toByteArray())
                         }
                     }
                 }}}

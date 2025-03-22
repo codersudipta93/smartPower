@@ -14,11 +14,11 @@ data class MenuResponse(
 	val msg: String? = null,
 
 	@field:SerializedName("Data")
-	val data: List<DataItem?>? = null
+	val data: List<MenuDataItem?>? = null
 ) : Parcelable
 
 @Parcelize
-data class DataItem(
+data class MenuDataItem(
 
 	@field:SerializedName("Status")
 	val status: Boolean? = null,

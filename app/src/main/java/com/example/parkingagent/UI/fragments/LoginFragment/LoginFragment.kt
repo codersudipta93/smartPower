@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.annotation.RequiresPermission
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -33,6 +34,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.Dev
     private val viewModel: LoginViewModel by viewModels()
     private lateinit var deviceInfoManager: DeviceInfoManager
     private lateinit var deviceId: String
+    private lateinit var deviceSerialNumber: String
     private lateinit var sessionManager: SharedPreferenceManager
 //    private lateinit var deviceImeiNumber: String
 
@@ -63,8 +65,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.Dev
         }
 
         (requireActivity() as MainActivity).binding.loading.visibility=View.VISIBLE
-        viewModel.callAgentLogin(binding.edtEmail.text.toString(),binding.edtPassword.text.toString(),this.deviceId)
-
+        viewModel.callAgentLogin(binding.edtEmail.text.toString(),binding.edtPassword.text.toString(),this.deviceId,this.deviceSerialNumber)
     }
 
     private fun showActivationCodeDialog() {
@@ -92,7 +93,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.Dev
 
     fun callActivationApi(activationCode:String){
         (requireActivity() as MainActivity).binding.loading.visibility=View.VISIBLE
-        viewModel.callActivationApi(activationCode,deviceId,"863241056928621")
+        viewModel.callActivationApi(activationCode,deviceId,deviceSerialNumber)
     }
 
     override fun observe() {
@@ -117,7 +118,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.Dev
                         }
 
                         is LoginViewModel.LoginEvents.ActivationCodeSuccess -> {
-                            findNavController().navigate(R.id.action_id_loginFragment_to_id_homeFragment)
+                            findNavController().navigate(R.id.action_id_loginFragment_to_id_menuFragment)
                         }
 
                         is LoginViewModel.LoginEvents.ActivationCodeFailed -> {
@@ -130,6 +131,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.Dev
         }
     }
 
+
     override fun onDeviceInfoFetched(deviceId: String?, imei: String?) {
         if (deviceId != null) {
             this.deviceId=deviceId
@@ -138,10 +140,24 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.Dev
 //            this.deviceImeiNumber=imei
 //        }
 
-       Log.d("deviceId",this.deviceId.toString())
+        try {
+            deviceSerialNumber = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Build.getSerial()  // Requires READ_PHONE_STATE permission
+            } else {
+                Build.SERIAL.toString()
+            }
+        } catch (e: SecurityException) {
+            // Handle the case where the permission is not granted
+            Log.e("LoginFragment", "Permission not granted to read serial", e)
+            // Optionally, fall back to another identifier:
+            deviceSerialNumber = Settings.Secure.getString(requireContext().contentResolver, Settings.Secure.ANDROID_ID)
+        }
+
+
+        Log.d("deviceId",this.deviceId.toString())
         Log.d("deviceImeiNumber",imei.toString())
         Log.d("ANDROID_ID", Settings.Secure.getString(requireContext().contentResolver, Settings.Secure.ANDROID_ID))
-        Log.d("SERIAL_NUMBER",Build.SERIAL.toString())
+//        Log.d("SERIAL_NUMBER",Build.getSerial().toString())
         agentLogin()
 
 

@@ -60,6 +60,7 @@ dependencies {
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.security.crypto.ktx)
     implementation(libs.androidx.paging.runtime.ktx)
+    implementation(libs.androidthings)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -111,6 +112,10 @@ dependencies {
 
 
     implementation(files("libs/PayLib-release-2.0.17.aar"))
+
+    implementation("com.github.bumptech.glide:glide:4.12.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
+
 
     // SUNMI Pay SDK (local AAR)
 //    implementation(files("libs/PayLib-release-2.0.17.aar"))  // Uncomment when using local AAR

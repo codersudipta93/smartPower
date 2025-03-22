@@ -115,35 +115,35 @@
             app:layout_constraintTop_toBottomOf="@id/txt_vehicle_type"
             />
 
-        <TextView
-            android:id="@+id/txt_amount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Amount"
-            android:textColor="@color/black"
-            android:fontFamily="@font/gilroy_medium"
-            android:textSize="14sp"
-            app:layout_constraintStart_toStartOf="@id/guideline_start"
-            app:layout_constraintTop_toBottomOf="@id/edt_vehicle_type"
-            />
+<!--        <TextView-->
+<!--            android:id="@+id/txt_amount"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Amount"-->
+<!--            android:textColor="@color/black"-->
+<!--            android:fontFamily="@font/gilroy_medium"-->
+<!--            android:textSize="14sp"-->
+<!--            app:layout_constraintStart_toStartOf="@id/guideline_start"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/edt_vehicle_type"-->
+<!--            />-->
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/edt_amount"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textColor="@color/text_color_dark"
-            android:textSize="14sp"
-            android:textColorHint="@color/gray"
-            android:padding="15dp"
-            android:fontFamily="@font/gilroy_regular"
-            android:hint="Balance Amount"
-            android:maxLength="12"
-            android:inputType="numberDecimal"
-            android:background="@drawable/bg_email_edit_text"
-            app:layout_constraintStart_toStartOf="@id/guideline_start"
-            app:layout_constraintEnd_toEndOf="@id/guideline_end"
-            app:layout_constraintTop_toBottomOf="@id/txt_amount"
-            />
+<!--        <com.google.android.material.textfield.TextInputEditText-->
+<!--            android:id="@+id/edt_amount"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:textColor="@color/text_color_dark"-->
+<!--            android:textSize="14sp"-->
+<!--            android:textColorHint="@color/gray"-->
+<!--            android:padding="15dp"-->
+<!--            android:fontFamily="@font/gilroy_regular"-->
+<!--            android:hint="Balance Amount"-->
+<!--            android:maxLength="12"-->
+<!--            android:inputType="numberDecimal"-->
+<!--            android:background="@drawable/bg_email_edit_text"-->
+<!--            app:layout_constraintStart_toStartOf="@id/guideline_start"-->
+<!--            app:layout_constraintEnd_toEndOf="@id/guideline_end"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/txt_amount"-->
+<!--            />-->
 
 
         <TextView
@@ -155,7 +155,7 @@
             android:fontFamily="@font/gilroy_medium"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="@id/guideline_start"
-            app:layout_constraintTop_toBottomOf="@id/edt_amount"
+            app:layout_constraintTop_toBottomOf="@id/edt_vehicleNo"
             />
 
         <com.google.android.material.textfield.TextInputEditText
@@ -201,32 +201,32 @@
             app:layout_constraintTop_toBottomOf="@id/id_out_time"
             />
 
-        <TextView
-            android:id="@+id/txt_charge_amount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Charge Amount"
-            android:textColor="@color/black"
-            android:fontFamily="@font/gilroy_medium"
-            android:textSize="14sp"
-            app:layout_constraintStart_toStartOf="@id/guideline_start"
-            app:layout_constraintTop_toBottomOf="@id/edt_out_time"
-            />
+<!--        <TextView-->
+<!--            android:id="@+id/txt_charge_amount"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Charge Amount"-->
+<!--            android:textColor="@color/black"-->
+<!--            android:fontFamily="@font/gilroy_medium"-->
+<!--            android:textSize="14sp"-->
+<!--            app:layout_constraintStart_toStartOf="@id/guideline_start"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/edt_out_time"-->
+<!--            />-->
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/edt_charge_amount"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textColor="@color/text_color_dark"
-            android:textSize="14sp"
-            android:textColorHint="@color/gray"
-            android:padding="15dp"
-            android:fontFamily="@font/gilroy_regular"
-            android:hint="Charge amount"
-            app:layout_constraintStart_toStartOf="@id/guideline_start"
-            app:layout_constraintEnd_toEndOf="@id/guideline_end"
-            app:layout_constraintTop_toBottomOf="@id/txt_charge_amount"
-            />
+<!--        <com.google.android.material.textfield.TextInputEditText-->
+<!--            android:id="@+id/edt_charge_amount"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:textColor="@color/text_color_dark"-->
+<!--            android:textSize="14sp"-->
+<!--            android:textColorHint="@color/gray"-->
+<!--            android:padding="15dp"-->
+<!--            android:fontFamily="@font/gilroy_regular"-->
+<!--            android:hint="Charge amount"-->
+<!--            app:layout_constraintStart_toStartOf="@id/guideline_start"-->
+<!--            app:layout_constraintEnd_toEndOf="@id/guideline_end"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/txt_charge_amount"-->
+<!--            />-->
 
         <TextView
             android:id="@+id/txt_duration"
@@ -237,7 +237,7 @@
             android:fontFamily="@font/gilroy_medium"
             android:textSize="14sp"
             app:layout_constraintStart_toStartOf="@id/guideline_start"
-            app:layout_constraintTop_toBottomOf="@id/edt_charge_amount"
+            app:layout_constraintTop_toBottomOf="@id/edt_out_time"
             />
 
         <com.google.android.material.textfield.TextInputEditText

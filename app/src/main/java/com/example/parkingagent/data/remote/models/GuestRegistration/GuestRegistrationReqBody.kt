@@ -22,8 +22,11 @@ data class GuestRegistrationReqBody(
 	@field:SerializedName("GuestName")
 	val guestName: String? = null,
 
-	@field:SerializedName("Balance")
-	val balance: String? = null,
+//	@field:SerializedName("Balance")
+//	val balance: String? = null,
+
+	@field:SerializedName("CardExpiryDate")
+	val cardExpiryDate: String? = null,
 
 	@field:SerializedName("isActive")
 	val isActive: Boolean? = false,

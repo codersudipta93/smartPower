@@ -35,7 +35,7 @@ class CardInOutViewModel @Inject constructor(
     fun parkVehicle(cardNumber:String,iOType:Int=0){
         val currentTime= SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
         val reqBody= VehicleParkingCardReqBody(cardNumber,iOType,Utils.getDeviceId(context),sessionManager.getUserId(),currentTime)
-        val call=client.vehicleParkingCard(reqBody)
+        val call=client.vehicleParkingCard(sessionManager.getAccessToken().toString(),reqBody)
 
         call.enqueue(object :Callback<VehicleParkingCardResponse>{
             override fun onResponse(

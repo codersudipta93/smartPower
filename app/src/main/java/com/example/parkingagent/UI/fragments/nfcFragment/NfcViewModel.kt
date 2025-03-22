@@ -24,10 +24,10 @@ class NfcViewModel @Inject constructor(
     private val _mutualSharedflow= MutableSharedFlow<GuestEvents>()
     val mutualSharedflow: SharedFlow<GuestEvents> = _mutualSharedflow
 
-    fun registerGuest(name:String,contactNumber:String,vehicleNumber:String,amount:Double,cardNumber:String,VehicleTypeId:Int){
+    fun registerGuest(name:String, contactNumber:String, vehicleNumber:String, expiryDate: String, cardNumber:String, VehicleTypeId:Int){
 
-        val reqBody=GuestRegistrationReqBody(sessionManager.getEntityId().toString(),contactNumber,cardNumber,vehicleNumber,name,amount.toString(),true,VehicleTypeId)
-        val guestRegistrationCall=client.guestRegistration(reqBody)
+        val reqBody=GuestRegistrationReqBody(sessionManager.getEntityId().toString(),contactNumber,cardNumber,vehicleNumber,name,expiryDate,true,VehicleTypeId)
+        val guestRegistrationCall=client.guestRegistration(sessionManager.getAccessToken().toString(),reqBody)
 
         guestRegistrationCall.enqueue(object : Callback<GuestRegistrationResponse> {
             override fun onResponse(

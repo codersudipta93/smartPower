@@ -115,7 +115,7 @@ class MainActivity : AppCompatActivity() {
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.id_loginFragment,R.id.splashFragment,R.id.id_menuFragment,R.id.id_fragment_nfc,R.id.id_fragment_nfc_write,R.id.id_qrOutFragment,R.id.id_fragment_card_in,R.id.id_fragment_card_out
+                R.id.id_loginFragment,R.id.splashFragment,R.id.id_menuFragment,R.id.id_fragment_nfc,R.id.id_fragment_nfc_write,R.id.id_qrOutFragment,R.id.id_fragment_card_in,R.id.id_fragment_card_out,R.id.id_boomBarrierFragment,R.id.id_homeFragment,R.id.id_prkingMenuFragment,R.id.id_cardSettingsFragment
                     -> {
                     binding.appBarMain.toolbar.visibility= View.GONE
                     binding.bottomNavigation.visibility= View.GONE

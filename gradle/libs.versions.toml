@@ -29,6 +29,7 @@ sdpAndroid = "1.1.0"
 securityCryptoKtx = "1.1.0-alpha06"
 pagingRuntimeKtx = "3.3.5"
 zxingAndroidEmbedded = "4.3.0"
+androidthings = "1.0"
 
 [libraries]
 androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
@@ -68,6 +69,7 @@ sdp-android = { module = "com.intuit.sdp:sdp-android", version.ref = "sdpAndroid
 androidx-security-crypto-ktx = { group = "androidx.security", name = "security-crypto-ktx", version.ref = "securityCryptoKtx" }
 androidx-paging-runtime-ktx = { group = "androidx.paging", name = "paging-runtime-ktx", version.ref = "pagingRuntimeKtx" }
 zxing-android-embedded = { module = "com.journeyapps:zxing-android-embedded", version.ref = "zxingAndroidEmbedded" }
+androidthings = { group = "com.google.android.things", name = "androidthings", version.ref = "androidthings" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

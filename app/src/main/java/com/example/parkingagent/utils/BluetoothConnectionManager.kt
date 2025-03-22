@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.util.Log
+import android.widget.Toast
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.IOException
 import javax.inject.Inject
@@ -25,6 +26,17 @@ class BluetoothConnectionManager @Inject constructor(@ApplicationContext private
     // Set your target device MAC address here.
     private val targetMacAddress = "00:20:10:08:68:DF"
 
+    // Listener interface for discovered devices.
+    interface DeviceDiscoveredListener {
+        fun onDeviceDiscovered(device: BluetoothDevice)
+    }
+
+    private var deviceDiscoveredListener: DeviceDiscoveredListener? = null
+
+    fun setDeviceDiscoveredListener(listener: DeviceDiscoveredListener) {
+        deviceDiscoveredListener = listener
+    }
+
     // BroadcastReceiver to monitor discovered devices.
     private val receiver = object : BroadcastReceiver() {
         @SuppressLint("MissingPermission")
@@ -32,6 +44,9 @@ class BluetoothConnectionManager @Inject constructor(@ApplicationContext private
             if (intent.action == BluetoothDevice.ACTION_FOUND) {
                 val device: BluetoothDevice? = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
                 device?.let {
+
+                    deviceDiscoveredListener?.onDeviceDiscovered(it)
+
                     if (it.address.equals(targetMacAddress, ignoreCase = true)) {
                         // Found the target device – connect automatically.
                         connectToDevice(it)
@@ -56,7 +71,7 @@ class BluetoothConnectionManager @Inject constructor(@ApplicationContext private
     }
 
     @SuppressLint("MissingPermission")
-    private fun connectToDevice(device: BluetoothDevice) {
+    fun connectToDevice(device: BluetoothDevice) {
         try {
             if (socket == null || !socket!!.isConnected) {
                 // Use the first UUID available.
@@ -65,7 +80,9 @@ class BluetoothConnectionManager @Inject constructor(@ApplicationContext private
                     socket = device.createRfcommSocketToServiceRecord(uuid)
                     socket?.connect()
                     Log.d("BTConnectionManager", "Connected to ${device.name}")
+                    Toast.makeText(context,"Connected to ${device.name}",Toast.LENGTH_LONG).show()
                 } else {
+                    Toast.makeText(context,"No UUID available for device.",Toast.LENGTH_LONG).show()
                     Log.e("BTConnectionManager", "No UUID available for device.")
                 }
             }
@@ -106,5 +123,9 @@ class BluetoothConnectionManager @Inject constructor(@ApplicationContext private
         } catch (e: Exception) {
             // Receiver may have been already unregistered.
         }
+    }
+
+    fun isConnected(): Boolean {
+        return socket != null && socket!!.isConnected
     }
 }

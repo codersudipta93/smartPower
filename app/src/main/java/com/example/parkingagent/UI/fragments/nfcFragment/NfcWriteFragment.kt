@@ -1,5 +1,7 @@
 package com.example.parkingagent.UI.fragments.nfcFragment
 
+import android.app.AlertDialog
+import android.app.DatePickerDialog
 import android.nfc.NdefMessage
 import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
@@ -8,6 +10,7 @@ import android.nfc.tech.Ndef
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.viewModels
@@ -22,31 +25,27 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 @AndroidEntryPoint
 class NfcWriteFragment : BaseFragment<FragmentNfcWriteBinding>() {
 
     private val viewModel: NfcViewModel by viewModels()
     private var nfcAdapter: NfcAdapter? = null
-//    private var nfcTag: Tag? = null
-    private var jsonData:String?=null
-    private var selectedVehicleTypeId: String? = null
+    private var isWaitingForNfc = false
+    private var dialog: AlertDialog? = null
 
+    // Form data variables
+    private var name: String? = null
+    private var contact: String? = null
+    private var vehicleNo: String? = null
+//    private var amount: Double? = null
+    private var expiryDate: String? = null
+    private var vehicleTypeId: String? = null
 
-    private fun setupVehicleTypeDropdown() {
-        val vehicleTypes = listOf("Two-Wheeler", "Four-Wheeler")
-        val adapter =
-            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, vehicleTypes)
-        binding.vehicleTypeDropdown.setAdapter(adapter)
-
-        binding.vehicleTypeDropdown.setOnItemClickListener { _, _, position, _ ->
-            selectedVehicleTypeId = if (position == 0) "2" else "1"
-        }
-    }
-
-    override fun getLayoutResourceId(): Int {
-        return R.layout.fragment_nfc_write
-    }
+    override fun getLayoutResourceId(): Int = R.layout.fragment_nfc_write
 
     override fun onResume() {
         super.onResume()
@@ -65,165 +64,228 @@ class NfcWriteFragment : BaseFragment<FragmentNfcWriteBinding>() {
     override fun initView() {
         super.initView()
         setupVehicleTypeDropdown()
-        nfcAdapter = NfcAdapter.getDefaultAdapter(requireContext())
-        if (nfcAdapter == null) {
-            Toast.makeText(context, "NFC is not supported on this device.", Toast.LENGTH_LONG).show()
-            return
+        nfcAdapter = NfcAdapter.getDefaultAdapter(requireContext()).also {
+            if (it == null) Toast.makeText(context, "NFC not supported", Toast.LENGTH_LONG).show()
+        }
+        binding.btnGuestRegister.setOnClickListener { registerGuest() }
+
+        binding.edtDate.setOnClickListener {
+            showDatePicker()
         }
 
-        binding.btnGuestRegister.setOnClickListener {
-            registerGuest()
+
+    }
+
+//    private fun setupVehicleTypeDropdown() {
+//        val vehicleTypes = listOf("Two-Wheeler", "Four-Wheeler")
+//        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, vehicleTypes)
+//        binding.vehicleTypeDropdown.setAdapter(adapter)
+//        binding.vehicleTypeDropdown.setOnItemClickListener { _, _, position, _ ->
+//            vehicleTypeId = if (position == 0) "2" else "1"
+//        }
+//    }
+
+    private fun setupVehicleTypeDropdown() {
+        val vehicleTypes = listOf("Two-Wheeler", "Four-Wheeler")
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, vehicleTypes)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.vehicleTypeDropdown.adapter = adapter
+
+        binding.vehicleTypeDropdown.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                // Map the position to the appropriate vehicle type ID
+                vehicleTypeId = if (position == 0) "2" else "1"
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Optionally, set a default value or leave it empty
+            }
         }
     }
 
+
     private fun registerGuest() {
+        if (!validateForm()) return
+
+        // Store form data
+        name = binding.edtName.text.toString()
+        contact = binding.edtContact.text.toString()
+        vehicleNo = binding.edtVehicleNo.text.toString()
+//        amount = binding.edtAmount.text.toString().toDoubleOrNull() ?: 0.0
+        expiryDate=binding.edtDate.text.toString()
+        vehicleTypeId = vehicleTypeId ?: return
+
+        Log.d("expiryDate",expiryDate.toString());
+        //2025-03-28
+
+        showNfcDialog()
+    }
+
+    private fun validateForm(): Boolean {
+        var isValid = true
         if (binding.edtName.text.isNullOrBlank()) {
-            binding.edtName.error = "Please enter name"
-            return
+            binding.edtName.error = "Enter name"
+            isValid = false
         }
         if (binding.edtContact.text.isNullOrBlank() || binding.edtContact.text!!.length < 10) {
-            binding.edtContact.error = "Please enter a valid contact number"
-            return
+            binding.edtContact.error = "Invalid contact"
+            isValid = false
         }
         if (binding.edtVehicleNo.text.isNullOrBlank()) {
-            binding.edtVehicleNo.error = "Please enter vehicle number"
-            return
+            binding.edtVehicleNo.error = "Enter vehicle number"
+            isValid = false
         }
-        if (binding.edtAmount.text.isNullOrBlank()) {
-            binding.edtAmount.error = "Please enter amount"
-            return
-        }
-
-        if (binding.vehicleTypeDropdown.text.isNullOrBlank()) {
-            binding.vehicleTypeDropdown.error = "Please select Vehicle type"
-            return
-        }
-
-        jsonData = JSONObject().apply {
-            put("name", binding.edtName.text.toString())
-            put("contact", binding.edtContact.text.toString())
-            put("vehicle_no", binding.edtVehicleNo.text.toString())
-            put("amount", binding.edtAmount.text.toString().toDouble())
-        }.toString()
-
-        (requireActivity() as MainActivity).binding.loading.visibility = View.VISIBLE
-        viewModel.registerGuest(
-            binding.edtName.text.toString(),
-            binding.edtContact.text.toString(),
-            binding.edtVehicleNo.text.toString(),
-            binding.edtAmount.text.toString().toDouble(),
-            "04824C42646B80",
-            selectedVehicleTypeId.toString().toInt()
-        )
-
-        // Attempt to write data to NFC tag
-//        nfcTag?.let { tag ->
-//            writeJsonToTag(tag, jsonData)
-//        } ?: run {
-//            Toast.makeText(context, "No NFC tag detected. Please tap an NFC tag.", Toast.LENGTH_LONG).show()
+//        if (binding.edtAmount.text.isNullOrBlank()) {
+//            binding.edtAmount.error = "Enter amount"
+//            isValid = false
 //        }
+
+        if (binding.edtDate.text.isNullOrBlank()){
+            binding.edtDate.error = "Select Date"
+            isValid = false
+        }
+
+//        if (binding.vehicleTypeDropdown.text.isNullOrBlank()) {
+//            binding.vehicleTypeDropdown.error = "Select vehicle type"
+//            isValid = false
+//        }
+
+        return isValid
+
+    }
+
+    private fun showNfcDialog() {
+        dialog = AlertDialog.Builder(requireContext())
+            .setTitle("Tap Your Card")
+            .setMessage("Touch your NFC card to the device")
+            .setCancelable(false)
+            .setNegativeButton("Cancel") { dialog, _ ->
+                isWaitingForNfc = false
+                dialog.dismiss()
+            }
+            .create()
+        dialog?.setOnShowListener { isWaitingForNfc = true }
+        dialog?.show()
     }
 
     private fun enableReaderMode() {
         nfcAdapter?.enableReaderMode(
             requireActivity(),
-            { tag -> nfcReaderCallback(tag) },
-            // Here using FLAG_READER_NFC_A (and no platform sounds) for compatibility.
+            { tag -> handleNfcTag(tag) },
             NfcAdapter.FLAG_READER_NFC_A or NfcAdapter.FLAG_READER_NO_PLATFORM_SOUNDS,
             null
         )
     }
 
-    private fun nfcReaderCallback(tag: Tag) {
-        if (jsonData!=null) {
-            writeJsonToTag(tag, jsonData!!)
-        } else {
-            Toast.makeText(requireContext(),"No data to write",Toast.LENGTH_LONG).show()
+    private fun handleNfcTag(tag: Tag) {
+        if (!isWaitingForNfc) return
+        requireActivity().runOnUiThread {
+            writeDataToTag(tag)
         }
     }
 
-//    private fun writeJsonToTag(tag: Tag, jsonData: String) {
-//        try {
-//            val ndef = Ndef.get(tag)
-//            if (ndef == null) {
-//                Toast.makeText(context, "Tag doesn't support NDEF.", Toast.LENGTH_LONG).show()
-//                return
-//            }
-//            ndef.connect()
-//            if (!ndef.isWritable) {
-//                Toast.makeText(context, "Tag is not writable.", Toast.LENGTH_LONG).show()
-//                ndef.close()
-//                return
-//            }
-//
-//            val mimeRecord = NdefRecord.createMime("application/json", jsonData.toByteArray(Charsets.UTF_8))
-//            val ndefMessage = NdefMessage(arrayOf(mimeRecord))
-//            ndef.writeNdefMessage(ndefMessage)
-//            ndef.close()
-//
-//            Toast.makeText(context, "Successfully wrote data to tag.", Toast.LENGTH_LONG).show()
-//        } catch (e: Exception) {
-//            Log.d("errorhappen",e.message.toString())
-//            Toast.makeText(context, "Failed to write NFC tag: ${e.message}", Toast.LENGTH_LONG).show()
-//        }
-//    }
+    private fun writeDataToTag(tag: Tag) {
+        val jsonData = JSONObject().apply {
+            put("name", name)
+            put("contact", contact)
+            put("vehicle_no", vehicleNo)
+            put("expiryDate", expiryDate)
+        }.toString()
 
-    private fun writeJsonToTag(tag: Tag, jsonData: String) {
+        writeJsonToTag(tag, jsonData) { success ->
+            if (success) {
+                val tagId = tag.id.toHexString()
+                (requireActivity() as MainActivity).binding.loading.visibility = View.VISIBLE
+                viewModel.registerGuest(
+                    name!!,
+                    contact!!,
+                    vehicleNo!!,
+                    expiryDate!!,
+                    tagId,
+                    vehicleTypeId!!.toInt()
+                )
+                isWaitingForNfc = false
+                dialog?.dismiss()
+            } else {
+                Toast.makeText(context, "Write failed. Try again.", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun writeJsonToTag(tag: Tag, data: String, callback: (Boolean) -> Unit) {
         try {
-            val ndef = Ndef.get(tag)
-            if (ndef == null) {
-                activity?.runOnUiThread {
-                    Toast.makeText(context, "Tag doesn't support NDEF.", Toast.LENGTH_LONG).show()
-                }
+            val ndef = Ndef.get(tag) ?: run {
+                Toast.makeText(context, "Tag not supported", Toast.LENGTH_LONG).show()
+                callback(false)
                 return
             }
             ndef.connect()
             if (!ndef.isWritable) {
-                activity?.runOnUiThread {
-                    Toast.makeText(context, "Tag is not writable.", Toast.LENGTH_LONG).show()
-                }
+                Toast.makeText(context, "Tag not writable", Toast.LENGTH_LONG).show()
                 ndef.close()
+                callback(false)
                 return
             }
-
-            val mimeRecord = NdefRecord.createMime("application/json", jsonData.toByteArray(Charsets.UTF_8))
-            val ndefMessage = NdefMessage(arrayOf(mimeRecord))
-            ndef.writeNdefMessage(ndefMessage)
+            val mimeRecord = NdefRecord.createMime("application/json", data.toByteArray())
+            val message = NdefMessage(arrayOf(mimeRecord))
+            ndef.writeNdefMessage(message)
             ndef.close()
-
-            activity?.runOnUiThread {
-                Toast.makeText(context, "Successfully wrote data to tag.", Toast.LENGTH_LONG).show()
-            }
+            Toast.makeText(context, "Write successful", Toast.LENGTH_LONG).show()
+            callback(true)
         } catch (e: Exception) {
-            Log.d("errorhappen", e.message.toString())
-            activity?.runOnUiThread {
-                Toast.makeText(context, "Failed to write NFC tag: ${e.message}", Toast.LENGTH_LONG).show()
-            }
+            Log.e("NFC_ERROR", "Write failed", e)
+            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+            callback(false)
         }
     }
 
-
     override fun observe() {
-        super.observe()
-
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.mutualSharedflow.collectLatest {
+                viewModel.mutualSharedflow.collectLatest { event ->
                     (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
-                    when (it) {
+                    when (event) {
                         is NfcViewModel.GuestEvents.GuestRegistered -> {
-                            binding.edtName.text?.clear()
-                            binding.edtContact.text?.clear()
-                            binding.edtVehicleNo.text?.clear()
-                            binding.edtAmount.text?.clear()
-                            Toast.makeText(context, "Guest Registered Successfully", Toast.LENGTH_LONG).show()
+                            clearForm()
+                            Toast.makeText(context, "Guest registered", Toast.LENGTH_LONG).show()
                         }
                         is NfcViewModel.GuestEvents.Error -> {
-                            Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
                         }
                     }
                 }
             }
         }
+    }
+
+    private fun clearForm() {
+        binding.edtName.text?.clear()
+        binding.edtContact.text?.clear()
+        binding.edtVehicleNo.text?.clear()
+        binding.edtDate.text?.clear()
+//        binding.vehicleTypeDropdown.text?.clear()
+    }
+
+    // Extension to convert ByteArray to Hex String
+    private fun ByteArray.toHexString(): String = joinToString("") { "%02X".format(it) }
+
+    private fun showDatePicker() {
+        val calendar = Calendar.getInstance()
+
+        val datePickerDialog = DatePickerDialog(
+            requireContext(),
+            { _, year, month, dayOfMonth ->
+                val selectedDate = Calendar.getInstance()
+                selectedDate.set(year, month, dayOfMonth)
+
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                binding.edtDate.setText(dateFormat.format(selectedDate.time))
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+
+        datePickerDialog.show()
     }
 }

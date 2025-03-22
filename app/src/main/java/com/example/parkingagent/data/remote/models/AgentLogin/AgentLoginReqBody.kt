@@ -14,5 +14,9 @@ data class AgentLoginReqBody(
 	val deviceId: String? = null,
 
 	@field:SerializedName("Password")
-	val password: String? = null
+	val password: String? = null,
+
+	@field:SerializedName("IMEI")
+	val imeiNumber: String?=null
+
 ) : Parcelable

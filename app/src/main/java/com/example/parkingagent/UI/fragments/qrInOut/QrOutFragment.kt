@@ -19,15 +19,25 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.parkingagent.MainActivity
 import com.example.parkingagent.R
 import com.example.parkingagent.UI.base.BaseFragment
+import com.example.parkingagent.data.remote.models.CollectionInsert.CollectionInsertData
+import com.example.parkingagent.data.remote.models.VehicleParking.VehicleParkingResponse
 //import com.example.parkingagent.UI.fragments.more.MoreViewModel
 import com.example.parkingagent.databinding.FragmentMoreBinding
 import com.example.parkingagent.databinding.FragmentQrOutBinding
 import com.example.parkingagent.utils.Utils
 import com.example.parkingagent.utils.scanner.IScanInterface
+import com.google.gson.JsonObject
+import com.sunmi.printerx.PrinterSdk
+import com.sunmi.printerx.style.BaseStyle
+import com.sunmi.printerx.style.QrStyle
+import com.sunmi.printerx.style.TextStyle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.json.JSONObject
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @AndroidEntryPoint
 class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
@@ -37,6 +47,8 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
         const val ACTION_DATA_CODE_RECEIVED = "com.sunmi.scanner.ACTION_DATA_CODE_RECEIVED"
         const val DATA = "data"
     }
+    private var latestVehicleParkingResponse: VehicleParkingResponse? = null
+
 
     private val viewModel: QrInOutViewModel by viewModels()
     private var scanInterface: IScanInterface? = null
@@ -150,10 +162,62 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
             showToast("Please ensure all fields are filled before exiting.")
             return
         }
-        clearFields()
+
         (requireActivity() as MainActivity).btManager.sendData("1".toByteArray())
 
+        viewModel.collectionInsert(binding.edtVehicleNo.text.toString(),binding.edtChargableAmount.text.toString().toDouble())
     }
+
+    /**
+     * Modified printReceipt to accept a VehicleParkingResponse and print all its details.
+     */
+    private fun printReceipt(response: VehicleParkingResponse) {
+        PrinterSdk.getInstance().getPrinter(this.context, object : PrinterSdk.PrinterListen {
+            override fun onDefPrinter(printer: PrinterSdk.Printer?) {
+                // Increase canvas height as needed.
+                printer?.canvasApi()?.initCanvas(
+                    BaseStyle.getStyle()
+                        .setWidth(410)
+                        .setHeight(380)
+                )
+
+                var currentY = 10
+                val lineHeight = 40  // increased line height for larger text
+
+                // Helper function to render each line with updated style.
+                fun renderLine(text: String) {
+                    printer?.canvasApi()?.renderText(
+                        text,
+                        TextStyle.getStyle()
+                            .setTextSize(25)  // Increase font size
+                            .enableBold(true)    // Make text bold for better visibility
+                            .setPosX(0)
+                            .setPosY(currentY)
+                    )
+                    currentY += lineHeight
+                }
+
+//                renderLine("Msg: ${response.msg}")
+                renderLine("Vehicle No: ${response.vehicleNo}")
+//                renderLine("Vehicle Type Id: ${response.vehicleTypeId}")
+//                renderLine("IO Type: ${response.iOType}")
+//                renderLine("Device Id: ${response.deviceId}")
+                renderLine("Chargable Amount: ${response.chargableAmount}")
+//                renderLine("Parking Id: ${response.vehicleParkingId}")
+                renderLine("In Time: ${response.inTime}")
+                renderLine("Out Time: ${response.outTime ?: "N/A"}")
+                renderLine("Duration: ${response.duration ?: "N/A"}")
+                renderLine("Location: ${response.location ?: "N/A"}")
+
+                printer?.canvasApi()?.printCanvas(1, null)
+            }
+
+            override fun onPrinters(printers: MutableList<PrinterSdk.Printer>?) {
+                Toast.makeText(requireContext(), "Print successful", Toast.LENGTH_LONG).show()
+            }
+        })
+    }
+
 
     private fun observeViewModel() {
         lifecycleScope.launch {
@@ -168,11 +232,26 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
                             binding.edtChargableAmount.setText(it.vehicleParkingResponse.chargableAmount?.toString() ?: "N/A")
 //                            clearFields()
 //                            (requireActivity() as MainActivity).btManager.sendData("1".toByteArray())
-
+                            // Store the response for later use.
+                            latestVehicleParkingResponse = it.vehicleParkingResponse
                         }
 
                         is QrInOutViewModel.ParkingVehicleEvents.VehicleParkingFailed -> {
                             showToast("Exit failed: ${it.message}")
+                            Log.d(TAG, "Exit failed: ${it.message}")
+                        }
+
+                        is QrInOutViewModel.ParkingVehicleEvents.CollectionInsertSuccessful -> {
+
+                            clearFields()
+                            showToast("Collection inserted successfully")
+
+                            // Use the stored VehicleParkingResponse data to print the receipt.
+                            latestVehicleParkingResponse?.let { response ->
+                                printReceipt(response)
+                            } ?: run {
+                                showToast("No parking response data available to print receipt")
+                            }
                         }
                     }
                 }
