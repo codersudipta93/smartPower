@@ -10,8 +10,13 @@ import com.bumptech.glide.Glide
 import com.example.parkingagent.R
 import com.example.parkingagent.data.remote.models.Menu.MenuDataItem
 
-class MenuAdapter(private val menuList: List<MenuDataItem>, private val onItemClick: (MenuDataItem) -> Unit) :
+class MenuAdapter(private var menuList: List<MenuDataItem>, private val onItemClick: (MenuDataItem) -> Unit) :
     RecyclerView.Adapter<MenuAdapter.MenuViewHolder>() {
+
+    fun updateItems(newItems: List<MenuDataItem>) {
+        menuList = newItems.filterNotNull()
+        notifyDataSetChanged()
+    }
 
     class MenuViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val menuText: TextView = itemView.findViewById(R.id.menuText)

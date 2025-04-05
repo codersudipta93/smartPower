@@ -10,17 +10,15 @@ import javax.inject.Inject
 class SharedPreferenceManager @Inject constructor(
     private val context: Context
 ) {
-
+    
     private val masterKey = MasterKey.Builder(context).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build()
 
-    private val sharedPreferences = EncryptedSharedPreferences.create(context, TOKEN_MANAGER_NAME, masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM )
+    private val sharedPreferences = EncryptedSharedPreferences.create(context, TOKEN_MANAGER_NAME, masterKey, EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV, EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM )
 
     fun getAccessToken(): String? = sharedPreferences.getString(TOKEN_KEY, null)
 
     fun saveAccessToken(token: String) {
-        Log.d("TAG", "saved Token: "+token)
+//        Log.d("TAG", "saved Token: "+token)
         sharedPreferences.edit {
             putString(TOKEN_KEY, token)
         }
@@ -57,6 +55,26 @@ class SharedPreferenceManager @Inject constructor(
         sharedPreferences.edit {
             putInt("user_id",user_id)
         }
+    }
+
+    fun saveIpAddress(ip: String) {
+        sharedPreferences.edit {
+            putString("ip_address", ip)
+        }
+    }
+
+    fun savePort(port: String) {
+        sharedPreferences.edit {
+            putString("port_number", port)
+        }
+    }
+
+    fun getIpAddress(): String? {
+        return sharedPreferences.getString("ip_address", null)
+    }
+
+    fun getPort(): String? {
+        return sharedPreferences.getString("port_number", null)
     }
 
     fun getUserId():Int{

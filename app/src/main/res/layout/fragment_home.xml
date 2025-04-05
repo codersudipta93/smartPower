@@ -22,11 +22,29 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.92" />
 
+        <TextView
+            android:id="@+id/txt_vehicle_no"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Vehicle Number"
+            android:textColor="@color/black"
+            android:fontFamily="@font/gilroy_medium"
+            android:textSize="14sp"
+            android:layout_marginTop="@dimen/_20sdp"
+            app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/edt_vehicleNo"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginVertical="15dp"
+            android:textAllCaps="true"
+            android:capitalize="words"
+            android:singleLine="true"
+            android:inputType="textCapCharacters"
+            android:maxLength="15"
             android:background="@drawable/bg_email_edit_text"
             android:fontFamily="@font/gilroy_regular"
             android:hint="Enter Vehicle Number here"
@@ -34,7 +52,7 @@
             android:textColor="@color/text_color_dark"
             android:textColorHint="@color/gray"
             android:textSize="14sp"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txt_vehicle_no"
             app:layout_constraintStart_toStartOf="@id/guideline_start"
             app:layout_constraintEnd_toEndOf="@id/guideline_end" />
 
@@ -85,6 +103,7 @@
             android:textColor="@color/text_color_dark"
             android:textColorHint="@color/gray"
             android:textSize="14sp"
+            android:drawableEnd="@drawable/icon_right_arrow"
             app:layout_constraintTop_toBottomOf="@id/txt_vehicle_type"
             app:layout_constraintStart_toStartOf="@id/guideline_start"
             app:layout_constraintEnd_toEndOf="@id/guideline_end"
@@ -101,9 +120,30 @@
             android:textColor="@color/white"
             android:textSize="14sp"
             app:cornerRadius="10dp"
+            android:layout_marginHorizontal="@dimen/_10sdp"
             app:layout_constraintTop_toBottomOf="@id/vehicleTypeDropdown"
             app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintEnd_toStartOf="@id/btn_get_vehicle" />
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_get_vehicle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:backgroundTint="@color/primary"
+            android:padding="15dp"
+            android:text="Get Vehicle"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            app:cornerRadius="10dp"
+            android:layout_marginHorizontal="@dimen/_10sdp"
+            app:layout_constraintTop_toBottomOf="@id/vehicleTypeDropdown"
+            app:layout_constraintStart_toEndOf="@id/btn_park"
             app:layout_constraintEnd_toEndOf="@id/guideline_end" />
+
+
+
 
 
 <!--        <ListView-->

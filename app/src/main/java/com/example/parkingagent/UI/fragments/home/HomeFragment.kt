@@ -154,9 +154,15 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                 showToast("Please select the vehicle type")
                 return@setOnClickListener
             }
-
+            (requireActivity() as MainActivity).binding.loading.visibility=View.VISIBLE
             viewModel.parkedVehicle(vehicleNumber, selectedVehicleTypeId!!, Utils.getDeviceId(requireContext()))
         }
+
+        binding.btnGetVehicle.setOnClickListener {
+            (requireActivity() as MainActivity).binding.loading.visibility=View.VISIBLE
+            viewModel.getLatestVehicleData()
+        }
+
     }
 
     /**
@@ -167,7 +173,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.mutualSharedflow.collectLatest { event ->
+                    (requireActivity() as MainActivity).binding.loading.visibility=View.GONE
+
                     when (event) {
+
                         is HomeViewModel.ParkingVehicleEvents.VehicleParkingSuccessful -> {
                             showToast("Vehicle parked successfully!")
 
@@ -179,6 +188,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                         is HomeViewModel.ParkingVehicleEvents.VehicleParkingFailed -> {
                             showToast("Failed to park vehicle: ${event.message}")
                         }
+
+                        is HomeViewModel.ParkingVehicleEvents.ANPRVehicleSuccessful -> {
+                            binding.edtVehicleNo.setText(event.anprVehicleResponse.vehicleNo)
+                        }
+
                     }
                 }
             }

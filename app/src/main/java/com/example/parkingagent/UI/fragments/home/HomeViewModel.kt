@@ -3,9 +3,11 @@ package com.example.parkingagent.UI.fragments.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.parkingagent.data.local.SharedPreferenceManager
+import com.example.parkingagent.data.remote.api.LocalNetworkApis
 import com.example.parkingagent.data.remote.api.ParkingApis
 import com.example.parkingagent.data.remote.models.VehicleParking.VehicleParkingReqBody
 import com.example.parkingagent.data.remote.models.VehicleParking.VehicleParkingResponse
+import com.example.parkingagent.data.remote.models.anprDataResponse.ANPRVehicleResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -19,6 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     val client:ParkingApis,
+    val localClient: LocalNetworkApis,
     val sharedPreferenceManager: SharedPreferenceManager
 ):ViewModel(){
 
@@ -56,12 +59,45 @@ class HomeViewModel @Inject constructor(
 
     }
 
+    fun getLatestVehicleData(){
+        val latestVehicleCall=localClient.getANPRVehicle()
+        latestVehicleCall.enqueue(object:Callback<ANPRVehicleResponse>{
+            override fun onResponse(
+                call: Call<ANPRVehicleResponse?>,
+                response: Response<ANPRVehicleResponse?>
+            ) {
+                viewModelScope.launch {
 
+                    if (response.isSuccessful && response.body()?.status ==true){
+                        _mutualSharedflow.emit(ParkingVehicleEvents.ANPRVehicleSuccessful(response.body()!!))
+                    }
+                    else {
+                        _mutualSharedflow.emit(ParkingVehicleEvents.VehicleParkingFailed(response.body()?.msg?:"Unknown Error"))
+                    }
+
+                }
+
+            }
+
+            override fun onFailure(
+                call: Call<ANPRVehicleResponse?>,
+                t: Throwable
+            ) {
+                viewModelScope.launch {
+                    _mutualSharedflow.emit(ParkingVehicleEvents.VehicleParkingFailed(t.message?:"Unknown Error"))
+                }
+
+            }
+
+        })
+    }
 
     sealed class ParkingVehicleEvents {
         class VehicleParkingSuccessful(val vehicleParkingResponse: VehicleParkingResponse):ParkingVehicleEvents()
 
         class VehicleParkingFailed(val message:String):ParkingVehicleEvents()
+
+        class ANPRVehicleSuccessful(val anprVehicleResponse: ANPRVehicleResponse):ParkingVehicleEvents()
     }
 
 

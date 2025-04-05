@@ -2,6 +2,8 @@ package com.dev.tnevi.di
 
 import android.content.Context
 import com.example.parkingagent.data.local.SharedPreferenceManager
+import com.example.parkingagent.di.PrimaryRetrofit
+import com.example.parkingagent.di.SecondaryRetrofit
 
 import com.google.gson.Gson
 import dagger.Module
@@ -35,11 +37,11 @@ object AppModule {
             .build()
     }
 
-    @Provides
+    // Primary Retrofit instance for your default API
     @Singleton
-    fun provideRetrofit(
-        okHttpClient: OkHttpClient
-    ): Retrofit {
+    @Provides
+    @PrimaryRetrofit
+    fun providePrimaryRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .baseUrl("http://45.249.111.51/SmartPowerAPI/api/")
             .addConverterFactory(GsonConverterFactory.create())
@@ -48,6 +50,31 @@ object AppModule {
             .build()
     }
 
+    // Secondary Retrofit instance using dynamic base URL from shared preferences.
+    @Singleton
+    @Provides
+    @SecondaryRetrofit
+    fun provideSecondaryRetrofit(
+        okHttpClient: OkHttpClient,
+        sharedPreferenceManager: SharedPreferenceManager
+    ): Retrofit {
+        // Retrieve IP and port from shared preferences
+        val ip = sharedPreferenceManager.getIpAddress()
+        val port = sharedPreferenceManager.getPort()
+        // You might want to provide a default or throw an error if null.
+        val baseUrl = if (!ip.isNullOrBlank() && !port.isNullOrBlank()) {
+            "http://$ip:$port/"
+        } else {
+            // Fallback URL (or you may throw an exception)
+            "http://default.example.com/"
+        }
+
+        return Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
+            .build()
+    }
 
     @Provides
     @Singleton
@@ -57,13 +84,9 @@ object AppModule {
     @Singleton
     fun provideGson(): Gson = Gson()
 
-
     @Provides
     @Singleton
-    fun provideSharedPrefManager(
-        context: Context
-    ): SharedPreferenceManager {
+    fun provideSharedPrefManager(context: Context): SharedPreferenceManager {
         return SharedPreferenceManager(context)
     }
-
 }

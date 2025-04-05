@@ -160,6 +160,15 @@
 
     </fragment>
 
+    <fragment
+        android:id="@+id/id_ipSetupFragment"
+        android:name="com.example.parkingagent.UI.fragments.ipfragment.IpSetupFragment"
+        android:label="IpSetupFragment"
+        tools:layout="@layout/fragment_ip_setup"
+        >
+
+    </fragment>
+
 
     <fragment
         android:id="@+id/id_cardSettingsFragment"
