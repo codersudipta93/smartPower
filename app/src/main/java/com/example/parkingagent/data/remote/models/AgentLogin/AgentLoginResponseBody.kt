@@ -22,6 +22,9 @@ data class AgentLoginResponseBody(
 	@field:SerializedName("FullName")
 	val fullName: String? = null,
 
+	@field:SerializedName("Location")
+	val location: String? = null,
+
 	@field:SerializedName("Password")
 	val password: String? = null,
 

@@ -42,4 +42,5 @@ class MenuAdapter(private var menuList: List<MenuDataItem>, private val onItemCl
     }
 
     override fun getItemCount() = menuList.size
+
 }

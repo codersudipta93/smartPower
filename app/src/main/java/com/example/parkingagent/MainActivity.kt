@@ -30,8 +30,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-
-
     private lateinit var navController: NavController
     public lateinit var binding: ActivityMainBinding
     private lateinit var handler: Handler
@@ -127,6 +125,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.id_fragment_card_out -> "Card Out"
                 R.id.id_fragment_nfc -> "Check Card"
                 R.id.id_fragment_nfc_write -> "Issue Card"
+                R.id.id_parkingRateFragment->"Parking Rate"
 
                 // Add other fragments
                 else -> ""
@@ -191,7 +190,7 @@ class MainActivity : AppCompatActivity() {
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.id_loginFragment,R.id.splashFragment
+                R.id.id_loginFragment,R.id.splashFragment,R.id.id_menuFragment
                     -> {
                     binding.appBarMain.toolbar.visibility= View.GONE
 

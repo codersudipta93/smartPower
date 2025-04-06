@@ -6,6 +6,8 @@ import com.example.parkingagent.data.remote.models.GetVehicleList.VehicleListReq
 import com.example.parkingagent.data.remote.models.GetVehicleList.VehicleListResponse
 import com.example.parkingagent.data.remote.models.GuestRegistration.GuestRegistrationReqBody
 import com.example.parkingagent.data.remote.models.GuestRegistration.GuestRegistrationResponse
+import com.example.parkingagent.data.remote.models.ParkingRate.ParkingRateReqBody
+import com.example.parkingagent.data.remote.models.ParkingRate.ParkingRateResponse
 import com.example.parkingagent.data.remote.models.VehicleParking.VehicleParkingCardReqBody
 import com.example.parkingagent.data.remote.models.VehicleParking.VehicleParkingCardResponse
 import com.example.parkingagent.data.remote.models.VehicleParking.VehicleParkingReqBody
@@ -34,6 +36,8 @@ fun guestRegistration(@Header("Authorization") token:String,@Body guestRegistrat
 @POST("Device/CollectionInsert")
 fun collectionInsert(@Header("Authorization") token:String,@Body collectionReqBody: CollectionInsertReqBody): Call<CollectionInsertResponse>
 
+@POST("Device/GetRateByEntity")
+fun getRateByEntity(@Body parkingRateResponse: ParkingRateReqBody): Call<ParkingRateResponse>
 
 
 }

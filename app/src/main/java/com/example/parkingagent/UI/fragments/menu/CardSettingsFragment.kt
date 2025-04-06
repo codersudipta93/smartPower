@@ -64,7 +64,7 @@ class CardSettingsFragment : BaseFragment<FragmentCardSettingsBinding>() {
 
     private fun setupObservers() {
         sharedViewModel.menuItems.observe(viewLifecycleOwner) { allItems ->
-            val parentItems = allItems.filter { it.parentId == 1 }
+            val parentItems = allItems.filter { it.parentId == 2 }
             if (parentItems.isNotEmpty()) {
                 adapter.updateItems(parentItems)
             }

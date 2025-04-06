@@ -83,6 +83,8 @@ class LoginViewModel @Inject constructor(
                         _mutualSharedflow.emit(LoginEvents.LoginSuccess(response.body()!!))
                         sessionManager.saveAccessToken("Bearer "+response.body()?.token)
                         response.body()?.userId?.let { sessionManager.setUserId(it) }
+                        response.body()?.fullName?.let { sessionManager.setFullName(it) }
+                        response.body()?.location?.let { sessionManager.setLocation(it) }
                         if (sessionManager.getEntityId()!=0){
 
                         }

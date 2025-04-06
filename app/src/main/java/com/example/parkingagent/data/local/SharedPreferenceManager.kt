@@ -81,6 +81,27 @@ class SharedPreferenceManager @Inject constructor(
         return sharedPreferences.getInt("user_id",0)
     }
 
+    fun setFullName(name: String) {
+        sharedPreferences.edit {
+            putString("full_name", name)
+        }
+    }
+
+    fun getFullName(): String? {
+        return sharedPreferences.getString("full_name", null)
+    }
+
+    fun setLocation(location: String) {
+        sharedPreferences.edit {
+            putString("location", location)
+        }
+    }
+
+    fun getLocation(): String? {
+        return sharedPreferences.getString("location", null)
+    }
+
+
 
     companion object {
 

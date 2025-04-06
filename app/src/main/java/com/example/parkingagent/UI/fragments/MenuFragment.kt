@@ -53,6 +53,9 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
         binding.btnLogout.setOnClickListener {
             performLogout()
         }
+
+        binding.idTxtFullname.text=sharedPreferenceManager.getFullName()
+
     }
 
     private fun setupRecyclerView() {
@@ -104,7 +107,7 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
             9 -> navigate(R.id.id_fragment_nfc_write)
             10 -> navigate(R.id.id_fragment_nfc)
 //            11 -> navigate(R.id.id_surrenderCardFragment)
-//            25 -> navigate(R.id.id_parkingRateFragment)
+            25 -> navigate(R.id.id_parkingRateFragment)
             // Add other mappings as needed
             else -> showInvalidMenuError()
         }
@@ -122,10 +125,24 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
         sharedPreferenceManager.clearToken()
         sharedPreferenceManager.setLoginStatus(false)
 
-        findNavController().navigate(R.id.id_loginFragment) {
-            popUpTo(R.id.nav_graph) { inclusive = true }
-            launchSingleTop = true
-        }
+        // Create navigation options to clear back stack
+        val navOptions = NavOptions.Builder()
+            .setPopUpTo(R.id.nav_graph, true) // Use your nav graph resource id here
+            .build()
+
+        // Navigate to login with clear back stack
+        findNavController().navigate(R.id.id_loginFragment, null, navOptions)
+
+//        findNavController().navigate(R.id.id_loginFragment) {
+//            popUpTo(R.id.nav_graph) { inclusive = true }
+//            launchSingleTop = true
+//        }
+
+//        findNavController().navigate(R.id.id_loginFragment) {
+//            // Pop everything up to and including the splash (or whatever your first screen is)
+//            popUpTo(R.id.splashFragment) { inclusive = true }
+//            launchSingleTop = true
+//        }
     }
 }
 

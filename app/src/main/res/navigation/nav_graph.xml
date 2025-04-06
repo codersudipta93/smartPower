@@ -179,6 +179,15 @@
 
     </fragment>
 
+    <fragment
+        android:id="@+id/id_parkingRateFragment"
+        android:name="com.example.parkingagent.UI.fragments.parkingRate.ParkingRateFragment"
+        android:label="ParkingRateFragment"
+        tools:layout="@layout/fragment_parking_rate"
+        >
+
+    </fragment>
+
 
 
 </navigation>
