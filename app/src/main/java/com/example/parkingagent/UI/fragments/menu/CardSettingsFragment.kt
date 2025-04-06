@@ -89,7 +89,7 @@ class CardSettingsFragment : BaseFragment<FragmentCardSettingsBinding>() {
             8 -> navigate(R.id.id_qrOutFragment)
             9 -> navigate(R.id.id_fragment_nfc_write)
             10 -> navigate(R.id.id_fragment_nfc)
-            
+
 //            11 -> navigate(R.id.id_surrenderCardFragment)
 //            25 -> navigate(R.id.id_parkingRateFragment)
             // Add other mappings as needed

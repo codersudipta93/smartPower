@@ -14,23 +14,28 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:orientation="vertical"
+            android:layout_gravity="center"
             android:padding="16dp">
 
             <ImageView
                 android:id="@+id/menuIcon"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
+                android:layout_gravity="center"
                 android:src="@drawable/ic_launcher_foreground"
                 android:contentDescription="Menu Icon"
-                android:layout_marginEnd="16dp"/>
+                />
 
             <TextView
                 android:id="@+id/menuText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Menu Item"
+                android:layout_gravity="center"
+                android:textAlignment="center"
                 android:textSize="18sp"
+                android:layout_marginTop="@dimen/_10sdp"
                 android:textStyle="bold"/>
         </LinearLayout>
 
