@@ -221,6 +221,7 @@
         android:padding="15dp"
         android:text="Continue"
         android:textSize="14sp"
+        android:layout_marginBottom="@dimen/_20sdp"
         app:cornerRadius="10dp"
         app:layout_constraintEnd_toEndOf="@id/guideline_end"
         app:layout_constraintHorizontal_bias="0.0"

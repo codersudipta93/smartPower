@@ -1,5 +1,6 @@
 package com.example.parkingagent.UI.fragments
 
+import android.graphics.PorterDuff
 import androidx.fragment.app.viewModels
 import android.os.Bundle
 import android.util.Log
@@ -9,6 +10,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -17,6 +20,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.parkingagent.MainActivity
 import com.example.parkingagent.R
 import com.example.parkingagent.UI.adapters.MenuAdapter
 import com.example.parkingagent.UI.base.BaseFragment
@@ -40,6 +44,7 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
 
     private lateinit var adapter: MenuAdapter
 
+
     override fun getLayoutResourceId(): Int {
        return R.layout.fragment_menu
     }
@@ -51,10 +56,32 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
         setupObservers()
 
         binding.btnLogout.setOnClickListener {
-            performLogout()
+
+            showLogoutConfirmation {
+                performLogout()
+            }
+
         }
 
         binding.idTxtFullname.text=sharedPreferenceManager.getFullName()
+
+        binding.idTxtLocation.text=sharedPreferenceManager.getLocation()
+
+        (requireActivity() as MainActivity).isBluetoothConnected
+            .observe(viewLifecycleOwner) { connected ->
+                val tintColor = ContextCompat.getColor(
+                    requireContext(),
+                    if (connected) R.color.green else R.color.red
+                )
+                binding.imgBtStatus.setColorFilter(tintColor, PorterDuff.Mode.SRC_IN)
+            }
+
+        binding.imgBtStatus.setOnClickListener {
+            navigate(R.id.id_boomBarrierFragment)
+        }
+
+        (requireActivity() as MainActivity).binding.loading.visibility= View.VISIBLE
+        sharedViewModel.loadMenu()
 
     }
 
@@ -81,6 +108,7 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
 
     private fun setupObservers() {
         sharedViewModel.menuItems.observe(viewLifecycleOwner) { allItems ->
+            (requireActivity() as MainActivity).binding.loading.visibility= View.GONE
             val parentItems = allItems.filter { it.parentId == 0 }
             if (parentItems.isNotEmpty()) {
                 adapter.updateItems(parentItems)
@@ -133,16 +161,21 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
         // Navigate to login with clear back stack
         findNavController().navigate(R.id.id_loginFragment, null, navOptions)
 
-//        findNavController().navigate(R.id.id_loginFragment) {
-//            popUpTo(R.id.nav_graph) { inclusive = true }
-//            launchSingleTop = true
-//        }
+    }
 
-//        findNavController().navigate(R.id.id_loginFragment) {
-//            // Pop everything up to and including the splash (or whatever your first screen is)
-//            popUpTo(R.id.splashFragment) { inclusive = true }
-//            launchSingleTop = true
-//        }
+    private fun showLogoutConfirmation(onConfirm: () -> Unit) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Confirm Logout")
+            .setMessage("Are you sure you want to log out?")
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setPositiveButton("Logout") { dialog, _ ->
+                dialog.dismiss()
+                onConfirm()
+            }
+            .create()
+            .show()
     }
 }
 

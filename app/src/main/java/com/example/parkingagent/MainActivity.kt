@@ -11,9 +11,13 @@ import android.widget.ListView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
@@ -43,6 +47,9 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var btManager: BluetoothConnectionManager
 
+    public val _isBluetoothConnected = MutableLiveData(false)
+    val isBluetoothConnected: LiveData<Boolean> = _isBluetoothConnected
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -71,7 +78,7 @@ class MainActivity : AppCompatActivity() {
         btManager.initialize()
 
         // Load menu when activity starts
-        sharedViewModel.loadMenu()
+//        sharedViewModel.loadMenu()
 
 
 //        // Observe menu loading state
@@ -106,7 +113,11 @@ class MainActivity : AppCompatActivity() {
 
             binding.appBarMain.btnLogout.setOnClickListener {
             // Your logout logic
-            navigateToLogin()
+
+                showLogoutConfirmation {
+                    navigateToLogin()
+                }
+
         }
 
         // Update toolbar title based on navigation
@@ -153,6 +164,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         btManager.closeConnection()
+
     }
 
     private fun observeHeartBeatApi() {
@@ -204,7 +216,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     private fun navigateToLogin() {
         // Clear session data
         sharedPreferenceManager.clearToken()
@@ -217,6 +228,21 @@ class MainActivity : AppCompatActivity() {
 
         // Navigate to login with clear back stack
         navController.navigate(R.id.id_loginFragment, null, navOptions)
+    }
+
+    private fun showLogoutConfirmation(onConfirm: () -> Unit) {
+        AlertDialog.Builder(this@MainActivity)
+            .setTitle("Confirm Logout")
+            .setMessage("Are you sure you want to log out?")
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setPositiveButton("Logout") { dialog, _ ->
+                dialog.dismiss()
+                onConfirm()
+            }
+            .create()
+            .show()
     }
 
 

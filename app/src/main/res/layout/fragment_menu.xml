@@ -16,6 +16,20 @@
         app:layout_constraintGuide_percent="0.2"
         />
 
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/img_bt_status"
+        android:layout_width="@dimen/_40sdp"
+        android:layout_height="0dp"
+        android:background="@color/primary"
+        android:padding="@dimen/_4sdp"
+        android:scaleType="fitCenter"
+        android:tint="@color/red"
+        android:src="@drawable/bluetooth_icon"
+        app:layout_constraintBottom_toBottomOf="@id/btnLogout"
+        app:layout_constraintEnd_toStartOf="@+id/btnLogout"
+        app:layout_constraintStart_toEndOf="@id/id_txt_fullname"
+        app:layout_constraintTop_toTopOf="@id/btnLogout" />
+
     <ImageButton
         android:id="@+id/btnLogout"
         android:layout_width="@dimen/_40sdp"

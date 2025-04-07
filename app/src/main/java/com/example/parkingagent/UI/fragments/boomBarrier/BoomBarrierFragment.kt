@@ -69,6 +69,12 @@ class BoomBarrierFragment : BaseFragment<FragmentBoomBarrierBinding>() {
         val device = bluetoothAdapter.getRemoteDevice(macAddress)
         (requireActivity() as MainActivity).btManager.connectToDevice(device)
         updateStatus()
+        if ((requireActivity() as MainActivity).btManager.isConnected()){
+            (requireActivity() as MainActivity)._isBluetoothConnected.postValue(true)
+        }
+        else{
+            (requireActivity() as MainActivity)._isBluetoothConnected.postValue(false)
+        }
     }
 
 

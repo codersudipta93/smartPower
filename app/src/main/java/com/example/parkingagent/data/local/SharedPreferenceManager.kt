@@ -1,114 +1,146 @@
 package com.example.parkingagent.data.local
 
 import android.content.Context
+import android.content.SharedPreferences
+
 import android.util.Log
 import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import javax.crypto.AEADBadTagException
 import javax.inject.Inject
 
 class SharedPreferenceManager @Inject constructor(
     private val context: Context
 ) {
-    
-    private val masterKey = MasterKey.Builder(context).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build()
+    private val masterKey = MasterKey.Builder(context)
+        .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+        .build()
 
-    private val sharedPreferences = EncryptedSharedPreferences.create(context, TOKEN_MANAGER_NAME, masterKey, EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV, EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM )
+    private val sharedPreferences: SharedPreferences by lazy {
+        createEncryptedPrefs()
+    }
+
+    private fun createEncryptedPrefs(): SharedPreferences {
+        val fileName = TOKEN_MANAGER_NAME
+
+        return try {
+            EncryptedSharedPreferences.create(
+                context,
+                fileName,
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        } catch (e: AEADBadTagException) {
+            Log.w("SPM", "Encrypted prefs corrupted, deleting and recreating", e)
+            context.deleteFile(fileName)
+            EncryptedSharedPreferences.create(
+                context,
+                fileName,
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        } catch (e: Exception) {
+            // Catch other keystore or crypto exceptions
+            Log.w("SPM", "Error creating encrypted prefs, deleting and recreating", e)
+            context.deleteFile(fileName)
+            EncryptedSharedPreferences.create(
+                context,
+                fileName,
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        }
+    }
 
     fun getAccessToken(): String? = sharedPreferences.getString(TOKEN_KEY, null)
 
     fun saveAccessToken(token: String) {
-//        Log.d("TAG", "saved Token: "+token)
         sharedPreferences.edit {
             putString(TOKEN_KEY, token)
         }
     }
 
     fun clearToken() {
-        sharedPreferences.edit { putString(TOKEN_KEY, null) }
-    }
-
-
-    fun setLoginStatus(is_logged_in:Boolean)
-    {
         sharedPreferences.edit {
-            putBoolean(IS_LOGGED_IN,is_logged_in)
+            remove(TOKEN_KEY)
         }
     }
 
-    fun getLoginStatus():Boolean
-    {
-        return sharedPreferences.getBoolean(IS_LOGGED_IN,false)
-    }
-
-    fun setEntityId(entity_id:Int){
+    fun setLoginStatus(isLoggedIn: Boolean) {
         sharedPreferences.edit {
-            putInt(entityId,entity_id)
+            putBoolean(IS_LOGGED_IN, isLoggedIn)
         }
     }
 
-    fun getEntityId():Int{
-        return sharedPreferences.getInt(entityId,0)
-    }
+    fun getLoginStatus(): Boolean =
+        sharedPreferences.getBoolean(IS_LOGGED_IN, false)
 
-    fun setUserId(user_id:Int){
+    fun setEntityId(entityId: Int) {
         sharedPreferences.edit {
-            putInt("user_id",user_id)
+            putInt(KEY_ENTITY_ID, entityId)
         }
     }
+
+    fun getEntityId(): Int =
+        sharedPreferences.getInt(KEY_ENTITY_ID, 0)
+
+    fun setUserId(userId: Int) {
+        sharedPreferences.edit {
+            putInt(KEY_USER_ID, userId)
+        }
+    }
+
+    fun getUserId(): Int =
+        sharedPreferences.getInt(KEY_USER_ID, 0)
 
     fun saveIpAddress(ip: String) {
         sharedPreferences.edit {
-            putString("ip_address", ip)
+            putString(KEY_IP, ip)
         }
     }
+
+    fun getIpAddress(): String? =
+        sharedPreferences.getString(KEY_IP, null)
 
     fun savePort(port: String) {
         sharedPreferences.edit {
-            putString("port_number", port)
+            putString(KEY_PORT, port)
         }
     }
 
-    fun getIpAddress(): String? {
-        return sharedPreferences.getString("ip_address", null)
-    }
-
-    fun getPort(): String? {
-        return sharedPreferences.getString("port_number", null)
-    }
-
-    fun getUserId():Int{
-        return sharedPreferences.getInt("user_id",0)
-    }
+    fun getPort(): String? =
+        sharedPreferences.getString(KEY_PORT, null)
 
     fun setFullName(name: String) {
         sharedPreferences.edit {
-            putString("full_name", name)
+            putString(KEY_FULL_NAME, name)
         }
     }
 
-    fun getFullName(): String? {
-        return sharedPreferences.getString("full_name", null)
-    }
+    fun getFullName(): String? =
+        sharedPreferences.getString(KEY_FULL_NAME, null)
 
     fun setLocation(location: String) {
         sharedPreferences.edit {
-            putString("location", location)
+            putString(KEY_LOCATION, location)
         }
     }
 
-    fun getLocation(): String? {
-        return sharedPreferences.getString("location", null)
-    }
-
-
+    fun getLocation(): String? = sharedPreferences.getString(KEY_LOCATION, null)
 
     companion object {
-
-        const val TOKEN_MANAGER_NAME = "dale_arts_token_pref"
-        const val TOKEN_KEY = "auth_token"
-        const val IS_LOGGED_IN = "is_logged_in"
-        const val entityId="entity_id"
+        private const val TOKEN_MANAGER_NAME = "parking_token_pref"
+        private const val TOKEN_KEY = "auth_token"
+        private const val IS_LOGGED_IN = "is_logged_in"
+        private const val KEY_ENTITY_ID = "entity_id"
+        private const val KEY_USER_ID = "user_id"
+        private const val KEY_IP = "ip_address"
+        private const val KEY_PORT = "port_number"
+        private const val KEY_FULL_NAME = "full_name"
+        private const val KEY_LOCATION = "location"
     }
-
 }

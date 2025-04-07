@@ -43,7 +43,7 @@ class SplashFragment : Fragment() {
             delay(3000)
             // Check if token exists in SharedPreferenceManager
             val token = sharedPreferenceManager.getAccessToken()
-            if (!token.isNullOrBlank()) {
+            if (!token.isNullOrBlank() && sharedPreferenceManager.getEntityId()!=0) {
                 // Token exists: navigate directly to the menu screen
                 findNavController().navigate(R.id.action_splashFragment_to_menuFragment)
             } else {

@@ -47,6 +47,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.Dev
         super.initView()
         sessionManager= SharedPreferenceManager(requireContext())
         deviceInfoManager = DeviceInfoManager(this)
+//        deviceInfoManager.checkAndRequestPermissions()
         binding.btnLoginContinue.setOnClickListener({
             deviceInfoManager.checkAndRequestPermissions()
         })
@@ -131,7 +132,6 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.Dev
         }
     }
 
-
     override fun onDeviceInfoFetched(deviceId: String?, imei: String?) {
         if (deviceId != null) {
             this.deviceId=deviceId
@@ -162,6 +162,5 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.Dev
 
 
     }
-
 
 }
