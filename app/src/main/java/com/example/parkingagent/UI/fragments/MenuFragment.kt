@@ -24,6 +24,7 @@ import com.example.parkingagent.MainActivity
 import com.example.parkingagent.R
 import com.example.parkingagent.UI.adapters.MenuAdapter
 import com.example.parkingagent.UI.base.BaseFragment
+import com.example.parkingagent.UI.decorators.GridSpacingItemDecoration
 import com.example.parkingagent.UI.fragments.home.HomeViewModel
 import com.example.parkingagent.data.local.SharedPreferenceManager
 import com.example.parkingagent.data.remote.models.Menu.MenuDataItem
@@ -63,22 +64,22 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
 
         }
 
-        binding.idTxtFullname.text=sharedPreferenceManager.getFullName()
+        binding.idTxtFullname.text="Welcome, "+sharedPreferenceManager.getFullName()
 
         binding.idTxtLocation.text=sharedPreferenceManager.getLocation()
 
-        (requireActivity() as MainActivity).isBluetoothConnected
-            .observe(viewLifecycleOwner) { connected ->
-                val tintColor = ContextCompat.getColor(
-                    requireContext(),
-                    if (connected) R.color.green else R.color.red
-                )
-                binding.imgBtStatus.setColorFilter(tintColor, PorterDuff.Mode.SRC_IN)
-            }
+//        (requireActivity() as MainActivity).isBluetoothConnected
+//            .observe(viewLifecycleOwner) { connected ->
+//                val tintColor = ContextCompat.getColor(
+//                    requireContext(),
+//                    if (connected) R.color.green else R.color.red
+//                )
+//                binding.imgBtStatus.setColorFilter(tintColor, PorterDuff.Mode.SRC_IN)
+//            }
 
-        binding.imgBtStatus.setOnClickListener {
-            navigate(R.id.id_boomBarrierFragment)
-        }
+//        binding.imgBtStatus.setOnClickListener {
+//            navigate(R.id.id_boomBarrierFragment)
+//        }
 
         (requireActivity() as MainActivity).binding.loading.visibility= View.VISIBLE
         sharedViewModel.loadMenu()
@@ -86,14 +87,26 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
     }
 
     private fun setupRecyclerView() {
+        val spanCount = 2
         adapter = MenuAdapter(emptyList()) { menuItem ->
             navigateToDestination(menuItem.appMenuId)
         }
         binding.recyclerViewMenu.apply {
-            layoutManager = GridLayoutManager(requireContext(), 2)
+            layoutManager = GridLayoutManager(requireContext(), spanCount)
             adapter = this@MenuFragment.adapter
+
+            // convert your desired dp to px
+            val spacingPx = resources.getDimensionPixelSize(com.intuit.sdp.R.dimen._16sdp)
+            addItemDecoration(
+                GridSpacingItemDecoration(
+                    spanCount = spanCount,
+                    spacing = spacingPx,
+                    includeEdge = true
+                )
+            )
         }
     }
+
 
 //    private fun setupObservers() {
 //        sharedViewModel.menuItems.observe(viewLifecycleOwner) { items ->
@@ -125,7 +138,7 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
 
     private fun navigateToDestination(appMenuId: Int?) {
         when (appMenuId) {
-            1 -> navigate(R.id.id_prkingMenuFragment)
+            1 -> {navigate(R.id.id_prkingMenuFragment)}
             2 -> navigate(R.id.id_cardSettingsFragment)
 //            3 -> navigate(R.id.id_reportsFragment)
             5 -> navigate(R.id.id_fragment_card_in)

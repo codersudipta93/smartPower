@@ -70,57 +70,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
         observeViewModel()
     }
 
-    /**
-     * Initialize Bluetooth adapter using BluetoothManager.
-     */
-//    private fun setupBluetoothAdapter() {
-//        val bluetoothManager =
-//            requireContext().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-//        bluetoothAdapter = bluetoothManager.adapter ?: run {
-//            Toast.makeText(requireContext(), "Bluetooth not available", Toast.LENGTH_SHORT).show()
-//            return
-//        }
-//
-//        // Request Bluetooth permissions if not granted
-//        if (ContextCompat.checkSelfPermission(
-//                requireContext(),
-//                Manifest.permission.BLUETOOTH_CONNECT
-//            ) != PackageManager.PERMISSION_GRANTED
-//        ) {
-//            ActivityCompat.requestPermissions(
-//                requireActivity(),
-//                arrayOf(
-//                    Manifest.permission.BLUETOOTH_CONNECT,
-//                    Manifest.permission.BLUETOOTH_SCAN
-//                ),
-//                100
-//            )
-//        }
-//
-//        // Register BroadcastReceiver for device discovery
-//        val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
-//        requireContext().registerReceiver(receiver, filter)
-//        bluetoothAdapter.startDiscovery()
-//    }
-
-    /**
-     * Initialize the ListView for displaying discovered devices.
-     */
-//    private fun setupDeviceListView() {
-//        deviceListView = binding.deviceListView
-//        deviceAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1)
-//        deviceListView.adapter = deviceAdapter
-//
-//        deviceListView.setOnItemClickListener { _, _, position, _ ->
-//            val device = devices[position]
-//            connectToDevice(device)
-//        }
-//    }
-
-    /**
-     * Set up the vehicle type dropdown.
-     */
-
 
     private fun setupVehicleTypeDropdown() {
         val vehicleTypes = listOf("Two-Wheeler", "Four-Wheeler")

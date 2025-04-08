@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -16,19 +17,19 @@
         app:layout_constraintGuide_percent="0.2"
         />
 
-    <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/img_bt_status"
-        android:layout_width="@dimen/_40sdp"
-        android:layout_height="0dp"
-        android:background="@color/primary"
-        android:padding="@dimen/_4sdp"
-        android:scaleType="fitCenter"
-        android:tint="@color/red"
-        android:src="@drawable/bluetooth_icon"
-        app:layout_constraintBottom_toBottomOf="@id/btnLogout"
-        app:layout_constraintEnd_toStartOf="@+id/btnLogout"
-        app:layout_constraintStart_toEndOf="@id/id_txt_fullname"
-        app:layout_constraintTop_toTopOf="@id/btnLogout" />
+<!--    <androidx.appcompat.widget.AppCompatImageButton-->
+<!--        android:id="@+id/img_bt_status"-->
+<!--        android:layout_width="@dimen/_40sdp"-->
+<!--        android:layout_height="0dp"-->
+<!--        android:background="@color/primary"-->
+<!--        android:padding="@dimen/_4sdp"-->
+<!--        android:scaleType="fitCenter"-->
+<!--        android:tint="@color/red"-->
+<!--        android:src="@drawable/bluetooth_icon"-->
+<!--        app:layout_constraintBottom_toBottomOf="@id/btnLogout"-->
+<!--        app:layout_constraintEnd_toStartOf="@+id/btnLogout"-->
+<!--        app:layout_constraintStart_toEndOf="@id/id_txt_fullname"-->
+<!--        app:layout_constraintTop_toTopOf="@id/btnLogout" />-->
 
     <ImageButton
         android:id="@+id/btnLogout"
@@ -45,13 +46,13 @@
         app:layout_constraintBottom_toBottomOf="@id/id_txt_fullname"/>
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/id_txt_fullname"
+        android:id="@+id/id_txt_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         android:textSize="@dimen/_20sdp"
         android:textColor="@color/white"
-        android:text="Dashboard"
+        android:text="Location"
         android:fontFamily="@font/gilroy_bold"
         app:layout_constraintBottom_toBottomOf="@id/id_guideline_horizontal"
         app:layout_constraintStart_toStartOf="parent"
@@ -59,15 +60,15 @@
         />
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/id_txt_location"
+        android:id="@+id/id_txt_fullname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/white"
         android:fontFamily="@font/gilroy_regular"
         android:textSize="@dimen/_15sdp"
-        android:text="Location"
-        app:layout_constraintStart_toStartOf="@id/id_txt_fullname"
-        app:layout_constraintTop_toBottomOf="@id/id_txt_fullname"
+        android:text="Name"
+        app:layout_constraintStart_toStartOf="@id/id_txt_location"
+        app:layout_constraintTop_toBottomOf="@id/id_txt_location"
         />
 
     <androidx.recyclerview.widget.RecyclerView

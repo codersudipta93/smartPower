@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.parkingagent.UI.adapters.MenuAdapter
 import com.example.parkingagent.UI.base.BaseFragment
+import com.example.parkingagent.UI.decorators.GridSpacingItemDecoration
 import com.example.parkingagent.UI.fragments.menu.CardSettingsFragment
 import com.example.parkingagent.data.local.SharedPreferenceManager
 import com.example.parkingagent.data.remote.models.Menu.MenuDataItem
@@ -55,12 +56,23 @@ class ParkingMenuFragment : BaseFragment<FragmentParkingMenuBinding>() {
     }
 
     private fun setupRecyclerView() {
+        val spanCount = 2
         adapter = MenuAdapter(emptyList()) { menuItem ->
             navigateToDestination(menuItem.appMenuId)
         }
         binding.recyclerViewMenu.apply {
-            layoutManager = GridLayoutManager(requireContext(), 2)
+            layoutManager = GridLayoutManager(requireContext(), spanCount)
             adapter = this@ParkingMenuFragment.adapter
+
+            // convert your desired dp to px
+            val spacingPx = resources.getDimensionPixelSize(com.intuit.sdp.R.dimen._16sdp)
+            addItemDecoration(
+                GridSpacingItemDecoration(
+                    spanCount = spanCount,
+                    spacing = spacingPx,
+                    includeEdge = true
+                )
+            )
         }
     }
 

@@ -26,7 +26,7 @@ class ParkingRateAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val rate = items[position]
         holder.tvVehicleType.text = rate.vehicleType ?: "—"
-        holder.tvRate.text = String.format("$%.2f/hr", rate.ratePerHr ?: 0.0)
+        holder.tvRate.text = String.format("\u20B9%.2f/hr", rate.ratePerHr ?: 0.0)
     }
 
     override fun getItemCount(): Int = items.size

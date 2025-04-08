@@ -2,6 +2,7 @@ package com.example.parkingagent
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.graphics.PorterDuff
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -14,6 +15,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.LiveData
@@ -27,6 +29,7 @@ import com.example.parkingagent.databinding.ActivityMainBinding
 import com.example.parkingagent.utils.BluetoothConnectionManager
 import com.example.parkingagent.utils.SharedViewModel
 import com.example.parkingagent.utils.Utils
+import com.lottiefiles.dotlottie.core.util.lifecycleOwner
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -97,8 +100,16 @@ class MainActivity : AppCompatActivity() {
 //            }
 //        }
 
-    }
+        isBluetoothConnected.observe(this) {
+             connected ->
+                val tintColor = ContextCompat.getColor(
+                    this@MainActivity,
+                    if (connected) R.color.green else R.color.white
+                )
+                binding.appBarMain.imgBtStatus.setColorFilter(tintColor, PorterDuff.Mode.SRC_IN)
+        }
 
+    }
 
     private fun setupToolbar() {
         // Access views through the appBarMain reference
@@ -111,13 +122,9 @@ class MainActivity : AppCompatActivity() {
             onBackPressedDispatcher.onBackPressed()
         }
 
-            binding.appBarMain.btnLogout.setOnClickListener {
+            binding.appBarMain.imgBtStatus.setOnClickListener {
             // Your logout logic
-
-                showLogoutConfirmation {
-                    navigateToLogin()
-                }
-
+                navController.navigate(R.id.id_boomBarrierFragment)
         }
 
         // Update toolbar title based on navigation

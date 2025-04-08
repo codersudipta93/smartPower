@@ -43,20 +43,20 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 app:layout_constraintStart_toEndOf="@id/btnBack"
-                app:layout_constraintEnd_toStartOf="@id/btnLogout"
+                app:layout_constraintEnd_toStartOf="@id/img_bt_status"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
 
 
 
             <ImageButton
-                android:id="@+id/btnLogout"
-                android:layout_width="@dimen/_40sdp"
+                android:id="@+id/img_bt_status"
+                android:layout_width="@dimen/_45sdp"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/primary"
                 app:tint="@color/white"
-                android:src="@drawable/ic_baseline_logout_24"
-                android:scaleType="fitCenter"
+                android:src="@drawable/bluetooth_icon"
+                android:scaleType="fitXY"
                 android:layout_marginEnd="@dimen/_5sdp"
                 android:contentDescription="Logout"
                 app:layout_constraintEnd_toEndOf="parent"
