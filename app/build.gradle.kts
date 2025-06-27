@@ -15,7 +15,7 @@ android {
     defaultConfig {
         applicationId = "com.example.parkingagent"
         minSdk = 28
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.legacy.support.v4)
     implementation(libs.androidx.fragment.ktx)
+
     implementation(libs.androidx.security.crypto.ktx)
     implementation(libs.androidx.paging.runtime.ktx)
     implementation(libs.androidthings)
@@ -108,9 +109,11 @@ dependencies {
 
     implementation(libs.zxing.android.embedded)
 
+
+
 //    implementation(libs.paylib.release)
 
-
+    implementation ("com.google.android.material:material:1.9.0")
     implementation(files("libs/PayLib-release-2.0.17.aar"))
 
     implementation("com.github.bumptech.glide:glide:4.12.0")

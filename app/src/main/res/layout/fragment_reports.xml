@@ -1,0 +1,542 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="10dp"
+        android:fillViewport="true"
+        android:scrollbars="none"
+        android:background="@color/white">
+
+        <!-- Date Filter Row - From and To dates -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Date Time Range Selection - Side by Side -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingBottom="16dp">
+
+                <!-- From DateTime -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingEnd="8dp"
+                    android:paddingStart="8dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="From DateTime"
+                        android:textSize="14sp"
+                        android:textColor="#333333"
+                        android:fontFamily="@font/gilroy_medium"
+                        android:paddingBottom="8dp"/>
+
+                    <LinearLayout
+                        android:id="@+id/fromDateTimeRow"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="12dp"
+                        android:background="@drawable/bg_rounded_border">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_calendar"
+                            app:tint="#333333"/>
+
+                        <TextView
+                            android:id="@+id/tvFromDateTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="2025-04-01 13:00"
+                            android:textSize="13sp"
+                            android:textColor="#333333"
+                            android:fontFamily="@font/gilroy_medium"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- To DateTime -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="8dp"
+                    >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="To DateTime"
+                        android:textSize="14sp"
+                        android:textColor="#333333"
+                        android:fontFamily="@font/gilroy_medium"
+                        android:paddingBottom="4dp"/>
+
+                    <LinearLayout
+                        android:id="@+id/toDateTimeRow"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="12dp"
+                        android:background="@drawable/bg_rounded_border">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_calendar"
+                            app:tint="#333333"/>
+
+                        <TextView
+                            android:id="@+id/tvToDateTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="2025-04-01 13:00"
+                            android:textSize="13sp"
+                            android:textColor="#333333"
+                            android:fontFamily="@font/gilroy_medium"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Two Wheeler Report Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/collectedCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:cardUseCompatPadding="true"
+                android:layout_marginBottom="4dp"
+                android:visibility="gone"
+
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Card Title -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Two Wheeler"
+                        android:textSize="18sp"
+                        android:textColor="#333333"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/gilroy_medium"
+                        android:padding="12dp"
+                        android:background="#E0E0E0" />
+
+                    <!-- Column Headers -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="12dp"
+                        android:background="#FAFAFA">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.5"
+                            android:text=""
+                            android:textSize="14sp"
+                            android:textColor="#666666"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/gilroy_medium"/>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Count"
+                            android:textSize="14sp"
+                            android:textColor="#666666"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/gilroy_medium"
+                            android:gravity="center_vertical"
+
+                            />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Amount"
+                            android:textSize="14sp"
+                            android:textColor="#666666"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/gilroy_medium"
+                            android:gravity="end"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="8dp">
+
+                        <!-- Cash Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="12dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1.5"
+                                android:text="Cash"
+                                android:textSize="16sp"
+                                android:textColor="#333333"
+                                android:fontFamily="@font/gilroy_medium" />
+
+                            <TextView
+                                android:id="@+id/cash_twoWheelerCount"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="25"
+                                android:textSize="16sp"
+                                android:textColor="#333333"
+                                android:fontFamily="@font/gilroy_medium"
+                                android:gravity="center_vertical"/>
+
+                            <TextView
+                                android:id="@+id/cash_twoWheelerAmount"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text=""
+                                android:textSize="16sp"
+                                android:textColor="#333333"
+                                android:fontFamily="@font/gilroy_medium"
+                                android:gravity="end"/>
+                        </LinearLayout>
+
+                        <!-- Card Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="12dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1.5"
+                                android:text="Card"
+                                android:textSize="16sp"
+                                android:textColor="#333333"
+                                android:fontFamily="@font/gilroy_medium" />
+
+                            <TextView
+                                android:id="@+id/card_twoWheelerCount"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text=""
+                                android:textSize="16sp"
+                                android:textColor="#333333"
+                                android:fontFamily="@font/gilroy_medium"
+                                android:gravity="center_vertical"/>
+
+                            <TextView
+                                android:id="@+id/card_twoWheelerAmount"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text=""
+                                android:textSize="16sp"
+                                android:textColor="#333333"
+                                android:fontFamily="@font/gilroy_medium"
+                                android:gravity="end"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Four Wheeler Report Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/notCollectedCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:cardUseCompatPadding="true"
+                android:layout_marginBottom="4dp"
+                android:visibility="gone"
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Card Title -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Four Wheeler"
+                        android:textSize="18sp"
+                        android:textColor="#333333"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/gilroy_medium"
+                        android:padding="12dp"
+                        android:background="#E0E0E0" />
+
+                    <!-- Column Headers -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="12dp"
+                        android:background="#FAFAFA">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.5"
+                            android:text=""
+                            android:textSize="14sp"
+                            android:textColor="#666666"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/gilroy_medium"/>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Count"
+                            android:textSize="14sp"
+                            android:textColor="#666666"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/gilroy_medium"
+                            android:gravity="center_vertical"/>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Amount"
+                            android:textSize="14sp"
+                            android:textColor="#666666"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/gilroy_medium"
+                            android:gravity="end"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="8dp">
+
+                        <!-- Cash Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="12dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1.5"
+                                android:text="Cash"
+                                android:textSize="16sp"
+                                android:textColor="#333333"
+                                android:fontFamily="@font/gilroy_medium"/>
+
+                            <TextView
+                                android:id="@+id/cash_fourWheelerCount"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text=""
+                                android:textSize="16sp"
+                                android:textColor="#333333"
+                                android:fontFamily="@font/gilroy_medium"
+                                android:gravity="center_vertical"/>
+
+                            <TextView
+                                android:id="@+id/cash_fourWheelerAmount"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="100"
+                                android:textSize="16sp"
+                                android:textColor="#333333"
+                                android:fontFamily="@font/gilroy_medium"
+                                android:gravity="end"/>
+                        </LinearLayout>
+
+                        <!-- Card Row -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="12dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1.5"
+                                android:text="Card"
+                                android:textSize="16sp"
+                                android:textColor="#333333"
+                                android:fontFamily="@font/gilroy_medium" />
+
+                            <TextView
+                                android:id="@+id/card_fourWheelerCount"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text=""
+                                android:textSize="16sp"
+                                android:textColor="#333333"
+                                android:fontFamily="@font/gilroy_medium"
+                                android:gravity="center_vertical"/>
+
+                            <TextView
+                                android:id="@+id/card_fourWheelerAmount"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text=""
+                                android:textSize="16sp"
+                                android:textColor="#333333"
+                                android:fontFamily="@font/gilroy_medium"
+                                android:gravity="end"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Summary Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/summaryCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:cardUseCompatPadding="true"
+                android:layout_marginBottom="4dp"
+                android:visibility="gone"
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Card Title -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Summary"
+                        android:textSize="18sp"
+                        android:textColor="#333333"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/gilroy_medium"
+                        android:padding="12dp"
+                        android:background="#E0E0E0" />
+
+                    <!-- Total Count Row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Total Count"
+                            android:textSize="16sp"
+                            android:textColor="#333333"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/gilroy_medium"/>
+
+                        <TextView
+                            android:id="@+id/tvTotalCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:textSize="16sp"
+                            android:textColor="#333333"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/gilroy_medium"/>
+                    </LinearLayout>
+
+                    <!-- Total Amount Row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Total Amount"
+                            android:textSize="16sp"
+                            android:textColor="#333333"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/gilroy_medium"/>
+
+                        <TextView
+                            android:id="@+id/tvTotalAmount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1200"
+                            android:textSize="16sp"
+                            android:textColor="#333333"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/gilroy_medium"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Print Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPrint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:layout_gravity="center"
+                android:text="Print Report"
+                android:backgroundTint="@color/primary"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
+                android:fontFamily="@font/gilroy_medium"
+                app:cornerRadius="12dp"
+                android:visibility="gone"
+                />
+        </LinearLayout>
+    </ScrollView>
+</layout>

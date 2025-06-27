@@ -13,14 +13,13 @@
         android:label="SplashFragment"
         tools:layout="@layout/fragment_splash"
         >
-                <action
-                    android:id="@+id/action_splashFragment_to_loginFragment"
-                    app:destination="@id/id_loginFragment" />
+        <action
+            android:id="@+id/action_splashFragment_to_loginFragment"
+            app:destination="@id/id_loginFragment" />
 
         <action
             android:id="@+id/action_splashFragment_to_menuFragment"
-            app:destination="@+id/id_menuFragment"
-            />
+            app:destination="@+id/id_menuFragment" />
 
     </fragment>
 
@@ -70,7 +69,10 @@
 
     </fragment>
 
-<!--    <fragment-->
+
+
+
+    <!--    <fragment-->
 <!--        android:id="@+id/id_fragment_more"-->
 <!--        android:name="com.example.parkingagent.UI.fragments.more.MoreFragment"-->
 <!--        android:label="MoreFragment"-->
@@ -188,6 +190,38 @@
 
     </fragment>
 
+    <fragment
+        android:id="@+id/id_reportsFragment"
+        android:name="com.example.parkingagent.UI.fragments.Reports.ReportsFragment"
+        android:label="ReportsFragment"
+        tools:layout="@layout/fragment_reports"
+        >
 
+
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/id_noInternetFragment"
+        android:name="com.example.parkingagent.UI.fragments.noInternet.NoInternetFragment"
+        android:label="NoInternetFragment"
+        tools:layout="@layout/fragment_no_internet"
+        >
+    </fragment>
+
+    <action
+        android:id="@+id/action_global_menuFragment"
+        app:destination="@id/id_menuFragment"
+        app:launchSingleTop="true" />
+
+    <action
+        android:id="@+id/action_global_noInternetFragment"
+        app:destination="@id/id_noInternetFragment"
+        app:launchSingleTop="true" />
+
+    <action
+        android:id="@+id/action_global_ipSetupFragment"
+        app:destination="@id/id_ipSetupFragment"
+        app:launchSingleTop="true" />
 
 </navigation>

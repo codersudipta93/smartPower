@@ -1,14 +1,12 @@
 package com.example.parkingagent.UI.fragments.cardInOut
 
+import android.app.AlertDialog
 import android.nfc.NdefMessage
 import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.nfc.tech.Ndef
 import androidx.fragment.app.viewModels
-import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,9 +17,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.parkingagent.MainActivity
 import com.example.parkingagent.R
 import com.example.parkingagent.UI.base.BaseFragment
-import com.example.parkingagent.UI.fragments.nfcFragment.NfcViewModel
 import com.example.parkingagent.databinding.FragmentCardInBinding
-import com.example.parkingagent.utils.BluetoothConnectionManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -29,14 +25,19 @@ import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import javax.inject.Inject
-
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
+import android.view.WindowManager
 
 @AndroidEntryPoint
 class CardInFragment : BaseFragment<FragmentCardInBinding>() {
 
     private val viewModel: CardInOutViewModel by viewModels()
     private var nfcAdapter: NfcAdapter? = null
+    private var MsgAlertDialog: AlertDialog? = null
 //    private var nfcTag: Tag? = null
 //    private var jsonData:String?=null
 
@@ -52,6 +53,28 @@ class CardInFragment : BaseFragment<FragmentCardInBinding>() {
         if (nfcAdapter == null) {
             Toast.makeText(context, "NFC is not supported on this device.", Toast.LENGTH_LONG).show()
             return
+        }
+
+
+    }
+
+
+    fun showAlertMsg(msg: String) {
+        val dialog = AlertDialog.Builder(requireContext())
+            .setTitle("Alert")
+            .setMessage(msg)
+            .setCancelable(false)
+            .setNegativeButton("Cancel") { d, _ -> d.dismiss() }
+            .create()
+
+        dialog.show()
+
+        // Auto-dismiss with coroutines
+        lifecycleScope.launch {
+            delay(5000)
+            if (dialog.isShowing) {
+                dialog.dismiss()
+            }
         }
     }
 
@@ -180,6 +203,10 @@ class CardInFragment : BaseFragment<FragmentCardInBinding>() {
 //        }
 //    }
 
+
+
+
+
     private fun readJsonFromTag(tag: Tag) {
         try {
             val ndef = Ndef.get(tag)
@@ -241,6 +268,8 @@ class CardInFragment : BaseFragment<FragmentCardInBinding>() {
     }
 
 
+
+
     override fun observe() {
         super.observe()
 
@@ -251,10 +280,12 @@ class CardInFragment : BaseFragment<FragmentCardInBinding>() {
 
                     when(it) {
                         is CardInOutViewModel.VehicleCardEvents.VehicleCardError -> {
-                            Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
+                            //Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
+                            showAlertMsg(it.message)
                         }
                         is CardInOutViewModel.VehicleCardEvents.VehicleCardParked -> {
-                            Toast.makeText(context, it.data.msg, Toast.LENGTH_LONG).show()
+                            //Toast.makeText(context, it.data.msg, Toast.LENGTH_LONG).show()
+                            showAlertMsg(it.data.msg.toString())
                             (requireActivity() as MainActivity).btManager.sendData("1".toByteArray())
 
                         }

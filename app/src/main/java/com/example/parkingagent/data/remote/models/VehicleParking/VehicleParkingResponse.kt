@@ -29,7 +29,7 @@ data class VehicleParkingResponse(
 	val chargableAmount: String? = null,
 
 	@field:SerializedName("VehicleParkingId")
-	val vehicleParkingId: Int? = null,
+	val VehicleParkingId: Int? = null,
 
 	@field:SerializedName("InTime")
 	val inTime: String? = null,
@@ -44,5 +44,13 @@ data class VehicleParkingResponse(
 //	val duration: String? = null
 
 	@field:SerializedName("Location")
-	val location: String? = null
+	val location: String? = null,
+
+	@field:SerializedName("BookingNumber")
+val BookingNumber: String? = null,
+
+	@field:SerializedName("VehicleType")
+	val VehicleType: String? = null,
+
+
 ) : Parcelable

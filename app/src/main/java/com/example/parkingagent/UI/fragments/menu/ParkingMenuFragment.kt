@@ -30,6 +30,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.getValue
+import android.util.Log
 
 @AndroidEntryPoint
 class ParkingMenuFragment : BaseFragment<FragmentParkingMenuBinding>() {
@@ -52,10 +53,10 @@ class ParkingMenuFragment : BaseFragment<FragmentParkingMenuBinding>() {
         setupRecyclerView()
         setupObservers()
 
-
     }
 
     private fun setupRecyclerView() {
+
         val spanCount = 2
         adapter = MenuAdapter(emptyList()) { menuItem ->
             navigateToDestination(menuItem.appMenuId)

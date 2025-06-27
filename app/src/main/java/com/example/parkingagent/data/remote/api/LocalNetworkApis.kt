@@ -9,6 +9,6 @@ import retrofit2.http.POST
 
 interface LocalNetworkApis {
 
-    @POST("Smartpower/API/Device/GetANPRVehicle")
+    @POST("Smartpower/")
     fun getANPRVehicle(): Call<ANPRVehicleResponse>
 }

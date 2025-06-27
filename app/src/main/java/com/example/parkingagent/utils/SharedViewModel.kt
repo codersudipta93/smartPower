@@ -19,6 +19,8 @@ import retrofit2.Callback
 import retrofit2.Response
 import javax.inject.Inject
 
+import android.content.SharedPreferences
+import org.json.JSONObject
 
 @HiltViewModel
 class SharedViewModel @Inject constructor(
@@ -43,7 +45,19 @@ class SharedViewModel @Inject constructor(
         client.getMenu(MenuRequest(entityId, deviceId)).enqueue(object : Callback<MenuResponse> {
             override fun onResponse(call: Call<MenuResponse>, response: Response<MenuResponse>) {
                 if (response.isSuccessful) {
+                    Log.d("MenuResponse",response.body()?.slipHF?.Header1.toString())
+
+                    val slipHF = JSONObject().apply {
+                        put("Header1", response.body()?.slipHF?.Header1.toString())
+                        put("Header2", response.body()?.slipHF?.Header2.toString())
+                        put("Footer1", response.body()?.slipHF?.Footer1.toString())
+                        put("Footer2", response.body()?.slipHF?.Footer2.toString())
+                    }
+                    sharedPreferenceManager.saveSlipHeaderFooter(slipHF.toString())
+                    Log.d("Current App version", response.body()?.currentAppVersion.toString())
+                    sharedPreferenceManager.setCurrentAppVersion(response.body()?.currentAppVersion.toString())
                     val menuResponse = response.body() ?: MenuResponse()
+                    //Log.d("MenuResponse",menuResponse.data.toString())
                     _menuItems.postValue(menuResponse.data?.filterNotNull() ?: emptyList())
                 } else {
                     _menuItems.postValue(emptyList())
@@ -57,6 +71,9 @@ class SharedViewModel @Inject constructor(
             }
         })
     }
+
+
+
 
     sealed class MenuLoadingState {
         object Loading : MenuLoadingState()

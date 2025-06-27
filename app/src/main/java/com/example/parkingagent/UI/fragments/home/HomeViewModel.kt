@@ -28,14 +28,15 @@ class HomeViewModel @Inject constructor(
     private val _mutualSharedflow= MutableSharedFlow<ParkingVehicleEvents>()
     val mutualSharedflow: SharedFlow<ParkingVehicleEvents> = _mutualSharedflow
 
-    fun parkedVehicle(vehicleNumber:String,VehicleTypeId:String,deviceId:String){
-        val vehicleParkingReqqBody=VehicleParkingReqBody(sharedPreferenceManager.getUserId(),"0",vehicleNumber, VehicleTypeId,deviceId,"QR")
+    fun parkedVehicle(vehicleNumber:String,VehicleTypeId:String,deviceId:String,BookingNumber:String){
+        val vehicleParkingReqqBody=VehicleParkingReqBody(sharedPreferenceManager.getUserId(),"0",vehicleNumber, VehicleTypeId,deviceId,"QR",BookingNumber)
         val parkingVehicleCall=client.vehicleParking(sharedPreferenceManager.getAccessToken().toString(),vehicleParkingReqqBody)
 
         parkingVehicleCall.enqueue(object:Callback<VehicleParkingResponse>{
             override fun onResponse(
                 call: Call<VehicleParkingResponse>,
                 response: Response<VehicleParkingResponse>
+                
             ) {
                 viewModelScope.launch {
                     if (response.isSuccessful && response.body()?.status ==true){
@@ -53,10 +54,7 @@ class HomeViewModel @Inject constructor(
                     _mutualSharedflow.emit(ParkingVehicleEvents.VehicleParkingFailed(t.message?:"Unknown Error"))
                 }
             }
-
         })
-
-
     }
 
     fun getLatestVehicleData(){

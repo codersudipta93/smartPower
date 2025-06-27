@@ -17,5 +17,21 @@ data class CollectionInsertReqBody(
 	val userId: Int? = null,
 
 	@field:SerializedName("Amount")
-	val amount: Double? = null
+	val amount: Double? = null,
+
+	@field:SerializedName("IsCollected")
+	val IsCollected: String? = null,
+
+	@field:SerializedName("VehicleTypeId")
+	val VehicleTypeId: String? = null,
+
+	@field:SerializedName("DeviceId")
+	val DeviceId: String? = null,
+
+	@field:SerializedName("InTime")
+	val InTime: String? = null,
+
+	@field:SerializedName("OutTime")
+    val OutTime: String? = null
+
 ) : Parcelable

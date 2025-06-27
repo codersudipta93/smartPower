@@ -1,5 +1,6 @@
 package com.example.parkingagent.UI.fragments.menu
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
@@ -40,6 +41,7 @@ class CardSettingsFragment : BaseFragment<FragmentCardSettingsBinding>() {
         super.initView()
         setupRecyclerView()
         setupObservers()
+        //showAlert("Card Setting...")
     }
 
     private fun setupRecyclerView() {
@@ -90,6 +92,17 @@ class CardSettingsFragment : BaseFragment<FragmentCardSettingsBinding>() {
     private fun showEmptyState() {
         Toast.makeText(requireContext(), "No menu items available", Toast.LENGTH_SHORT).show()
     }
+
+    private fun showAlert(message: String) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Error")
+            .setMessage(message)
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
 
     private fun navigateToDestination(appMenuId: Int?) {
         when (appMenuId) {

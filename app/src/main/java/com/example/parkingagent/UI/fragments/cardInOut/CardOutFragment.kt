@@ -1,5 +1,6 @@
 package com.example.parkingagent.UI.fragments.cardInOut
 
+import android.app.AlertDialog
 import android.nfc.NdefMessage
 import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
@@ -26,7 +27,12 @@ import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
+import android.view.WindowManager
 @AndroidEntryPoint
 class CardOutFragment:BaseFragment<FragmentCardOutBinding>() {
 
@@ -121,6 +127,26 @@ class CardOutFragment:BaseFragment<FragmentCardOutBinding>() {
         }
     }
 
+    fun showAlertMsg(msg: String) {
+        val dialog = AlertDialog.Builder(requireContext())
+            .setTitle("Alert")
+            .setMessage(msg)
+            .setCancelable(false)
+            .setNegativeButton("Cancel") { d, _ -> d.dismiss() }
+            .create()
+
+        dialog.show()
+
+        // Auto-dismiss with coroutines
+        lifecycleScope.launch {
+            delay(5000)
+            if (dialog.isShowing) {
+                dialog.dismiss()
+            }
+        }
+    }
+
+
 
     override fun observe() {
         super.observe()
@@ -131,13 +157,15 @@ class CardOutFragment:BaseFragment<FragmentCardOutBinding>() {
                     (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
                     when(it){
                         is CardInOutViewModel.VehicleCardEvents.VehicleCardError -> {
-                            Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
+                            //Toast.makeText(context, it.message, Toast.LENGTH_LONG).show()
+                            showAlertMsg(it.message)
                         }
                         is CardInOutViewModel.VehicleCardEvents.VehicleCardParked -> {
                             binding.edtDuration.setText(it.data.duration)
                             binding.edtInTime.setText(it.data.inTime)
                             binding.edtOutTime.setText(it.data.outTime)
-                            Toast.makeText(context, it.data.msg, Toast.LENGTH_LONG).show()
+                            showAlertMsg(it.data.msg.toString())
+                            //Toast.makeText(context, it.data.msg, Toast.LENGTH_LONG).show()
                             (requireActivity() as MainActivity).btManager.sendData("1".toByteArray())
                         }
                     }

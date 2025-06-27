@@ -1,234 +1,285 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/white"
-    >
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_start"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent=".08"
-        />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:background="@color/white">
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_end"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent=".92"
-        />
-
-    <TextView
-        android:id="@+id/txt_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Name"
-        android:layout_marginTop="@dimen/_10sdp"
-        android:textColor="@color/black"
-        android:fontFamily="@font/gilroy_medium"
-        app:layout_constraintStart_toStartOf="@id/guideline_start"
-        app:layout_constraintTop_toTopOf="parent"
-        />
-
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/edt_name"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="Enter Name"
-        android:layout_marginTop="@dimen/_5sdp"
-        android:textColor="@color/text_color_dark"
-        android:textSize="14sp"
-        android:textColorHint="@color/gray"
-        android:padding="15dp"
-        android:fontFamily="@font/gilroy_regular"
-        android:background="@drawable/bg_email_edit_text"
-        app:layout_constraintStart_toStartOf="@id/guideline_start"
-        app:layout_constraintEnd_toEndOf="@id/guideline_end"
-        app:layout_constraintTop_toBottomOf="@id/txt_name"
-        />
-
-    <TextView
-        android:id="@+id/txt_contact"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Contact Number"
-        android:layout_marginTop="@dimen/_10sdp"
-        android:textColor="@color/black"
-        android:fontFamily="@font/gilroy_medium"
-        android:textSize="14sp"
-        app:layout_constraintTop_toBottomOf="@id/edt_name"
-        app:layout_constraintStart_toStartOf="@id/guideline_start"
-        />
-
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/edt_contact"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_5sdp"
-        android:textColor="@color/text_color_dark"
-        android:textSize="14sp"
-        android:textColorHint="@color/gray"
-        android:padding="15dp"
-        android:fontFamily="@font/gilroy_regular"
-        android:hint="Contact Number"
-        android:inputType="phone"
-        android:maxLength="12"
-        android:background="@drawable/bg_email_edit_text"
-        app:layout_constraintStart_toStartOf="@id/guideline_start"
-        app:layout_constraintEnd_toEndOf="@id/guideline_end"
-        app:layout_constraintTop_toBottomOf="@id/txt_contact"
-        />
-
-    <TextView
-        android:id="@+id/txt_vehicle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Vehicle Number"
-        android:textColor="@color/black"
-        android:layout_marginTop="@dimen/_10sdp"
-        android:fontFamily="@font/gilroy_medium"
-        android:textSize="14sp"
-        app:layout_constraintStart_toStartOf="@id/guideline_start"
-        app:layout_constraintTop_toBottomOf="@id/edt_contact"
-        />
-
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/edt_vehicleNo"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textColor="@color/text_color_dark"
-        android:textSize="14sp"
-        android:layout_marginTop="@dimen/_5sdp"
-        android:textColorHint="@color/gray"
-        android:padding="15dp"
-        android:fontFamily="@font/gilroy_regular"
-        android:hint="Enter Vehicle Number"
-        android:maxLength="12"
-        android:background="@drawable/bg_email_edit_text"
-        app:layout_constraintStart_toStartOf="@id/guideline_start"
-        app:layout_constraintEnd_toEndOf="@id/guideline_end"
-        app:layout_constraintTop_toBottomOf="@id/txt_vehicle"
-        />
-
-
-    <TextView
-        android:id="@+id/txt_card_expiry"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Card Expiry Date"
-        android:textColor="@color/black"
-        android:layout_marginTop="@dimen/_10sdp"
-        android:fontFamily="@font/gilroy_medium"
-        android:textSize="14sp"
-        app:layout_constraintStart_toStartOf="@id/guideline_start"
-        app:layout_constraintTop_toBottomOf="@id/edt_vehicleNo"
-        />
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/edt_date"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textColor="@color/text_color_dark"
-        android:layout_marginTop="@dimen/_5sdp"
-        android:textSize="14sp"
-        android:textColorHint="@color/gray"
-        android:padding="15dp"
-        android:fontFamily="@font/gilroy_regular"
-        android:hint="Select Date"
-        android:focusable="false"
-        android:clickable="true"
-        android:background="@drawable/bg_email_edit_text"
-        app:layout_constraintStart_toStartOf="@id/guideline_start"
-        app:layout_constraintEnd_toEndOf="@id/guideline_end"
-        app:layout_constraintTop_toBottomOf="@id/txt_card_expiry"
-        />
-
-
-    <!--    <TextView-->
-<!--        android:id="@+id/txt_amount"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Amount"-->
-<!--        android:textColor="@color/black"-->
-<!--        android:fontFamily="@font/gilroy_medium"-->
-<!--        android:textSize="14sp"-->
-<!--        app:layout_constraintStart_toStartOf="@id/guideline_start"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/edt_vehicleNo"-->
-<!--        />-->
-
-<!--    <com.google.android.material.textfield.TextInputEditText-->
-<!--        android:id="@+id/edt_amount"-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:textColor="@color/text_color_dark"-->
-<!--        android:textSize="14sp"-->
-<!--        android:textColorHint="@color/gray"-->
-<!--        android:padding="15dp"-->
-<!--        android:fontFamily="@font/gilroy_regular"-->
-<!--        android:hint="Enter Vehicle Number"-->
-<!--        android:maxLength="12"-->
-<!--        android:inputType="numberDecimal"-->
-<!--        android:background="@drawable/bg_email_edit_text"-->
-<!--        app:layout_constraintStart_toStartOf="@id/guideline_start"-->
-<!--        app:layout_constraintEnd_toEndOf="@id/guideline_end"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/txt_amount"-->
-<!--        />-->
-
-
-    <TextView
-        android:id="@+id/txt_vehicle_type"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Vehicle Type"
-        android:layout_marginTop="@dimen/_10sdp"
-        android:textColor="@color/black"
-        android:fontFamily="@font/gilroy_medium"
-        android:textSize="14sp"
-        app:layout_constraintStart_toStartOf="@id/guideline_start"
-        app:layout_constraintTop_toBottomOf="@id/edt_date"
-        />
-
-        <Spinner
-            android:id="@+id/vehicleTypeDropdown"
-            android:layout_width="0dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="15dp"
-            android:layout_marginTop="@dimen/_5sdp"
-            android:background="@drawable/bg_email_edit_text"
-            android:fontFamily="@font/gilroy_regular"
-            android:hint="Select Vehicle Type"
-            android:textColor="@color/text_color_dark"
-            android:textColorHint="@color/gray"
-            android:textSize="14sp"
-            app:layout_constraintTop_toBottomOf="@id/txt_vehicle_type"
-            app:layout_constraintStart_toStartOf="@id/guideline_start"
-            app:layout_constraintEnd_toEndOf="@id/guideline_end"
-            />
+            android:paddingBottom="@dimen/_20sdp">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".08"
+                />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline_end"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent=".92"
+                />
+
+            <TextView
+                android:id="@+id/txt_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Name"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:textColor="@color/black"
+                android:fontFamily="@font/gilroy_medium"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintTop_toTopOf="parent"
+                />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="Enter Name"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:textColor="@color/text_color_dark"
+                android:textSize="14sp"
+                android:textColorHint="@color/gray"
+                android:padding="15dp"
+                android:fontFamily="@font/gilroy_regular"
+                android:background="@drawable/bg_email_edit_text"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintEnd_toEndOf="@id/guideline_end"
+                app:layout_constraintTop_toBottomOf="@id/txt_name"
+                />
+
+            <TextView
+                android:id="@+id/txt_contact"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Contact Number"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:textColor="@color/black"
+                android:fontFamily="@font/gilroy_medium"
+                android:textSize="14sp"
+                app:layout_constraintTop_toBottomOf="@id/edt_name"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_contact"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:textColor="@color/text_color_dark"
+                android:textSize="14sp"
+                android:textColorHint="@color/gray"
+                android:padding="15dp"
+                android:fontFamily="@font/gilroy_regular"
+                android:hint="Contact Number"
+                android:inputType="phone"
+                android:maxLength="10"
+                android:background="@drawable/bg_email_edit_text"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintEnd_toEndOf="@id/guideline_end"
+                app:layout_constraintTop_toBottomOf="@id/txt_contact"
+                />
+
+            <TextView
+                android:id="@+id/txt_vehicle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Vehicle Number"
+                android:textColor="@color/black"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:fontFamily="@font/gilroy_medium"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintTop_toBottomOf="@id/edt_contact"
+                />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_vehicleNo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_color_dark"
+                android:textSize="14sp"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:textColorHint="@color/gray"
+                android:padding="15dp"
+                android:fontFamily="@font/gilroy_medium"
+                android:hint="Enter Vehicle Number"
+                android:maxLength="12"
+                android:inputType="textCapCharacters"
+                android:background="@drawable/bg_email_edit_text"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintEnd_toEndOf="@id/guideline_end"
+                app:layout_constraintTop_toBottomOf="@id/txt_vehicle"
+                />
+
+            <TextView
+                android:id="@+id/txt_card_expiry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Card Expiry Date"
+                android:textColor="@color/black"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:fontFamily="@font/gilroy_medium"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintTop_toBottomOf="@id/edt_vehicleNo"
+                />
+
+            <TextView
+                android:id="@+id/txt_date_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MM/YY"
+                android:textColor="@color/gray"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:textSize="12sp"
+                android:fontFamily="@font/gilroy_regular"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintTop_toBottomOf="@id/txt_card_expiry"
+                />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_date"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_color_dark"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:textSize="14sp"
+                android:textColorHint="@color/gray"
+                android:padding="15dp"
+                android:fontFamily="@font/gilroy_regular"
+                android:hint="Select Date"
+                android:focusable="false"
+                android:clickable="true"
+                android:background="@drawable/bg_email_edit_text"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintEnd_toEndOf="@id/guideline_end"
+                app:layout_constraintTop_toBottomOf="@id/txt_date_label"
+                />
 
 
+            <TextView
+                android:id="@+id/txt_vehicle_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Vehicle Type"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:textColor="@color/black"
+                android:fontFamily="@font/gilroy_medium"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintTop_toBottomOf="@id/edt_date"
+                />
+
+            <Spinner
+                android:id="@+id/vehicleTypeDropdown"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:padding="15dp"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:background="@drawable/bg_email_edit_text"
+                android:fontFamily="@font/gilroy_regular"
+                android:hint="Select Vehicle Type"
+                android:textColor="@color/text_color_dark"
+                android:textColorHint="@color/gray"
+                android:textSize="14sp"
+                app:layout_constraintTop_toBottomOf="@id/txt_vehicle_type"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintEnd_toEndOf="@id/guideline_end"
+                />
 
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_guest_register"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:backgroundTint="@color/primary"
-        android:padding="15dp"
-        android:text="Continue"
-        android:textSize="14sp"
-        android:layout_marginBottom="@dimen/_20sdp"
-        app:cornerRadius="10dp"
-        app:layout_constraintEnd_toEndOf="@id/guideline_end"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@id/guideline_start"
-        app:layout_constraintBottom_toBottomOf="parent"
-        />
+            <TextView
+                android:id="@+id/txt_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Amount (₹)"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:textColor="@color/black"
+                android:fontFamily="@font/gilroy_medium"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintTop_toBottomOf="@id/vehicleTypeDropdown"
+                />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_amount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:textColor="@color/text_color_dark"
+                android:textSize="14sp"
+                android:textColorHint="@color/gray"
+                android:padding="15dp"
+                android:fontFamily="@font/gilroy_regular"
+                android:hint="Enter Amount"
+                android:maxLength="12"
+                android:inputType="numberDecimal"
+                android:background="@drawable/bg_email_edit_text"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintEnd_toEndOf="@id/guideline_end"
+                app:layout_constraintTop_toBottomOf="@id/txt_amount"
+                />
+
+
+            <TextView
+                android:id="@+id/txt_company_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Company Name"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:textColor="@color/black"
+                android:fontFamily="@font/gilroy_medium"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintTop_toBottomOf="@id/edt_amount"
+                />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_company_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:textColor="@color/text_color_dark"
+                android:textSize="14sp"
+                android:textColorHint="@color/gray"
+                android:padding="15dp"
+                android:fontFamily="@font/gilroy_regular"
+                android:hint="Enter Company Name"
+                android:background="@drawable/bg_email_edit_text"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintEnd_toEndOf="@id/guideline_end"
+                app:layout_constraintTop_toBottomOf="@id/txt_company_name"
+                />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_guest_register"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:backgroundTint="@color/primary"
+                android:padding="15dp"
+                android:text="Submit"
+                android:textSize="14sp"
+                android:layout_marginBottom="@dimen/_20sdp"
+                app:cornerRadius="10dp"
+                app:layout_constraintEnd_toEndOf="@id/guideline_end"
+                app:layout_constraintStart_toStartOf="@id/guideline_start"
+                app:layout_constraintTop_toBottomOf="@id/edt_company_name"
+                />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
 
 </layout>

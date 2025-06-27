@@ -52,9 +52,13 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.Dev
             deviceInfoManager.checkAndRequestPermissions()
         })
 
+
+
     }
 
     private fun agentLogin(){
+
+
 
         if (binding.edtEmail.text?.trim()?.isEmpty() == true){
             binding.edtEmail.error="Please enter User Id"
@@ -78,6 +82,8 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.Dev
         val etActivationCode = dialogView.findViewById<EditText>(R.id.etActivationCode)
         val btnSubmitCode = dialogView.findViewById<Button>(R.id.btnSubmitCode)
 
+
+
         btnSubmitCode.setOnClickListener {
             val activationCode = etActivationCode.text.toString().trim()
 
@@ -91,6 +97,8 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.Dev
 
         dialog.show()
     }
+
+
 
     fun callActivationApi(activationCode:String){
         (requireActivity() as MainActivity).binding.loading.visibility=View.VISIBLE

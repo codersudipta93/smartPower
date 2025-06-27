@@ -30,8 +30,17 @@ import com.example.parkingagent.utils.BluetoothConnectionManager
 import com.example.parkingagent.utils.SharedViewModel
 import com.example.parkingagent.utils.Utils
 import com.lottiefiles.dotlottie.core.util.lifecycleOwner
+import com.example.parkingagent.utils.NetworkUtils
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
+import android.net.NetworkRequest
+import android.net.Network
+import kotlinx.coroutines.*
+import android.os.Looper
 
 
 @AndroidEntryPoint
@@ -44,6 +53,9 @@ class MainActivity : AppCompatActivity() {
 
     public val sharedViewModel:SharedViewModel by viewModels()
 
+    private lateinit var connectivityManager: ConnectivityManager
+    private lateinit var networkCallback: ConnectivityManager.NetworkCallback
+    private var isBackEnabled = true
     @Inject
     lateinit var sharedPreferenceManager: SharedPreferenceManager
 
@@ -109,7 +121,96 @@ class MainActivity : AppCompatActivity() {
                 binding.appBarMain.imgBtStatus.setColorFilter(tintColor, PorterDuff.Mode.SRC_IN)
         }
 
+
+
+        NetworkUtils.registerNetworkCallback(this) { isConnected ->
+            runOnUiThread {
+                try {
+                    if (::navController.isInitialized) {
+                        val currentDest = navController.currentDestination?.id
+
+                        // Only navigate if we're not already on the correct fragment
+                        when {
+                            // When network is lost and not already on IP setup
+                            !isConnected && currentDest != R.id.id_noInternetFragment -> {
+                                Log.d("Network", "No internet - navigating to IP Setup")
+                                setBackEnabled(false)
+                                navController.navigate(
+                                    R.id.action_global_noInternetFragment,
+                                    null,
+                                    NavOptions.Builder()
+                                        .setPopUpTo(R.id.nav_graph, false)
+                                        .build()
+                                )
+
+                            }
+
+                            // When network is restored and we're on IP setup
+                            isConnected && currentDest == R.id.id_noInternetFragment -> {
+                                Log.d("Network", "Internet restored - navigating to Menu")
+                                Toast.makeText(this, "Internet connection restored.", Toast.LENGTH_SHORT).show()
+                                setBackEnabled(true)
+                                navController.navigate(
+                                    R.id.action_global_menuFragment,
+                                    null,
+                                    NavOptions.Builder()
+                                        .setPopUpTo(R.id.nav_graph, false)
+                                        .build()
+                                )
+                            }
+
+                            // First launch with no network - stay where we are
+                            !isConnected && currentDest == R.id.id_menuFragment -> {
+                                Log.d("Network", "First launch with no internet - staying on Menu")
+                                // Optionally show a warning
+                                showNoInternetAlert("No internet connection detected")
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("Navigation", "Error during network change handling", e)
+                }
+            }
+        }
+
+
+
+
+        isBackEnabled = false
+
+        // For example, re-enable back after 5 seconds (demo)
+        Handler(Looper.getMainLooper()).postDelayed({
+            isBackEnabled = true
+        }, 5000)
+
     }
+
+
+    override fun onBackPressed() {
+        if (isBackEnabled) {
+            super.onBackPressed()
+        } else {
+            Toast.makeText(this, "Back button is disabled right now", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Optional: method to set back press flag from fragment
+    fun setBackEnabled(enabled: Boolean) {
+        isBackEnabled = enabled
+    }
+
+
+    private fun showNoInternetAlert(msg:String) {
+        AlertDialog.Builder(this)
+            .setTitle("Alert")
+            .setMessage(msg)
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
 
     private fun setupToolbar() {
         // Access views through the appBarMain reference
@@ -144,6 +245,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.id_fragment_nfc -> "Check Card"
                 R.id.id_fragment_nfc_write -> "Issue Card"
                 R.id.id_parkingRateFragment->"Parking Rate"
+                R.id.id_reportsFragment->"Reports"
 
                 // Add other fragments
                 else -> ""
@@ -161,6 +263,10 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         handler.post(runnable) // Start periodic API call
+
+
+
+
     }
 
     override fun onPause() {
@@ -171,10 +277,41 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         btManager.closeConnection()
+        connectivityManager.unregisterNetworkCallback(networkCallback)
+    }
 
+
+    object NetworkUtils {
+
+        fun registerNetworkCallback(context: Context, onChanged: (Boolean) -> Unit) {
+            val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+            val networkRequest = NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .build()
+
+            connectivityManager.registerNetworkCallback(networkRequest, object : ConnectivityManager.NetworkCallback() {
+                override fun onAvailable(network: android.net.Network) {
+                    onChanged(true)
+                }
+
+                override fun onLost(network: android.net.Network) {
+                    onChanged(false)
+                }
+            })
+        }
+
+        fun isNetworkAvailable(context: Context): Boolean {
+            val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val network = connectivityManager.activeNetwork ?: return false
+            val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+            return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        }
     }
 
     private fun observeHeartBeatApi() {
+
+
         sharedViewModel.heartBeatResponse.observe(this) { result ->
             result.onSuccess { response ->
                 // Handle successful response
@@ -209,10 +346,9 @@ class MainActivity : AppCompatActivity() {
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.id_loginFragment,R.id.splashFragment,R.id.id_menuFragment
+                R.id.id_loginFragment,R.id.splashFragment,R.id.id_menuFragment,R.id.id_noInternetFragment
                     -> {
                     binding.appBarMain.toolbar.visibility= View.GONE
-
                 }
 
                 else -> {

@@ -25,6 +25,9 @@ data class VehicleParkingReqBody(
 	@field:SerializedName("ParkingMode")
 	val parkingMode: String? = null,
 
+	@field:SerializedName("BookingNumber")
+	val BookingNumber: String? = null,
+
 //	@field:SerializedName("Token")
 //	val Token: String? = null,
 ) : Parcelable

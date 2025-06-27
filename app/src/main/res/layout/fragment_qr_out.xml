@@ -36,35 +36,68 @@
             app:layout_constraintTop_toTopOf="parent"
             android:layout_marginTop="@dimen/_10sdp"/>
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/edt_vehicleNo"
+        <!-- Modified: Removed endIcon from TextInputLayout and added width constraint -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/vehicle_no_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_5sdp"
-            android:background="@drawable/bg_email_edit_text"
-            android:fontFamily="@font/gilroy_regular"
-            android:hint="Vehicle Number"
-            android:padding="15dp"
-            android:editable="false"
-            android:textColor="@color/text_color_dark"
-            android:textColorHint="@color/gray"
-            android:textSize="14sp"
             app:layout_constraintTop_toBottomOf="@id/txt_vehicle_no"
             app:layout_constraintStart_toStartOf="@id/guideline_start"
+            app:layout_constraintEnd_toStartOf="@+id/btn_search"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_marginEnd="@dimen/_8sdp"
+            app:hintEnabled="false"
+            android:background="@null"
+            app:boxStrokeWidth="0dp"
+            app:boxStrokeWidthFocused="0dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edt_vehicleNo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/gilroy_bold"
+                android:hint="Vehicle Number"
+                android:padding="15dp"
+                android:enabled="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:textColor="@color/text_color_dark"
+                android:textColorHint="@color/gray"
+                android:textSize="14sp"
+                android:inputType="textCapCharacters"
+                android:background="@drawable/bg_email_edit_text"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Added: New Search Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_search"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:backgroundTint="@color/primary"
+            android:padding="@dimen/_8sdp"
+            android:text="Search"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            app:cornerRadius="10dp"
+            app:icon="@drawable/ic_search"
+            app:iconTint="@color/white"
+            app:layout_constraintTop_toTopOf="@id/vehicle_no_layout"
+            app:layout_constraintBottom_toBottomOf="@id/vehicle_no_layout"
             app:layout_constraintEnd_toEndOf="@id/guideline_end" />
 
+        <!-- Rest of your original layout remains unchanged -->
         <!-- Entry Date Time -->
         <TextView
             android:id="@+id/txt_entry_datetime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Entry Date Time"
+            android:text="In Time"
             android:textColor="@color/black"
             android:fontFamily="@font/gilroy_medium"
             android:textSize="14sp"
             android:layout_marginTop="@dimen/_10sdp"
             app:layout_constraintStart_toStartOf="@id/guideline_start"
-            app:layout_constraintTop_toBottomOf="@id/edt_vehicleNo" />
+            app:layout_constraintTop_toBottomOf="@id/vehicle_no_layout" />
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/edt_entryDateTime"
@@ -73,7 +106,7 @@
             android:layout_marginTop="@dimen/_5sdp"
             android:background="@drawable/bg_email_edit_text"
             android:fontFamily="@font/gilroy_regular"
-            android:hint="Entry Date &amp; Time"
+            android:hint="In Time"
             android:padding="15dp"
             android:editable="false"
             android:textColor="@color/text_color_dark"
@@ -103,7 +136,7 @@
             android:layout_marginTop="@dimen/_5sdp"
             android:background="@drawable/bg_email_edit_text"
             android:fontFamily="@font/gilroy_regular"
-            android:hint="Select Out Time"
+            android:hint="Out Time"
             android:padding="15dp"
             android:editable="false"
             android:textColor="@color/text_color_dark"

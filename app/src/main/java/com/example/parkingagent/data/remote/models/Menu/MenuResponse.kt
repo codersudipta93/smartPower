@@ -14,8 +14,16 @@ data class MenuResponse(
 	val msg: String? = null,
 
 	@field:SerializedName("Data")
-	val data: List<MenuDataItem?>? = null
-) : Parcelable
+	val data: List<MenuDataItem?>? = null,
+
+	@field:SerializedName("slipHF")
+	val slipHF: HFData ? = null,
+
+
+	@field:SerializedName("AppVersion")
+	val currentAppVersion: String ? = null,
+
+	) : Parcelable
 
 @Parcelize
 data class MenuDataItem(
@@ -46,4 +54,22 @@ data class MenuDataItem(
 
 	@field:SerializedName("AppMenuId")
 	val appMenuId: Int? = null
+) : Parcelable
+
+
+@Parcelize
+data class HFData(
+
+	@field:SerializedName("Header1")
+	val Header1: String? = null,
+
+	@field:SerializedName("Header2")
+	val Header2: String? = null,
+
+	@field:SerializedName("Footer1")
+	val Footer1: String? = null,
+
+	@field:SerializedName("Footer2")
+	val Footer2: String? = null,
+
 ) : Parcelable

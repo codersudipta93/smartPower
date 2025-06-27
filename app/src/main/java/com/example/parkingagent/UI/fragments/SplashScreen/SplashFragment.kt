@@ -16,7 +16,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
+import android.net.NetworkRequest
+import android.net.Network
+import com.example.parkingagent.utils.NetworkUtils
 @AndroidEntryPoint
 class SplashFragment : Fragment() {
 
@@ -40,12 +45,22 @@ class SplashFragment : Fragment() {
         binding.iconImageView.animation = animation
 
         lifecycleScope.launch {
-            delay(3000)
+            delay(1500)
             // Check if token exists in SharedPreferenceManager
+            val isConnected = NetworkUtils.isNetworkAvailable(requireContext())
+
+
+
             val token = sharedPreferenceManager.getAccessToken()
             if (!token.isNullOrBlank() && sharedPreferenceManager.getEntityId()!=0) {
                 // Token exists: navigate directly to the menu screen
-                findNavController().navigate(R.id.action_splashFragment_to_menuFragment)
+
+                if(isConnected){
+                    findNavController().navigate(R.id.action_splashFragment_to_menuFragment)
+                }else{
+                    findNavController().navigate(R.id.action_global_noInternetFragment)
+                }
+
             } else {
                 // No token: navigate to the login screen
                 findNavController().navigate(R.id.action_splashFragment_to_loginFragment)

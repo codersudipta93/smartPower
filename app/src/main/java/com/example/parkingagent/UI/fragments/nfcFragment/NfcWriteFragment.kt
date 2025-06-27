@@ -20,18 +20,25 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.parkingagent.MainActivity
 import com.example.parkingagent.R
 import com.example.parkingagent.UI.base.BaseFragment
+import com.example.parkingagent.data.local.SharedPreferenceManager
 import com.example.parkingagent.databinding.FragmentNfcWriteBinding
+import com.sunmi.printerx.PrinterSdk
+import com.sunmi.printerx.style.BaseStyle
+import com.sunmi.printerx.style.TextStyle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class NfcWriteFragment : BaseFragment<FragmentNfcWriteBinding>() {
-
+    @Inject
+    lateinit var sessionManager: SharedPreferenceManager
     private val viewModel: NfcViewModel by viewModels()
     private var nfcAdapter: NfcAdapter? = null
     private var isWaitingForNfc = false
@@ -41,10 +48,11 @@ class NfcWriteFragment : BaseFragment<FragmentNfcWriteBinding>() {
     private var name: String? = null
     private var contact: String? = null
     private var vehicleNo: String? = null
-//    private var amount: Double? = null
+    //    private var amount: Double? = null
     private var expiryDate: String? = null
     private var vehicleTypeId: String? = null
-
+    private var amount: Double? = null
+    private var companyName: String? = null
     override fun getLayoutResourceId(): Int = R.layout.fragment_nfc_write
 
     override fun onResume() {
@@ -85,8 +93,10 @@ class NfcWriteFragment : BaseFragment<FragmentNfcWriteBinding>() {
 //        }
 //    }
 
+
+
     private fun setupVehicleTypeDropdown() {
-        val vehicleTypes = listOf("Two-Wheeler", "Four-Wheeler")
+        val vehicleTypes = listOf("Two Wheeler", "Four Wheeler")
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, vehicleTypes)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.vehicleTypeDropdown.adapter = adapter
@@ -111,7 +121,9 @@ class NfcWriteFragment : BaseFragment<FragmentNfcWriteBinding>() {
         name = binding.edtName.text.toString()
         contact = binding.edtContact.text.toString()
         vehicleNo = binding.edtVehicleNo.text.toString()
-//        amount = binding.edtAmount.text.toString().toDoubleOrNull() ?: 0.0
+        // amount = binding.edtAmount.text.toString().toDoubleOrNull() ?: 0.0
+        amount = binding.edtAmount.text.toString().toDoubleOrNull() ?: 0.0
+        companyName = binding.edtCompanyName.text.toString()
         expiryDate=binding.edtDate.text.toString()
         vehicleTypeId = vehicleTypeId ?: return
 
@@ -128,30 +140,29 @@ class NfcWriteFragment : BaseFragment<FragmentNfcWriteBinding>() {
             isValid = false
         }
         if (binding.edtContact.text.isNullOrBlank() || binding.edtContact.text!!.length < 10) {
-            binding.edtContact.error = "Invalid contact"
+            binding.edtContact.error = "Enter contact number"
             isValid = false
         }
         if (binding.edtVehicleNo.text.isNullOrBlank()) {
             binding.edtVehicleNo.error = "Enter vehicle number"
             isValid = false
         }
-//        if (binding.edtAmount.text.isNullOrBlank()) {
-//            binding.edtAmount.error = "Enter amount"
-//            isValid = false
-//        }
-
-        if (binding.edtDate.text.isNullOrBlank()){
-            binding.edtDate.error = "Select Date"
+        if (binding.edtAmount.text.isNullOrBlank()) {
+            binding.edtAmount.error = "Enter amount"
             isValid = false
         }
 
-//        if (binding.vehicleTypeDropdown.text.isNullOrBlank()) {
-//            binding.vehicleTypeDropdown.error = "Select vehicle type"
-//            isValid = false
-//        }
+        if (binding.edtDate.text.isNullOrBlank()){
+            binding.edtDate.error = "Select Expiry Date"
+            isValid = false
+        }
+
+        if (binding.edtCompanyName.text.isNullOrBlank()){
+            binding.edtCompanyName.error = "Enter company name"
+            isValid = false
+        }
 
         return isValid
-
     }
 
     private fun showNfcDialog() {
@@ -190,10 +201,24 @@ class NfcWriteFragment : BaseFragment<FragmentNfcWriteBinding>() {
             put("contact", contact)
             put("vehicle_no", vehicleNo)
             put("expiryDate", expiryDate)
+            put("amount", amount)
+            put("company_name", companyName)
+            put("card_no", tag.id.toHexString())
+            put("vehicle_type", vehicleTypeId)
+            put("regDate", SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()))
+            put("regDateTime", SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date()))
+
+            if(vehicleTypeId == "1"){
+                put("vehicle_name",  "Four Wheeler")
+            }else{
+                put("vehicle_name", "Two Wheeler")
+            }
+
         }.toString()
 
         writeJsonToTag(tag, jsonData) { success ->
             if (success) {
+                // Log.d("json data ===>", jsonData);
                 val tagId = tag.id.toHexString()
                 (requireActivity() as MainActivity).binding.loading.visibility = View.VISIBLE
                 viewModel.registerGuest(
@@ -202,7 +227,9 @@ class NfcWriteFragment : BaseFragment<FragmentNfcWriteBinding>() {
                     vehicleNo!!,
                     expiryDate!!,
                     tagId,
-                    vehicleTypeId!!.toInt()
+                    vehicleTypeId!!.toInt(),
+                    amount.toString(),
+                    companyName!!
                 )
                 isWaitingForNfc = false
                 dialog?.dismiss()
@@ -246,7 +273,10 @@ class NfcWriteFragment : BaseFragment<FragmentNfcWriteBinding>() {
                     (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
                     when (event) {
                         is NfcViewModel.GuestEvents.GuestRegistered -> {
-                            clearForm()
+                            val guestName = event.data?.cardNo
+                            Log.d("issue card res", "$guestName")
+                            printCardRegistrationSlip(event.data?.cardNo.toString())
+
                             Toast.makeText(context, "Guest registered", Toast.LENGTH_LONG).show()
                         }
                         is NfcViewModel.GuestEvents.Error -> {
@@ -258,12 +288,139 @@ class NfcWriteFragment : BaseFragment<FragmentNfcWriteBinding>() {
         }
     }
 
+
+    private fun printCardRegistrationSlip(cardNo:String) {
+        PrinterSdk.getInstance().getPrinter(requireContext(), object : PrinterSdk.PrinterListen {
+            override fun onDefPrinter(printer: PrinterSdk.Printer?) {
+                if (printer == null) {
+                    Toast.makeText(requireContext(), "Printer not available", Toast.LENGTH_SHORT).show()
+                    return
+                }
+
+                // Initialize canvas (384 is common width for 58mm Sunmi printers)
+                val canvasWidth = 384
+                var currentY = 10
+                val lineHeight = 38
+
+                printer?.canvasApi()?.initCanvas(
+                    BaseStyle.getStyle()
+                        .setWidth(410)
+                        .setHeight(720)
+                )
+
+
+                fun centerX(text: String, textSize: Int): Int {
+                    val charWidth = (textSize * 0.6).toInt() // Better than 0.5 for most fonts
+                    val textWidth = charWidth * text.length
+                    return ((canvasWidth - textWidth) / 2).coerceAtLeast(0)
+                }
+
+                fun renderCenteredText(text: String, size: Int = 25, bold: Boolean = false) {
+                    val posX = centerX(text, size)
+                    printer?.canvasApi()?.renderText(
+                        text,
+                        TextStyle.getStyle()
+                            .setTextSize(size)
+                            .enableBold(bold)
+                            .setPosX(posX)
+                            .setPosY(currentY)
+                    )
+                    currentY += lineHeight
+                }
+
+
+                fun renderLine(text: String) {
+                    printer?.canvasApi()?.renderText(
+                        text,
+                        TextStyle.getStyle()
+                            .setTextSize(22)  // Increase font size
+                            .enableBold(true)    // Make text bold for better visibility
+                            .setPosX(0)
+                            .setPosY(currentY)
+                    )
+                    currentY += lineHeight
+                }
+
+                fun renderAmount(text: String) {
+                    printer?.canvasApi()?.renderText(
+                        text,
+                        TextStyle.getStyle()
+                            .setTextSize(25)  // Increase font size
+                            .enableBold(true)    // Make text bold for better visibility
+                            .setPosX(0)
+                            .setPosY(currentY)
+                    )
+                    currentY += lineHeight
+                }
+
+
+                val slip = sessionManager.getSlipHeaderFooter();
+                val header1 = JSONObject(slip ?: "{}").optString("Header1")
+                val header2 = JSONObject(slip ?: "{}").optString("Header2")
+                val footer1 = JSONObject(slip ?: "{}").optString("Footer1")
+                val footer2 = JSONObject(slip ?: "{}").optString("Footer2")
+
+                // Header
+                renderCenteredText("Card Registration Slip", size = 28, bold = true)
+                currentY += 1 // Spacing
+                if(header1 != "" ) {
+                    renderCenteredText(header1, size = 28, bold = true)
+                    currentY += 1 // Spacing
+                }
+
+                if(header2 != "" ) {
+                    renderCenteredText(header2.uppercase(), size = 24, bold = false)
+                    renderLine("---------------------------------")
+                }
+                currentY += 10 // Spacing
+
+                // Body
+                renderLine("Card No.       : $cardNo")
+                renderLine("Vehicle No.    : $vehicleNo")
+                if(vehicleTypeId == "2") {
+                    renderLine("Vehicle Type   : Two Wheeler")
+                }else{
+                    renderLine("Vehicle Type   : Four Wheeler")
+                }
+                val currentDate =SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+                renderLine("Reg. Date      : $currentDate")
+                renderLine("Valid upto     : $expiryDate")
+
+                currentY += 1 // Spacing
+
+                renderLine("---------------------------------")
+                renderAmount("Recharge Amt.: Rs.$amount")
+                renderLine("----------------------------------")
+                val currentDateTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+                renderLine("Date of Reg. : $currentDateTime")
+                currentY += 18 // Spacing
+                if(footer1 != "" ) {
+                    renderCenteredText(footer1, size = 21, bold = true)
+                }
+
+                if(footer2 != "" ) {
+                    renderCenteredText(footer2, size = 21, bold = false)
+                }
+
+                printer.canvasApi()?.printCanvas(1, null)
+                clearForm()
+            }
+
+            override fun onPrinters(printers: MutableList<PrinterSdk.Printer>?) {
+                Toast.makeText(requireContext(), "Printed Successfully", Toast.LENGTH_SHORT).show()
+
+            }
+        })
+    }
+
     private fun clearForm() {
         binding.edtName.text?.clear()
         binding.edtContact.text?.clear()
         binding.edtVehicleNo.text?.clear()
         binding.edtDate.text?.clear()
-//        binding.vehicleTypeDropdown.text?.clear()
+        binding.edtAmount.text?.clear()
+        binding.edtCompanyName.text?.clear()
+        //setupVehicleTypeDropdown()
     }
 
     // Extension to convert ByteArray to Hex String
@@ -285,7 +442,7 @@ class NfcWriteFragment : BaseFragment<FragmentNfcWriteBinding>() {
             calendar.get(Calendar.MONTH),
             calendar.get(Calendar.DAY_OF_MONTH)
         )
-
+        datePickerDialog.datePicker.minDate = calendar.timeInMillis
         datePickerDialog.show()
     }
 }

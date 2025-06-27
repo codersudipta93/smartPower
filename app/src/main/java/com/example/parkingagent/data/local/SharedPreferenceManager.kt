@@ -103,6 +103,7 @@ class SharedPreferenceManager @Inject constructor(
         }
     }
 
+
     fun getIpAddress(): String? =
         sharedPreferences.getString(KEY_IP, null)
 
@@ -111,6 +112,25 @@ class SharedPreferenceManager @Inject constructor(
             putString(KEY_PORT, port)
         }
     }
+
+
+    fun getBaseUrl(): String {
+        return sharedPreferences.getString(KEY_BASE_URL, "http://45.249.111.51/SmartPowerAPI/api/") ?: "http://45.249.111.51/SmartPowerAPI/api/"
+    }
+
+    fun getInstalledVersion(): String {
+        return sharedPreferences.getString(APP_INSTALLED_VERSION, "0.0.1") ?: "0.0.1"
+    }
+
+
+    fun setCurrentAppVersion(name: String) {
+        sharedPreferences.edit {
+            putString(APP_CURRENT_VERSION, name)
+        }
+    }
+
+    fun getCurrentAppVersion(): String? =
+        sharedPreferences.getString(APP_CURRENT_VERSION, null)
 
     fun getPort(): String? =
         sharedPreferences.getString(KEY_PORT, null)
@@ -132,6 +152,16 @@ class SharedPreferenceManager @Inject constructor(
 
     fun getLocation(): String? = sharedPreferences.getString(KEY_LOCATION, null)
 
+    fun saveSlipHeaderFooter(jsonString: String) {
+        sharedPreferences.edit {
+            putString(KEY_SLIP_HEADER_FOOTER, jsonString)
+        }
+    }
+
+    fun getSlipHeaderFooter(): String? {
+        return sharedPreferences.getString(KEY_SLIP_HEADER_FOOTER, null)
+    }
+
     companion object {
         private const val TOKEN_MANAGER_NAME = "parking_token_pref"
         private const val TOKEN_KEY = "auth_token"
@@ -142,5 +172,12 @@ class SharedPreferenceManager @Inject constructor(
         private const val KEY_PORT = "port_number"
         private const val KEY_FULL_NAME = "full_name"
         private const val KEY_LOCATION = "location"
+        private const val KEY_BASE_URL = "http://45.249.111.51/SmartPowerAPI/api/"
+        private const val APP_INSTALLED_VERSION = "0.0.1"
+        private const val APP_CURRENT_VERSION = ""
+        private const val KEY_SLIP_HEADER_FOOTER = "slip_HF"
+
+
+
     }
 }
