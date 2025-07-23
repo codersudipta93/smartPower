@@ -286,7 +286,9 @@ class CardInFragment : BaseFragment<FragmentCardInBinding>() {
                         is CardInOutViewModel.VehicleCardEvents.VehicleCardParked -> {
                             //Toast.makeText(context, it.data.msg, Toast.LENGTH_LONG).show()
                             showAlertMsg(it.data.msg.toString())
-                            (requireActivity() as MainActivity).btManager.sendData("1".toByteArray())
+                            //(requireActivity() as MainActivity).btManager.sendData("1".toByteArray())
+
+                            (requireActivity() as MainActivity).btManager.controlRelayWithAutoOff(1)
 
                         }
                     }

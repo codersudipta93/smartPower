@@ -61,6 +61,13 @@ class NfcReadFragment : BaseFragment<FragmentNfcReadBinding>(){
     private var nfcAdapter: NfcAdapter? = null
     private var isWaitingForNfc = false
     private var vehicleTypeId: String? = null
+
+    private var vehicleTypeName: String? = null
+    //private var selectedVehicleTypeId: String? = null
+    private val vehicleTypeList = mutableListOf<String>()
+    private val vehicleTypeIdList = mutableListOf<String>()
+
+
     private var NfcAlertDialog: AlertDialog? = null
     private var isCardRead = false // 🔸 added flag
     private lateinit var cardJsonData: JSONObject
@@ -72,8 +79,8 @@ class NfcReadFragment : BaseFragment<FragmentNfcReadBinding>(){
     override fun initView() {
         Log.d("page", "Check card page......");
         super.initView()
-        setupVehicleTypeDropdown()
-
+        //setupVehicleTypeDropdown()
+          getDropdown()
         nfcAdapter = NfcAdapter.getDefaultAdapter(requireContext())
             if (nfcAdapter == null) {
                 Log.e("NFC", "This device doesn't support NFC.")
@@ -190,12 +197,12 @@ class NfcReadFragment : BaseFragment<FragmentNfcReadBinding>(){
 
             put("regDate", SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()))
             put("regDateTime", SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date()))
-
-            if(cardJsonData.optString("vehicle_type") == "1"){
-                put("vehicle_name",  "Four Wheeler")
-            }else{
-                put("vehicle_name", "Two Wheeler")
-            }
+            put("vehicle_name", vehicleTypeName)
+//            if(cardJsonData.optString("vehicle_type") == "1"){
+//                put("vehicle_name",  "Four Wheeler")
+//            }else{
+//                put("vehicle_name", "Two Wheeler")
+//            }
 
 
         }.toString()
@@ -268,6 +275,7 @@ class NfcReadFragment : BaseFragment<FragmentNfcReadBinding>(){
             put("UserId", sessionManager.getUserId().toString())
         }
 
+
         val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
 
         val request = Request.Builder()
@@ -327,7 +335,7 @@ class NfcReadFragment : BaseFragment<FragmentNfcReadBinding>(){
                 printer?.canvasApi()?.initCanvas(
                     BaseStyle.getStyle()
                         .setWidth(410)
-                        .setHeight(700)
+                        .setHeight(730)
                 )
 
 
@@ -375,6 +383,31 @@ class NfcReadFragment : BaseFragment<FragmentNfcReadBinding>(){
                     currentY += lineHeight
                 }
 
+                fun renderMultilineCenteredText(text: String, size: Int = 25, bold: Boolean = false) {
+                    val lines = text.split(", ")
+                    for (line in lines) {
+                        val words = line.trim().split(" ")
+                        val sb = StringBuilder()
+                        var lineWidth = 0
+
+                        for (word in words) {
+                            val wordWidth = (size * 0.55 * word.length).toInt()
+                            if (lineWidth + wordWidth > 375) {
+                                renderCenteredText(sb.toString().trim(), size, bold)
+                                sb.clear()
+                                lineWidth = 0
+                            }
+                            sb.append("$word ")
+                            lineWidth += wordWidth + (size / 2) // spacing
+                        }
+
+                        if (sb.isNotEmpty()) {
+                            renderCenteredText(sb.toString().trim(), size, bold)
+                        }
+                    }
+                }
+
+
 
                 val slip = sessionManager.getSlipHeaderFooter();
                 val header1 = JSONObject(slip ?: "{}").optString("Header1")
@@ -387,10 +420,16 @@ class NfcReadFragment : BaseFragment<FragmentNfcReadBinding>(){
                 // Header
                 renderCenteredText("Card Recharge Slip", size = 28, bold = true)
                 currentY += 1 // Spacing
-                if(header1 != "" ) {
-                    renderCenteredText(header1, size = 28, bold = true)
+
+
+                if(header1.isNotBlank()) {
+                    val lines = header1.split("|")
+                    for (line in lines) {
+                        renderCenteredText(line.trim(), size = 28, bold = true)
+                    }
                     currentY += 1 // Spacing
                 }
+
 
                 if(header2 != "" ) {
                     renderCenteredText(header2.uppercase(), size = 24, bold = false)
@@ -627,9 +666,10 @@ class NfcReadFragment : BaseFragment<FragmentNfcReadBinding>(){
                 binding.edtCompanyName.setText(companyName);
                 binding.edtTagId.setText(cardNumber);
                 binding.edtExpiryDate.setText(cardExpiry);
-                val index = if (vehicleType == "2") 0 else 1 // "2" = Two-Wheeler, "1" = Four-Wheeler
-                binding.vehicleTypeDropdown.setSelection(index)
-
+                val index = vehicleTypeIdList.indexOf(vehicleType)
+                if (index != -1) {
+                    binding.vehicleTypeDropdown.setSelection(index)
+                }
             }
         } catch (e: JSONException) {
             Log.e("NfcReadFragment", "Failed to parse JSON: ${e.message}")
@@ -660,34 +700,129 @@ class NfcReadFragment : BaseFragment<FragmentNfcReadBinding>(){
         datePickerDialog.show()
     }
 
-    private fun setupVehicleTypeDropdown() {
-        val vehicleTypes = listOf("Two Wheeler", "Four Wheeler")
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, vehicleTypes)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        //binding.vehicleTypeDropdown.adapter = adapter
-        binding.vehicleTypeDropdown.adapter = adapter
-        binding.vehicleTypeDropdown.isEnabled = false
-        binding.vehicleTypeDropdown.isClickable = false
+//    private fun setupVehicleTypeDropdown() {
+//        val vehicleTypes = listOf("Two Wheeler", "Four Wheeler")
+//        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, vehicleTypes)
+//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//        //binding.vehicleTypeDropdown.adapter = adapter
+//        binding.vehicleTypeDropdown.adapter = adapter
+//        binding.vehicleTypeDropdown.isEnabled = false
+//        binding.vehicleTypeDropdown.isClickable = false
+//
+//        binding.vehicleTypeDropdown.post {
+//            val selectedView = binding.vehicleTypeDropdown.selectedView
+//            if (selectedView != null && selectedView is TextView) {
+//                selectedView.setTextColor(Color.BLACK) // Now it will work
+//            }
+//        }
+//
+//
+//        binding.vehicleTypeDropdown.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+//                // Map the position to the appropriate vehicle type ID
+//                vehicleTypeId = if (position == 0) "2" else "1"
+//            }
+//
+//            override fun onNothingSelected(parent: AdapterView<*>?) {
+//                // Optionally, set a default value or leave it empty
+//            }
+//        }
+//    }
 
-        binding.vehicleTypeDropdown.post {
-            val selectedView = binding.vehicleTypeDropdown.selectedView
-            if (selectedView != null && selectedView is TextView) {
-                selectedView.setTextColor(Color.BLACK) // Now it will work
-            }
+
+    fun getDropdown() {
+        (requireActivity() as MainActivity).binding.loading.visibility = View.VISIBLE
+        val client = OkHttpClient()
+
+        val json = JSONObject().apply {
+            put("UserId", sessionManager.getUserId().toString())
+            put("Token", sessionManager.getAccessToken().toString())
         }
 
+        val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
+
+        val request = Request.Builder()
+            .url("${sessionManager.getBaseUrl()}Device/GetVehicleType")
+            .addHeader("Content-Type", "application/json")
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("API_ERROR", "Failed to call API", e)
+                requireActivity().runOnUiThread {
+                    (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
+                    Toast.makeText(requireContext(), "API call failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+                Log.d("Raw API Response", responseBody ?: "Null response")
+
+                if (response.isSuccessful && responseBody != null) {
+                    try {
+                        val rootObject = JSONObject(responseBody)
+                        val jsonArray = rootObject.getJSONArray("Data")
+
+                        vehicleTypeList.clear()
+                        vehicleTypeIdList.clear()
+
+                        for (i in 0 until jsonArray.length()) {
+                            val obj = jsonArray.getJSONObject(i)
+                            if (obj.getBoolean("Status")) {
+                                val vehicleType = obj.getString("VehicleType")
+                                val vehicleTypeId = obj.getInt("VehicleTypeId").toString()
+
+                                vehicleTypeList.add(vehicleType)
+                                vehicleTypeIdList.add(vehicleTypeId)
+                            }
+                        }
+
+                        requireActivity().runOnUiThread {
+                            (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
+                            setupVehicleTypeDropdown()
+                        }
+
+                    } catch (e: JSONException) {
+                        Log.e("JSON_PARSE_ERROR", "Error parsing response JSON", e)
+                        Log.d("Invalid JSON", responseBody ?: "null")
+                        requireActivity().runOnUiThread {
+                            (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
+                            Toast.makeText(requireContext(), "Parsing failed!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                } else {
+                    requireActivity().runOnUiThread {
+                        (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
+                        Toast.makeText(requireContext(), "Vehicle type fetch failed!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+    }
+
+    private fun setupVehicleTypeDropdown() {
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, vehicleTypeList)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.vehicleTypeDropdown.adapter = adapter
 
         binding.vehicleTypeDropdown.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                // Map the position to the appropriate vehicle type ID
-                vehicleTypeId = if (position == 0) "2" else "1"
+                vehicleTypeId = vehicleTypeIdList.getOrNull(position)
+                vehicleTypeName = vehicleTypeList.getOrNull(position)
+                Log.d("VehicleTypeSelection", "Selected ID: $vehicleTypeId, Name: $vehicleTypeName")
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Optionally, set a default value or leave it empty
+                vehicleTypeId = null
+                vehicleTypeName = null
+                Log.d("VehicleTypeSelection", "Nothing selected")
             }
         }
     }
+
 
 
 

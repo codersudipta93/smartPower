@@ -1,3 +1,4 @@
+
 package com.example.parkingagent.UI.fragments.boomBarrier
 
 import android.annotation.SuppressLint
@@ -17,7 +18,7 @@ import com.example.parkingagent.UI.base.BaseFragment
 import com.example.parkingagent.databinding.FragmentBoomBarrierBinding
 import com.example.parkingagent.utils.BluetoothConnectionManager
 import javax.inject.Inject
-
+import android.util.Log
 class BoomBarrierFragment : BaseFragment<FragmentBoomBarrierBinding>() {
 
     private val deviceList = mutableListOf<String>()
@@ -56,11 +57,13 @@ class BoomBarrierFragment : BaseFragment<FragmentBoomBarrierBinding>() {
             val macAddress = deviceList[position].split("\n")[1]
             connectToDevice(macAddress)
         }
-
     }
 
     private fun updateStatus() {
-        binding.statusTextView.text = if ((requireActivity() as MainActivity).btManager.isConnected()) "Connected" else "Not Connected"
+        Log.d("bluetooth status", (requireActivity() as MainActivity).btManager.isConnected().toString())
+        binding.statusTextView.text = if ((requireActivity() as MainActivity).btManager.isConnected()) "Connected - " + (requireActivity() as MainActivity).btManager.getConnectedDeviceName().toString() else "Not Connected"
+        // Log.d("connected device name", (requireActivity() as MainActivity).btManager.getConnectedDeviceName().toString())
+       //(requireActivity() as MainActivity).btManager.connectToPairedJDYDevice()
     }
 
     @SuppressLint("MissingPermission")

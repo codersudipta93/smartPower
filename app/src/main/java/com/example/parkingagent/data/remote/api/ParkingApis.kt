@@ -26,6 +26,10 @@ interface ParkingApis {
 fun vehicleParking(@Header("Authorization") token:String,@Body vehicleParkingReqBody: VehicleParkingReqBody): Call<VehicleParkingResponse>
 
 
+
+    @POST("Device/getVehicleTypedropdown")
+    fun getVehicleTypedropdown(@Header("Authorization") token:String,@Body searchVehicleReqBody:VehicleSearchParkingReqBody): Call<VehicleParkingResponse>
+
     @POST("Device/VehicleParkingOutUsingVehcileNo")
 fun vehicleSearchAndParking(@Header("Authorization") token:String,@Body searchVehicleReqBody:VehicleSearchParkingReqBody): Call<VehicleParkingResponse>
 

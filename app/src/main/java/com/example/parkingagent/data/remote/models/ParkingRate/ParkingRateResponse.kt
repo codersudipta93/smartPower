@@ -36,7 +36,7 @@ data class ParkingRateDataItem(
 	val vehicleType: String? = null,
 
 	@field:SerializedName("RatePerHr")
-	val ratePerHr: Double? = null,
+	val ratePerHr: String? = null,
 
 	@field:SerializedName("Token")
 	val token: String? = null

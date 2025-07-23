@@ -1,5 +1,5 @@
 package com.example.parkingagent.UI.fragments.home
-
+//QR IN Page
 import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
@@ -51,7 +51,15 @@ import android.text.TextWatcher
 import com.example.parkingagent.UI.fragments.qrInOut.QrOutFragment.Companion.ACTION_DATA_CODE_RECEIVED
 import com.example.parkingagent.UI.fragments.qrInOut.QrOutFragment.Companion.DATA
 import com.example.parkingagent.UI.fragments.qrInOut.QrOutFragment.Companion.TAG
-
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
+import org.json.JSONException
+import org.json.JSONArray
 
 @AndroidEntryPoint
 class HomeFragment : BaseFragment<FragmentHomeBinding>() {
@@ -66,6 +74,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
 
     private val viewModel: HomeViewModel by viewModels()
     private var selectedVehicleTypeId: String? = null
+    private val vehicleTypeList = mutableListOf<String>()
+    private val vehicleTypeIdList = mutableListOf<String>()
 
     override fun getLayoutResourceId(): Int {
         return R.layout.fragment_home
@@ -80,6 +90,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
         setupButtonListeners()
         observeViewModel()
         registerReceiver()
+        getDropdown()
     }
 
     private fun registerReceiver() {
@@ -138,26 +149,190 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     override fun onDestroyView() {
         super.onDestroyView()
         requireActivity().unregisterReceiver(br)
+    }
 
+
+//    fun getDropdown (){
+//        (requireActivity() as MainActivity).binding.loading.visibility = View.VISIBLE
+//        val client = OkHttpClient()
+//
+//        val json = JSONObject().apply {
+//            put("UserId", sharedPreferenceManager.getUserId().toString())
+//            put("Token", sharedPreferenceManager.getAccessToken().toString())
+//        }
+//
+//        val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
+//        Log.d("dropdown param", sharedPreferenceManager.getUserId().toString())
+//        Log.d("dropdown param",  sharedPreferenceManager.getAccessToken().toString())
+//
+//        val request = Request.Builder()
+//            .url("${sharedPreferenceManager.getBaseUrl()}Device/GetVehicleType")
+//            //.addHeader("Authorization", "Bearer ${sharedPreferenceManager.getAccessToken()}")
+//            .addHeader("Content-Type", "application/json")
+//            .post(requestBody)
+//            .build()
+//
+//        client.newCall(request).enqueue(object : Callback {
+//            override fun onFailure(call: Call, e: IOException) {
+//                Log.e("API_ERROR", "Failed to call API", e)
+//                (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
+//                requireActivity().runOnUiThread {
+//                    Toast.makeText(requireContext(), "API call failed", Toast.LENGTH_SHORT).show()
+//                }
+//            }
+//
+//            override fun onResponse(call: Call, response: Response) {
+//                val responseBody = response.body?.string()
+//
+//                Log.d("Raw API Response", responseBody ?: "Null response");
+//
+//
+//                if (response.isSuccessful && responseBody != null) {
+//                    try {
+//
+//                        requireActivity().runOnUiThread {
+//                            (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
+//                            Toast.makeText(requireContext(), "dropdown fetch Successful", Toast.LENGTH_SHORT).show()
+//                            val vehicleTypes = responseBody
+//
+//                            (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
+//                        }
+//
+//
+//                    } catch (e: JSONException) {
+//                        Log.e("JSON_PARSE_ERROR", "Error parsing response JSON", e)
+//                        (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
+//                    }
+//                } else {
+//                    requireActivity().runOnUiThread {
+//                        (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
+//                        Toast.makeText(requireContext(), "Report fetch failed!", Toast.LENGTH_SHORT).show()
+//                    }
+//                }
+//            }
+//        })
+//    }
+
+
+//    private fun setupVehicleTypeDropdown() {
+//        (requireActivity() as MainActivity).binding.loading.visibility=View.VISIBLE
+//        val vehicleTypes = listOf("Two Wheeler", "Four Wheeler")
+//        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, vehicleTypes)
+//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//        binding.vehicleTypeDropdown.adapter = adapter
+//
+//        binding.vehicleTypeDropdown.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+//                // Map the position to the appropriate vehicle type ID
+//                selectedVehicleTypeId = if (position == 0) "2" else "1"
+//            }
+//
+//            override fun onNothingSelected(parent: AdapterView<*>?) {
+//                // Optionally, set a default value or leave it empty
+//            }
+//        }
+//    }
+
+
+
+
+
+
+
+
+    fun getDropdown() {
+        (requireActivity() as MainActivity).binding.loading.visibility = View.VISIBLE
+        val client = OkHttpClient()
+
+        val json = JSONObject().apply {
+            put("UserId", sharedPreferenceManager.getUserId().toString())
+            put("Token", sharedPreferenceManager.getAccessToken().toString())
+        }
+
+        val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
+
+        val request = Request.Builder()
+            .url("${sharedPreferenceManager.getBaseUrl()}Device/GetVehicleType")
+            .addHeader("Content-Type", "application/json")
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("API_ERROR", "Failed to call API", e)
+                requireActivity().runOnUiThread {
+                    (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
+                    Toast.makeText(requireContext(), "API call failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+                Log.d("Raw API Response", responseBody ?: "Null response")
+
+                if (response.isSuccessful && responseBody != null) {
+                    try {
+                        val rootObject = JSONObject(responseBody)
+                        val jsonArray = rootObject.getJSONArray("Data")
+
+                        vehicleTypeList.clear()
+                        vehicleTypeIdList.clear()
+
+                        for (i in 0 until jsonArray.length()) {
+                            val obj = jsonArray.getJSONObject(i)
+                            if (obj.getBoolean("Status")) {
+                                val vehicleType = obj.getString("VehicleType")
+                                val vehicleTypeId = obj.getInt("VehicleTypeId").toString()
+
+                                vehicleTypeList.add(vehicleType)
+                                vehicleTypeIdList.add(vehicleTypeId)
+                            }
+                        }
+
+                        requireActivity().runOnUiThread {
+                            (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
+                            setupVehicleTypeDropdown()
+                        }
+
+                    } catch (e: JSONException) {
+                        Log.e("JSON_PARSE_ERROR", "Error parsing response JSON", e)
+                        Log.d("Invalid JSON", responseBody ?: "null")
+                        requireActivity().runOnUiThread {
+                            (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
+                            Toast.makeText(requireContext(), "Parsing failed!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                } else {
+                    requireActivity().runOnUiThread {
+                        (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
+                        Toast.makeText(requireContext(), "Vehicle type fetch failed!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
     }
 
     private fun setupVehicleTypeDropdown() {
-        val vehicleTypes = listOf("Two Wheeler", "Four Wheeler")
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, vehicleTypes)
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, vehicleTypeList)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.vehicleTypeDropdown.adapter = adapter
 
         binding.vehicleTypeDropdown.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                // Map the position to the appropriate vehicle type ID
-                selectedVehicleTypeId = if (position == 0) "2" else "1"
+                selectedVehicleTypeId = vehicleTypeIdList.getOrNull(position)
+                Log.d("SelectedVehicleTypeId", selectedVehicleTypeId ?: "null")
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Optionally, set a default value or leave it empty
+                selectedVehicleTypeId = null
             }
         }
     }
+
+
+
+
 
     /**
      * Set up button listeners for parking the vehicle.
@@ -206,7 +381,8 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
 
                             printReceipt(event.vehicleParkingResponse.vehicleNo?:"Unknown",event.vehicleParkingResponse.vehicleTypeId.toString(), event.vehicleParkingResponse.inTime.toString(),event.vehicleParkingResponse.location.toString(),event.vehicleParkingResponse.BookingNumber.toString(),event.vehicleParkingResponse.VehicleType.toString())
 
-                            (requireActivity() as MainActivity).btManager.sendData("1".toByteArray())
+                            //(requireActivity() as MainActivity).btManager.sendData("1".toByteArray())
+                             (requireActivity() as MainActivity).btManager.controlRelayWithAutoOff(1)
 
                         }
                         is HomeViewModel.ParkingVehicleEvents.VehicleParkingFailed -> {
@@ -324,7 +500,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                 p0?.canvasApi()?.initCanvas(
                     BaseStyle.getStyle()
                         .setWidth(canvasWidth)
-                        .setHeight(720));
+                        .setHeight(750));
 
                 fun centerX(text: String, textSize: Int): Int {
                     val charWidth = (textSize * 0.6).toInt() // Better than 0.5 for most fonts
@@ -359,6 +535,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                 }
 
 
+
                 val slip = sharedPreferenceManager.getSlipHeaderFooter();
                 val header1 = JSONObject(slip ?: "{}").optString("Header1")
                 val header2 = JSONObject(slip ?: "{}").optString("Header2")
@@ -366,10 +543,13 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                 val footer2 = JSONObject(slip ?: "{}").optString("Footer2")
 
 
-             if(header1 != "" ) {
-                  renderCenteredText("$header1", size = 28, bold = true)
-                   currentY += 1 // Spacing
-               }
+                if(header1.isNotBlank()) {
+                    val lines = header1.split("|")
+                    for (line in lines) {
+                        renderCenteredText(line.trim(), size = 28, bold = true)
+                    }
+                    currentY += 1 // Spacing
+                }
 
                 if(header2 != "" ) {
                     renderCenteredText(header2.uppercase(), size = 24, bold = false)
@@ -415,46 +595,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
 
         clearFields()
 
-        // Generate QR Code
-//        val qrBitmap = generateQrCode(jsonObject.toString())
-//
-//        // Print using Sunmi Printer
-//        PrinterSdk.getInstance().getPrinter(requireContext(), object : PrinterSdk.PrinterListen {
-//            override fun onDefPrinter(printer: PrinterSdk.Printer?) {
-//                printer?.lineApi()?.apply {
-//                    // Print header
-//                    initLine(BaseStyle.getStyle().setAlign(Align.CENTER))
-//                    printText("Parking Receipt\n", null)
-//                    printText("---------------\n", null)
-//
-//                    // Print vehicle details
-//                    initLine(BaseStyle.getStyle().setAlign(Align.LEFT))
-//                    printText("Vehicle Number: $vehicleNumber\n", null)
-//                    printText("Vehicle Type: $vehicleType\n", null)
-//                    printText(
-//                        "Entry Time: ${
-//                            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
-//                                Date()
-//                            )
-//                        }\n", null
-//                    )
-//
-//                    // Print QR code
-//                    if (qrBitmap != null) {
-//                        initLine(BaseStyle.getStyle().setAlign(Align.CENTER))
-//                        printQrCode(qrBitmap, QrStyle.getStyle())
-//                    }
-//
-//                    // Footer
-//                    printText("\nThank you for visiting!\n", null)
-//                    printText("----------------------\n", null)
-//                }
-//            }
-//
-//            override fun onPrinters(printers: MutableList<PrinterSdk.Printer>?) {
-//                // Log printers if needed
-//            }
-//        })
+
     }
 
 //    private fun generateQrCode(data: String): Bitmap? {

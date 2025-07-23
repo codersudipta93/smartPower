@@ -166,7 +166,8 @@ class CardOutFragment:BaseFragment<FragmentCardOutBinding>() {
                             binding.edtOutTime.setText(it.data.outTime)
                             showAlertMsg(it.data.msg.toString())
                             //Toast.makeText(context, it.data.msg, Toast.LENGTH_LONG).show()
-                            (requireActivity() as MainActivity).btManager.sendData("1".toByteArray())
+                            //(requireActivity() as MainActivity).btManager.sendData("1".toByteArray())
+                              (requireActivity() as MainActivity).btManager.controlRelayWithAutoOff(1)
                         }
                     }
                 }}}

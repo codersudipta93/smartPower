@@ -57,6 +57,7 @@ class HomeViewModel @Inject constructor(
         })
     }
 
+
     fun getLatestVehicleData(){
         val latestVehicleCall=localClient.getANPRVehicle()
         latestVehicleCall.enqueue(object:Callback<ANPRVehicleResponse>{

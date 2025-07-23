@@ -28,7 +28,16 @@ import com.sunmi.printerx.style.TextStyle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
+import org.json.JSONException
 import org.json.JSONObject
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -51,6 +60,12 @@ class NfcWriteFragment : BaseFragment<FragmentNfcWriteBinding>() {
     //    private var amount: Double? = null
     private var expiryDate: String? = null
     private var vehicleTypeId: String? = null
+    private var vehicleTypeName: String? = null
+    //private var selectedVehicleTypeId: String? = null
+    private val vehicleTypeList = mutableListOf<String>()
+    private val vehicleTypeIdList = mutableListOf<String>()
+
+
     private var amount: Double? = null
     private var companyName: String? = null
     override fun getLayoutResourceId(): Int = R.layout.fragment_nfc_write
@@ -71,7 +86,8 @@ class NfcWriteFragment : BaseFragment<FragmentNfcWriteBinding>() {
 
     override fun initView() {
         super.initView()
-        setupVehicleTypeDropdown()
+        //setupVehicleTypeDropdown()
+        getDropdown()
         nfcAdapter = NfcAdapter.getDefaultAdapter(requireContext()).also {
             if (it == null) Toast.makeText(context, "NFC not supported", Toast.LENGTH_LONG).show()
         }
@@ -95,26 +111,128 @@ class NfcWriteFragment : BaseFragment<FragmentNfcWriteBinding>() {
 
 
 
+//    private fun setupVehicleTypeDropdown() {
+//        val vehicleTypes = listOf("Two Wheeler", "Four Wheeler")
+//        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, vehicleTypes)
+//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//        binding.vehicleTypeDropdown.adapter = adapter
+//
+//        binding.vehicleTypeDropdown.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+//                // Map the position to the appropriate vehicle type ID
+//                vehicleTypeId = if (position == 0) "2" else "1"
+//            }
+//
+//            override fun onNothingSelected(parent: AdapterView<*>?) {
+//                // Optionally, set a default value or leave it empty
+//            }
+//        }
+//    }
+
+    fun getDropdown() {
+        (requireActivity() as MainActivity).binding.loading.visibility = View.VISIBLE
+        val client = OkHttpClient()
+
+        val json = JSONObject().apply {
+            put("UserId", sessionManager.getUserId().toString())
+            put("Token", sessionManager.getAccessToken().toString())
+        }
+
+        val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
+
+        val request = Request.Builder()
+            .url("${sessionManager.getBaseUrl()}Device/GetVehicleType")
+            .addHeader("Content-Type", "application/json")
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("API_ERROR", "Failed to call API", e)
+                requireActivity().runOnUiThread {
+                    (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
+                    Toast.makeText(requireContext(), "API call failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val responseBody = response.body?.string()
+                Log.d("Raw API Response", responseBody ?: "Null response")
+
+                if (response.isSuccessful && responseBody != null) {
+                    try {
+                        val rootObject = JSONObject(responseBody)
+                        val jsonArray = rootObject.getJSONArray("Data")
+
+                        vehicleTypeList.clear()
+                        vehicleTypeIdList.clear()
+
+                        for (i in 0 until jsonArray.length()) {
+                            val obj = jsonArray.getJSONObject(i)
+                            if (obj.getBoolean("Status")) {
+                                val vehicleType = obj.getString("VehicleType")
+                                val vehicleTypeId = obj.getInt("VehicleTypeId").toString()
+
+                                vehicleTypeList.add(vehicleType)
+                                vehicleTypeIdList.add(vehicleTypeId)
+                            }
+                        }
+
+                        requireActivity().runOnUiThread {
+                            (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
+                            setupVehicleTypeDropdown()
+                        }
+
+                    } catch (e: JSONException) {
+                        Log.e("JSON_PARSE_ERROR", "Error parsing response JSON", e)
+                        Log.d("Invalid JSON", responseBody ?: "null")
+                        requireActivity().runOnUiThread {
+                            (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
+                            Toast.makeText(requireContext(), "Parsing failed!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                } else {
+                    requireActivity().runOnUiThread {
+                        (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
+                        Toast.makeText(requireContext(), "Vehicle type fetch failed!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+    }
+
     private fun setupVehicleTypeDropdown() {
-        val vehicleTypes = listOf("Two Wheeler", "Four Wheeler")
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, vehicleTypes)
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, vehicleTypeList)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.vehicleTypeDropdown.adapter = adapter
 
         binding.vehicleTypeDropdown.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                // Map the position to the appropriate vehicle type ID
-                vehicleTypeId = if (position == 0) "2" else "1"
+                vehicleTypeId = vehicleTypeIdList.getOrNull(position)
+                 vehicleTypeName = vehicleTypeList.getOrNull(position)
+                Log.d("VehicleTypeSelection", "Selected ID: $vehicleTypeId, Name: $vehicleTypeName")
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Optionally, set a default value or leave it empty
+                vehicleTypeId = null
+                vehicleTypeName = null
+                Log.d("VehicleTypeSelection", "Nothing selected")
             }
         }
     }
 
 
+
+
+
+
+
+
+
+
     private fun registerGuest() {
+        Log.d("hi", "hello")
         if (!validateForm()) return
 
         // Store form data
@@ -205,14 +323,15 @@ class NfcWriteFragment : BaseFragment<FragmentNfcWriteBinding>() {
             put("company_name", companyName)
             put("card_no", tag.id.toHexString())
             put("vehicle_type", vehicleTypeId)
+            put("vehicle_name", vehicleTypeName)
             put("regDate", SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()))
             put("regDateTime", SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date()))
 
-            if(vehicleTypeId == "1"){
-                put("vehicle_name",  "Four Wheeler")
-            }else{
-                put("vehicle_name", "Two Wheeler")
-            }
+//            if(vehicleTypeId == "1"){
+//                put("vehicle_name",  "Four Wheeler")
+//            }else{
+//                put("vehicle_name", "Two Wheeler")
+//            }
 
         }.toString()
 
@@ -354,6 +473,30 @@ class NfcWriteFragment : BaseFragment<FragmentNfcWriteBinding>() {
                 }
 
 
+                fun renderMultilineCenteredText(text: String, size: Int = 25, bold: Boolean = false) {
+                    val lines = text.split(", ")
+                    for (line in lines) {
+                        val words = line.trim().split(" ")
+                        val sb = StringBuilder()
+                        var lineWidth = 0
+
+                        for (word in words) {
+                            val wordWidth = (size * 0.55 * word.length).toInt()
+                            if (lineWidth + wordWidth > 375) {
+                                renderCenteredText(sb.toString().trim(), size, bold)
+                                sb.clear()
+                                lineWidth = 0
+                            }
+                            sb.append("$word ")
+                            lineWidth += wordWidth + (size / 2) // spacing
+                        }
+
+                        if (sb.isNotEmpty()) {
+                            renderCenteredText(sb.toString().trim(), size, bold)
+                        }
+                    }
+                }
+
                 val slip = sessionManager.getSlipHeaderFooter();
                 val header1 = JSONObject(slip ?: "{}").optString("Header1")
                 val header2 = JSONObject(slip ?: "{}").optString("Header2")
@@ -363,10 +506,14 @@ class NfcWriteFragment : BaseFragment<FragmentNfcWriteBinding>() {
                 // Header
                 renderCenteredText("Card Registration Slip", size = 28, bold = true)
                 currentY += 1 // Spacing
-                if(header1 != "" ) {
-                    renderCenteredText(header1, size = 28, bold = true)
+                 if(header1.isNotBlank()) {
+                    val lines = header1.split("|")
+                    for (line in lines) {
+                        renderCenteredText(line.trim(), size = 28, bold = true)
+                    }
                     currentY += 1 // Spacing
                 }
+
 
                 if(header2 != "" ) {
                     renderCenteredText(header2.uppercase(), size = 24, bold = false)
@@ -377,11 +524,12 @@ class NfcWriteFragment : BaseFragment<FragmentNfcWriteBinding>() {
                 // Body
                 renderLine("Card No.       : $cardNo")
                 renderLine("Vehicle No.    : $vehicleNo")
-                if(vehicleTypeId == "2") {
-                    renderLine("Vehicle Type   : Two Wheeler")
-                }else{
-                    renderLine("Vehicle Type   : Four Wheeler")
-                }
+                renderLine("Vehicle Type   : $vehicleTypeName")
+//                if(vehicleTypeId == "2") {
+//                    renderLine("Vehicle Type   : Two Wheeler")
+//                }else{
+//                    renderLine("Vehicle Type   : Four Wheeler")
+//                }
                 val currentDate =SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
                 renderLine("Reg. Date      : $currentDate")
                 renderLine("Valid upto     : $expiryDate")

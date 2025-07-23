@@ -69,7 +69,7 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
         const val DATA = "data"
     }
     private var latestVehicleParkingResponse: VehicleParkingResponse? = null
-
+    private var latestCollectionInsertDataResponse: CollectionInsertData? = null
     private var isReceiptPrinted = false
     private val _mutualSharedflow= MutableSharedFlow<ParkingVehicleEvents>()
     val mutualSharedflow: SharedFlow<ParkingVehicleEvents> = _mutualSharedflow
@@ -259,6 +259,7 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
     }
 
     private fun printReceipt(response: VehicleParkingResponse) {
+        Log.d("printing response", response.toString())
         PrinterSdk.getInstance().getPrinter(this.context, object : PrinterSdk.PrinterListen {
             override fun onDefPrinter(p0: PrinterSdk.Printer?) {
                 // Increase canvas height as needed.
@@ -270,7 +271,7 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
                 p0?.canvasApi()?.initCanvas(
                     BaseStyle.getStyle()
                         .setWidth(410)
-                        .setHeight(700)
+                        .setHeight(792)
                 )
 
                 fun centerX(text: String, textSize: Int): Int {
@@ -292,7 +293,7 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
                     currentY += lineHeight
                 }
 
-                fun renderLine(text: String) {
+                fun renderLine(text: String,) {
                     p0?.canvasApi()?.renderText(
                         text,
                         TextStyle.getStyle()
@@ -316,16 +317,45 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
                     currentY += lineHeight
                 }
 
+                fun renderMultilineCenteredText(text: String, size: Int = 25, bold: Boolean = false) {
+                    val lines = text.split(", ")
+                    for (line in lines) {
+                        val words = line.trim().split(" ")
+                        val sb = StringBuilder()
+                        var lineWidth = 0
+
+                        for (word in words) {
+                            val wordWidth = (size * 0.55 * word.length).toInt()
+                            if (lineWidth + wordWidth > 375) {
+                                renderCenteredText(sb.toString().trim(), size, bold)
+                                sb.clear()
+                                lineWidth = 0
+                            }
+                            sb.append("$word ")
+                            lineWidth += wordWidth + (size / 2) // spacing
+                        }
+
+                        if (sb.isNotEmpty()) {
+                            renderCenteredText(sb.toString().trim(), size, bold)
+                        }
+                    }
+                }
+
+
                 val slip = sharedPreferenceManager.getSlipHeaderFooter();
                 val header1 = JSONObject(slip ?: "{}").optString("Header1")
                 val header2 = JSONObject(slip ?: "{}").optString("Header2")
                 val footer1 = JSONObject(slip ?: "{}").optString("Footer1")
                 val footer2 = JSONObject(slip ?: "{}").optString("Footer2")
 
-                if (header1 != "") {
-                    renderCenteredText("$header1", size = 28, bold = true)
+                  if(header1.isNotBlank()) {
+                    val lines = header1.split("|")
+                    for (line in lines) {
+                        renderCenteredText(line.trim(), size = 28, bold = true)
+                    }
                     currentY += 1 // Spacing
                 }
+
 
                 if (header2 != "") {
                     renderCenteredText(header2.uppercase(), size = 24, bold = false)
@@ -339,8 +369,15 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
                 renderLine("In Time      : ${response.inTime}");
                 renderLine("Out Time     : ${response.outTime ?: "N/A"}")
                 renderLine("Duration     : ${response.duration ?: "N/A"}")
+
                 renderLine("---------------------------------")
-                renderAmount("Pay CASH: ₹${response.chargableAmount}")
+                if (response.isGST  == "True") {
+                    renderLine("Amount       : ${response.breakUpAmount ?: "N/A"}")
+                    renderLine("GST          : ${response.gstAmount ?: "N/A"}")
+
+                }
+
+                renderAmount("Pay CASH   : ₹${response.chargableAmount}")
                 renderLine("---------------------------------")
 
                 currentY += 10
@@ -395,16 +432,22 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
                         }
 
                         is QrInOutViewModel.ParkingVehicleEvents.CollectionInsertSuccessful -> {
+                            Log.d("colection data.......", it.collectionInsertData.toString())
+                            latestCollectionInsertDataResponse = it.collectionInsertData
                             // Prevent multiple prints
                             if (!isReceiptPrinted) {
-                                (requireActivity() as MainActivity).btManager.sendData("1".toByteArray())
+                               // (requireActivity() as MainActivity).btManager.sendData("1".toByteArray())
+                                 (requireActivity() as MainActivity).btManager.controlRelayWithAutoOff(1)
                                 clearFields()
                                 showToast(it.collectionInsertData.msg.toString())
 
                                 // Use the stored VehicleParkingResponse data to print the receipt.
                                 latestVehicleParkingResponse?.let { response ->
-                                    printReceipt(response)
-                                    isReceiptPrinted = true // Set flag to true after printing
+
+                                    latestCollectionInsertDataResponse?.let { insertRes ->
+                                        printReceipt(response)
+                                        isReceiptPrinted = true // Set flag to true after printing
+                                    }
                                 } ?: run {
                                     showToast("No parking response data available to print receipt")
                                 }

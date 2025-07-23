@@ -16,7 +16,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import javax.inject.Inject
-
+import android.util.Log
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val client: AppAuthApi,
@@ -41,7 +41,8 @@ class LoginViewModel @Inject constructor(
 //                    LoginEvents.ActivationCodeSuccess(response.body()!!)
                     viewModelScope.launch {
                         if(response.isSuccessful && response.body()!=null && response.body()?.status==true){
-                            sessionManager.setEntityId(response.body()?.entityId?:0)
+                            Log.d("Entity Id in login", response.body()?.entityId.toString())
+                             sessionManager.setEntityId(response.body()?.entityId?:0)
                             _mutualSharedflow.emit(LoginEvents.ActivationCodeSuccess(response.body()!!))
                         }
                         else{
@@ -86,7 +87,7 @@ class LoginViewModel @Inject constructor(
                         response.body()?.fullName?.let { sessionManager.setFullName(it) }
                         response.body()?.location?.let { sessionManager.setLocation(it) }
                         if (sessionManager.getEntityId()!=0){
-
+                           // sessionManager.setEntityId(response.body()?.entityId?:0)
                         }
 
                     }
@@ -117,3 +118,7 @@ class LoginViewModel @Inject constructor(
     }
 
 }
+
+
+
+

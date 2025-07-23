@@ -1,5 +1,4 @@
 package com.example.parkingagent.UI.fragments.Reports
-
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import androidx.fragment.app.viewModels
@@ -39,6 +38,8 @@ import java.util.Locale
 import javax.inject.Inject
 import org.json.JSONException
 import android.content.Context
+import android.widget.TextView
+import org.json.JSONArray
 
 @AndroidEntryPoint
 class ReportsFragment : BaseFragment<FragmentReportsBinding>() {
@@ -51,6 +52,7 @@ class ReportsFragment : BaseFragment<FragmentReportsBinding>() {
 
     private var fromDate: String? = null
 
+    private var collectionList: JSONArray? = null
     override fun getLayoutResourceId(): Int {
         return R.layout.fragment_reports
     }
@@ -208,12 +210,12 @@ class ReportsFragment : BaseFragment<FragmentReportsBinding>() {
         }
 
 
-        Log.d("request of report data", json.toString())
+        Log.d("Request of report data", json.toString())
         Log.d("request data", sessionManager.getAccessToken().toString())
         val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
 
         val request = Request.Builder()
-            .url("${sessionManager.getBaseUrl()}Device/DailyCollectionReport")
+            .url("${sessionManager.getBaseUrl()}Device/DailyCollectionReportFinal")
             .addHeader("Authorization", "Bearer ${sessionManager.getAccessToken()}")
             .addHeader("Content-Type", "application/json")
             .post(requestBody)
@@ -238,69 +240,41 @@ class ReportsFragment : BaseFragment<FragmentReportsBinding>() {
                         val jsonObject = JSONObject(responseBody)
                         val dataObject = jsonObject.optJSONObject("Data")
 
-                        val loginTime = dataObject.optString("LoginTime", "")
-                        val logoutTime = dataObject.optString("LogoutTime", "")
-                        val fullName = dataObject.optString("FullName", "")
+
                         val totalCount = dataObject.optString("TotalCount", "0")
                         val totalAmount = dataObject.optString("TotalCash", "0.00") // Note: This is a special character key
 
-                        val twoWhObject = dataObject.optJSONObject("TwoWh")
-                        val twoWhCashCount = twoWhObject?.optString("CashCount", "0") ?: "0"
-                        val twoWhCashAmount = twoWhObject?.optString("CashAmount", "0.00") ?: "0.00"
-                        val twoWhCardCount = twoWhObject?.optString("CardCount", "0") ?: "0"
-                        val twoWhCardAmount = twoWhObject?.optString("CardAmount", "0") ?: "0"
-                        val twoWhNotCollectedCount = twoWhObject?.optString("NotCollectedCount", "0") ?: "0"
-                        val twoWhNotCollectedAmount = twoWhObject?.optString("NotCollectedAmount", "0") ?: "0"
-
-                        val fourWhObject = dataObject.optJSONObject("FourWh")
-                        val fourWhCashCount = fourWhObject?.optString("CashCount", "0") ?: "0"
-                        val fourWhCashAmount = fourWhObject?.optString("CashAmount", "0.00") ?: "0.00"
-                        val fourWhCardCount = fourWhObject?.optString("CardCount", "0") ?: "0"
-                        val fourWhCardAmount = fourWhObject?.optString("CardAmount", "0") ?: "0"
-                        val fourWhNotCollectedCount = fourWhObject?.optString("NotCollectedCount", "0") ?: "0"
-                        val fourWhNotCollectedAmount = fourWhObject?.optString("NotCollectedAmount", "0") ?: "0"
-
-                        val totalCash = (twoWhCashAmount.toDoubleOrNull() ?: 0.0) +
-                                (fourWhCashAmount.toDoubleOrNull() ?: 0.0)
-                        val totalCard = (twoWhCardAmount.toDoubleOrNull() ?: 0.0) +
-                                (fourWhCardAmount.toDoubleOrNull() ?: 0.0)
-
-
-
-
+                         collectionList = dataObject.optJSONArray("VehicleTypeWiseCollections")
                         requireActivity().runOnUiThread {
-                            (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
-                            Toast.makeText(requireContext(), "Report fetch successful!", Toast.LENGTH_SHORT).show()
+                            binding.vehicleCardContainer.removeAllViews()
 
-                            // Update UI
-                            binding.tvTotalCount.setText(totalCount)
-                            binding.tvTotalAmount.setText("Rs. " +totalAmount)
+                            collectionList?.let { list ->
+                                for (i in 0 until list.length()) {
+                                    val item = list.getJSONObject(i)
 
-                            binding.cardFourWheelerCount.setText(fourWhCardCount)
-                            binding.cardFourWheelerAmount.setText("Rs. "+fourWhCardAmount)
+                                    val vehicleType = item.optString("VehicleTypeName", "Unknown Vehicle")
+                                    val cashCount = item.optString("CashCount", "0")
+                                    val cashAmount = item.optString("CashAmount", "0.00")
+                                    val cardCount = item.optString("CardCount", "0")
+                                    val cardAmount = item.optString("CardAmount", "0.00")
 
-                            binding.cashFourWheelerCount.setText(fourWhCashCount)
-                            binding.cashFourWheelerAmount.setText("Rs. "+fourWhCashAmount)
-
-
-                            binding.cardTwoWheelerCount.setText(twoWhCardCount)
-                            binding.cardTwoWheelerAmount.setText("Rs. "+twoWhCardAmount)
-
-                            binding.cashTwoWheelerCount.setText(twoWhCashCount)
-                            binding.cashTwoWheelerAmount.setText("Rs. "+twoWhCashAmount)
+                                    addVehicleCard(vehicleType, cashCount, cashAmount, cardCount, cardAmount)
+                                }
+                            }
 
 
+                            binding.tvTotalCount.text = dataObject.optString("TotalCount", "0")
+                            binding.tvTotalAmount.text = "Rs. ${dataObject.optString("TotalCash", "0.00")}"
 
-
-                            binding.collectedCard.visibility = View.VISIBLE
-                            binding.notCollectedCard.visibility = View.VISIBLE
                             binding.summaryCard.visibility = View.VISIBLE
                             binding.btnPrint.visibility = View.VISIBLE
-
+                            (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
                         }
+
 
                     } catch (e: JSONException) {
                         Log.e("JSON_PARSE_ERROR", "Error parsing response JSON", e)
+                        (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
                     }
                 } else {
                     requireActivity().runOnUiThread {
@@ -313,6 +287,27 @@ class ReportsFragment : BaseFragment<FragmentReportsBinding>() {
 
         })
     }
+
+
+    private fun addVehicleCard(
+        vehicleType: String,
+        cashCount: String,
+        cashAmount: String,
+        cardCount: String,
+        cardAmount: String
+    ) {
+        val inflater = LayoutInflater.from(requireContext())
+        val cardView = inflater.inflate(R.layout.vehicle_type_card, binding.vehicleCardContainer, false)
+
+        cardView.findViewById<TextView>(R.id.tvVehicleTypeTitle).text = vehicleType
+        cardView.findViewById<TextView>(R.id.tvCashCount).text = cashCount
+        cardView.findViewById<TextView>(R.id.tvCashAmount).text = "Rs. $cashAmount"
+        cardView.findViewById<TextView>(R.id.tvCardCount).text = cardCount
+        cardView.findViewById<TextView>(R.id.tvCardAmount).text = "Rs. $cardAmount"
+
+        binding.vehicleCardContainer.addView(cardView)
+    }
+
 
 
 
@@ -332,7 +327,7 @@ class ReportsFragment : BaseFragment<FragmentReportsBinding>() {
                 printer.canvasApi()?.initCanvas(
                     BaseStyle.getStyle()
                         .setWidth(384)
-                        .setHeight(1210)
+                        .setHeight(1410)
                 )
 
                 fun centerX(text: String, textSize: Int): Int {
@@ -395,8 +390,44 @@ class ReportsFragment : BaseFragment<FragmentReportsBinding>() {
                 }
 
 
+                fun renderMultilineCenteredText(text: String, size: Int = 25, bold: Boolean = false) {
+                    val lines = text.split(", ")
+                    for (line in lines) {
+                        val words = line.trim().split(" ")
+                        val sb = StringBuilder()
+                        var lineWidth = 0
+
+                        for (word in words) {
+                            val wordWidth = (size * 0.55 * word.length).toInt()
+                            if (lineWidth + wordWidth > 375) {
+                                renderCenteredText(sb.toString().trim(), size, bold)
+                                sb.clear()
+                                lineWidth = 0
+                            }
+                            sb.append("$word ")
+                            lineWidth += wordWidth + (size / 2) // spacing
+                        }
+
+                        if (sb.isNotEmpty()) {
+                            renderCenteredText(sb.toString().trim(), size, bold)
+                        }
+                    }
+                }
+
+
+
+
                 val slip = sessionManager.getSlipHeaderFooter()
                 val header1 = JSONObject(slip ?: "{}").optString("Header1")
+                  if(header1.isNotBlank()) {
+                    val lines = header1.split("|")
+                    for (line in lines) {
+                        renderCenteredText(line.trim(), size = 28, bold = true)
+                    }
+                    currentY += 1 // Spacing
+                }
+
+
                 val header2 = JSONObject(slip ?: "{}").optString("Header2")
                 val footer1 = JSONObject(slip ?: "{}").optString("Footer1")
                 val footer2 = JSONObject(slip ?: "{}").optString("Footer2")
@@ -406,10 +437,10 @@ class ReportsFragment : BaseFragment<FragmentReportsBinding>() {
                     Date()
                 )
 
-                if (header1.isNotEmpty()) {
-                    renderCenteredText(header1, size = 25, bold = true)
-                    currentY += 2
-                }
+//                if (header1.isNotEmpty()) {
+//                    renderCenteredText(header1, size = 25, bold = true)
+//                    currentY += 2
+//                }
 
                 if (header2.isNotEmpty()) {
                     renderCenteredText(header2, size = 22)
@@ -426,19 +457,61 @@ class ReportsFragment : BaseFragment<FragmentReportsBinding>() {
 
                 renderLine("---------------------------------")
 
-                renderAmount("TWO WHEELER")
-                currentY += 10
-                renderLine("          COUNT       AMOUNT")
-                renderLine("CASH      "+binding.cashTwoWheelerCount.text.toString()+"          "+binding.cashTwoWheelerAmount.text.toString())
-                renderLine("CARD      "+binding.cardTwoWheelerCount.text.toString()+"          "+binding.cardTwoWheelerAmount.text.toString())
+//                renderAmount("TWO WHEELER")
+//                currentY += 10
+//                renderLine("          COUNT       AMOUNT")
+//                //renderLine("CASH      "+binding.cashTwoWheelerCount.text.toString()+"          "+binding.cashTwoWheelerAmount.text.toString())
+//                //renderLine("CARD      "+binding.cardTwoWheelerCount.text.toString()+"          "+binding.cardTwoWheelerAmount.text.toString())
+//
+//                renderLine("---------------------------------")
+//
+//                renderAmount("FOUR WHEELER")
+//                currentY += 10
+//                renderLine("           COUNT      AMOUNT")
+//                //renderLine("CASH       "+binding.cashFourWheelerCount.text.toString()+"        "+binding.cashFourWheelerAmount.text.toString())
+//               // renderLine("CARD       "+binding.cardFourWheelerCount.text.toString()+"        "+binding.cardFourWheelerAmount.text.toString())
+//
 
-                renderLine("---------------------------------")
 
-                renderAmount("FOUR WHEELER")
-                currentY += 10
-                renderLine("           COUNT      AMOUNT")
-                renderLine("CASH       "+binding.cashFourWheelerCount.text.toString()+"        "+binding.cashFourWheelerAmount.text.toString())
-                renderLine("CARD       "+binding.cardFourWheelerCount.text.toString()+"        "+binding.cardFourWheelerAmount.text.toString())
+                val vehicleArray = collectionList
+
+                if (vehicleArray != null) {
+                    for (i in 0 until vehicleArray.length()) {
+                        val vehicleItem = vehicleArray.getJSONObject(i)
+                        val vehicleName = vehicleItem.optString("VehicleTypeName", "")
+                        val cashCount = vehicleItem.optString("CashCount", "0")
+                        val cardCount = vehicleItem.optString("CardCount", "0")
+                        val notCollectedCount = vehicleItem.optString("NotCollectedCount", "0")
+                        val cashAmount = vehicleItem.optString("CashAmount", "0.00")
+                        val cardAmount = vehicleItem.optString("CardAmount", "0.00")
+                        val notCollectedAmount = vehicleItem.optString("NotCollectedAmount", "0.00")
+                        currentY += 10
+                        renderAmount(vehicleName.uppercase())
+                        currentY += 10
+                        renderLine("           COUNT      AMOUNT")
+
+                        renderLine("CASH        $cashCount         $cashAmount")
+                        renderLine("CARD        $cardCount         $cardAmount")
+
+                    }
+                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                //======
                 currentY += 20
                 renderLine("=================================")
                 renderAmount("TOTAL COUNT   :  "+binding.tvTotalCount.text.toString())
@@ -565,10 +638,14 @@ class ReportsFragment : BaseFragment<FragmentReportsBinding>() {
                 renderHeaderText("DAILY COLLECTION REPORT", size = 28, bold = true)
                 currentY += 5
 
-                if (header1.isNotEmpty()) {
-                    renderCenteredText(header1, size = 25, bold = true)
-                    currentY += 5
+                  if(header1.isNotBlank()) {
+                    val lines = header1.split("|")
+                    for (line in lines) {
+                        renderCenteredText(line.trim(), size = 28, bold = true)
+                    }
+                    currentY += 1 // Spacing
                 }
+
 
                 if (header2.isNotEmpty()) {
                     renderCenteredText(header2, size = 22)

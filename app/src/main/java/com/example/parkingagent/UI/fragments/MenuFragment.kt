@@ -51,17 +51,19 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-
+import android.content.Intent
+import android.net.Uri
 import javax.inject.Inject
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 
 import java.util.*
 
@@ -71,6 +73,7 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
     lateinit var sessionManager: SharedPreferenceManager
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private lateinit var adapter: MenuAdapter
+    private var collectionList: JSONArray? = null
 
     override fun getLayoutResourceId(): Int {
        return R.layout.fragment_menu
@@ -78,15 +81,15 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
 
     override fun initView() {
         super.initView()
-//performLogout()
+        //performLogout()
         Log.d("Install Version", sessionManager.getInstalledVersion())
 
         lifecycleScope.launch {
-            delay(1000)
-            if(sessionManager.getInstalledVersion() != sessionManager.getCurrentAppVersion()){
-                showAlertMsg("A new version of Smart Power (${sessionManager.getCurrentAppVersion()}) is available! Please update to latest verson")
-
-            }
+//            delay(1000)
+            // install app version
+//            if(sessionManager.getInstalledVersion() != sessionManager.getCurrentAppVersion()){
+//                showAlertMsg("A new version of Smart Power (${sessionManager.getCurrentAppVersion()}) is available! Please update to latest version")
+//            }
         }
 
 
@@ -108,6 +111,8 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
         }
 
         binding.idTxtFullname.text="Welcome, "+sessionManager.getFullName()
+        binding.idTxtVersion.text="App Version - "+sessionManager.getInstalledVersion()
+
 
         binding.idTxtLocation.text=sessionManager.getLocation()
 
@@ -135,11 +140,19 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
             .setTitle("Hold on!")
             .setMessage(msg)
             .setCancelable(false)
-            .setNegativeButton("Update") { d, _ -> d.dismiss() }
+            .setNegativeButton("Update") { d, _ ->
+                d.dismiss()
+
+                val url = "http://45.249.111.51/smartpowerapk/"
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                requireContext().startActivity(intent)
+            }
             .create()
 
         dialog.show()
     }
+
 
     private fun setupRecyclerView() {
         val spanCount = 2
@@ -293,7 +306,7 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
         val requestBody = json.toString().toRequestBody("application/json".toMediaTypeOrNull())
 
         val request = Request.Builder()
-            .url("${sessionManager.getBaseUrl()}Device/AgentLogOutFinal")
+            .url("${sessionManager.getBaseUrl()}Device/AgentLogOutFinalReport")
             .addHeader("Authorization", "Bearer ${sessionManager.getAccessToken()}")
             .addHeader("Content-Type", "application/json")
             .post(requestBody)
@@ -322,11 +335,15 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
                            Toast.makeText(requireContext(), "Logout Successful", Toast.LENGTH_SHORT).show()
                             (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
                         }
+                        val jsonObject = JSONObject(responseBody)
+                        val dataObject = jsonObject.optJSONObject("Data")
+                        collectionList = dataObject.optJSONArray("VehicleTypeWiseCollections")
+
                         printDailyReport(responseBody)
 
                     } catch (e: JSONException) {
                         Log.e("JSON_PARSE_ERROR", "Error parsing response JSON", e)
-                        (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
+                        ( requireActivity() as MainActivity).binding.loading.visibility = View.GONE
                     }
                 } else {
                     requireActivity().runOnUiThread {
@@ -365,7 +382,7 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
                 printer.canvasApi()?.initCanvas(
                     BaseStyle.getStyle()
                         .setWidth(384)
-                        .setHeight(1220)
+                        .setHeight(1440)
                 )
 
                 fun centerX(text: String, textSize: Int): Int {
@@ -428,7 +445,33 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
                 }
 
 
+                fun renderMultilineCenteredText(text: String, size: Int = 25, bold: Boolean = false) {
+                    val lines = text.split(", ")
+                    for (line in lines) {
+                        val words = line.trim().split(" ")
+                        val sb = StringBuilder()
+                        var lineWidth = 0
+
+                        for (word in words) {
+                            val wordWidth = (size * 0.55 * word.length).toInt()
+                            if (lineWidth + wordWidth > 375) {
+                                renderCenteredText(sb.toString().trim(), size, bold)
+                                sb.clear()
+                                lineWidth = 0
+                            }
+                            sb.append("$word ")
+                            lineWidth += wordWidth + (size / 2) // spacing
+                        }
+
+                        if (sb.isNotEmpty()) {
+                            renderCenteredText(sb.toString().trim(), size, bold)
+                        }
+                    }
+                }
+
+
                 val jsonObject = JSONObject(responseBody)
+
                 val dataObject = jsonObject.optJSONObject("Data")
                 Log.d("dataObject", dataObject.toString())
                 val loginTime = dataObject.optString("LoginTime", "")
@@ -436,27 +479,6 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
                 val fullName = dataObject.optString("FullName", "")
                 val totalCount = dataObject.optString("TotalCount", "0")
                 val totalAmount = dataObject.optString("TotalCash", "0.00") // Note: This is a special character key
-
-                val twoWhObject = dataObject.optJSONObject("TwoWh")
-                val twoWhCashCount = twoWhObject?.optString("CashCount", "0") ?: "0"
-                val twoWhCashAmount = twoWhObject?.optString("CashAmount", "0.00") ?: "0.00"
-                val twoWhCardCount = twoWhObject?.optString("CardCount", "0") ?: "0"
-                val twoWhCardAmount = twoWhObject?.optString("CardAmount", "0") ?: "0"
-                val twoWhNotCollectedCount = twoWhObject?.optString("NotCollectedCount", "0") ?: "0"
-                val twoWhNotCollectedAmount = twoWhObject?.optString("NotCollectedAmount", "0") ?: "0"
-
-                val fourWhObject = dataObject.optJSONObject("FourWh")
-                val fourWhCashCount = fourWhObject?.optString("CashCount", "0") ?: "0"
-                val fourWhCashAmount = fourWhObject?.optString("CashAmount", "0.00") ?: "0.00"
-                val fourWhCardCount = fourWhObject?.optString("CardCount", "0") ?: "0"
-                val fourWhCardAmount = fourWhObject?.optString("CardAmount", "0") ?: "0"
-                val fourWhNotCollectedCount = fourWhObject?.optString("NotCollectedCount", "0") ?: "0"
-                val fourWhNotCollectedAmount = fourWhObject?.optString("NotCollectedAmount", "0") ?: "0"
-
-                val totalCash = (twoWhCashAmount.toDoubleOrNull() ?: 0.0) +
-                        (fourWhCashAmount.toDoubleOrNull() ?: 0.0)
-                val totalCard = (twoWhCardAmount.toDoubleOrNull() ?: 0.0) +
-                        (fourWhCardAmount.toDoubleOrNull() ?: 0.0)
 
 
 
@@ -473,10 +495,16 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
                 )
 
 
-                if (header1.isNotEmpty()) {
-                    renderCenteredText(header1, size = 25, bold = true)
-                    currentY += 5
+
+                if(header1.isNotBlank()) {
+                    val lines = header1.split("|")
+                    for (line in lines) {
+                        renderCenteredText(line.trim(), size = 28, bold = true)
+                    }
+                    currentY += 1 // Spacing
                 }
+
+
 
                 if (header2.isNotEmpty()) {
                     renderCenteredText(header2, size = 22)
@@ -493,19 +521,52 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
 
                 renderLine("---------------------------------")
 
-                renderAmount("TWO WHEELER")
-                currentY += 10
-                renderLine("          COUNT       AMOUNT")
-                renderLine("CASH      ${twoWhCashCount}          Rs. ${twoWhCashAmount}")
-                renderLine("CARD      ${twoWhCardCount}          Rs. ${twoWhCardAmount}")
+//                renderAmount("TWO WHEELER")
+//                currentY += 10
+//                renderLine("          COUNT       AMOUNT")
+//                renderLine("CASH      ${twoWhCashCount}          Rs. ${twoWhCashAmount}")
+//                renderLine("CARD      ${twoWhCardCount}          Rs. ${twoWhCardAmount}")
+//
+//                renderLine("---------------------------------")
+//
+//                renderAmount("FOUR WHEELER")
+//                currentY += 10
+//                renderLine("           COUNT      AMOUNT")
+//                renderLine("CASH       ${fourWhCashCount}         Rs. ${fourWhCashAmount}")
+//                renderLine("CARD       ${fourWhCardCount}         Rs. ${fourWhCardAmount}")
 
-                renderLine("---------------------------------")
 
-                renderAmount("FOUR WHEELER")
-                currentY += 10
-                renderLine("           COUNT      AMOUNT")
-                renderLine("CASH       ${fourWhCashCount}         Rs. ${fourWhCashAmount}")
-                renderLine("CARD       ${fourWhCardCount}         Rs. ${fourWhCardAmount}")
+                val vehicleArray = collectionList
+                Log.d("vehicle array" , vehicleArray.toString())
+
+                if (vehicleArray != null) {
+                    for (i in 0 until vehicleArray.length()) {
+
+                        val vehicleItem = vehicleArray.getJSONObject(i)
+                        Log.d("vehicleItem", vehicleItem.toString())
+                        val vehicleName = vehicleItem.optString("VehicleTypeName", "")
+                        val cashCount = vehicleItem.optString("CashCount", "0")
+                        val cardCount = vehicleItem.optString("CardCount", "0")
+                        val notCollectedCount = vehicleItem.optString("NotCollectedCount", "0")
+                        val cashAmount = vehicleItem.optString("CashAmount", "0.00")
+                        val cardAmount = vehicleItem.optString("CardAmount", "0.00")
+                        val notCollectedAmount = vehicleItem.optString("NotCollectedAmount", "0.00")
+                        currentY += 10
+                        renderAmount(vehicleName.uppercase())
+                        currentY += 10
+                        renderLine("           COUNT      AMOUNT")
+
+                        renderLine("CASH        $cashCount         $cashAmount")
+                        renderLine("CARD        $cardCount         $cardAmount")
+
+                    }
+                }
+
+
+
+
+
+
                 currentY += 20
                 renderLine("=================================")
                 renderAmount("TOTAL COUNT   :  ${totalCount}")

@@ -1,7 +1,7 @@
 package com.example.parkingagent.UI.fragments.qrInOut
 
 import androidx.lifecycle.ViewModel
-
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.parkingagent.data.local.SharedPreferenceManager
 import com.example.parkingagent.data.remote.api.ParkingApis
@@ -140,12 +140,14 @@ class QrInOutViewModel @Inject constructor(
         val collectionInsertCall=client.collectionInsert(sharedPreferenceManager.getAccessToken().toString(),reqBody)
 
         collectionInsertCall.enqueue(object: Callback<CollectionInsertResponse> {
+
             override fun onResponse(
                 call: Call<CollectionInsertResponse>,
                 response: Response<CollectionInsertResponse>
             ) {
                 viewModelScope.launch {
                     if (response.isSuccessful && response.body()?.status ==true) {
+                        Log.d("CollectionInsertResponse", response.body().toString())
                         _mutualSharedflow.emit(ParkingVehicleEvents.CollectionInsertSuccessful(response.body()!!.collectionInsertData!!))
                     }
                     else {

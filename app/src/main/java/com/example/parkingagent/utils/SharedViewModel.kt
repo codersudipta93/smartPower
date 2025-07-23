@@ -41,7 +41,7 @@ class SharedViewModel @Inject constructor(
     fun loadMenu() {
         val deviceId = Utils.getDeviceId(context)
         val entityId = sharedPreferenceManager.getEntityId().toString()
-
+         Log.d("entityId for menu", entityId)
         client.getMenu(MenuRequest(entityId, deviceId)).enqueue(object : Callback<MenuResponse> {
             override fun onResponse(call: Call<MenuResponse>, response: Response<MenuResponse>) {
                 if (response.isSuccessful) {

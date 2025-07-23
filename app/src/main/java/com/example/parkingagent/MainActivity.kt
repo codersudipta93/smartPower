@@ -1,3 +1,4 @@
+
 package com.example.parkingagent
 
 import android.bluetooth.BluetoothAdapter
@@ -92,6 +93,16 @@ class MainActivity : AppCompatActivity() {
 
         btManager.initialize()
 
+        Handler(Looper.getMainLooper()).postDelayed({
+           btManager.connectToPairedJDYDevice()
+
+            val tintColor = ContextCompat.getColor(
+                this@MainActivity,
+                if (btManager.isConnected()) R.color.green else R.color.red
+            )
+            binding.appBarMain.imgBtStatus.setColorFilter(tintColor, PorterDuff.Mode.SRC_IN)
+        }, 800)
+
         // Load menu when activity starts
 //        sharedViewModel.loadMenu()
 
@@ -113,12 +124,12 @@ class MainActivity : AppCompatActivity() {
 //        }
 
         isBluetoothConnected.observe(this) {
-             connected ->
-                val tintColor = ContextCompat.getColor(
-                    this@MainActivity,
-                    if (connected) R.color.green else R.color.white
-                )
-                binding.appBarMain.imgBtStatus.setColorFilter(tintColor, PorterDuff.Mode.SRC_IN)
+                connected ->
+            val tintColor = ContextCompat.getColor(
+                this@MainActivity,
+                if (connected) R.color.green else R.color.red
+            )
+            binding.appBarMain.imgBtStatus.setColorFilter(tintColor, PorterDuff.Mode.SRC_IN)
         }
 
 
@@ -223,9 +234,9 @@ class MainActivity : AppCompatActivity() {
             onBackPressedDispatcher.onBackPressed()
         }
 
-            binding.appBarMain.imgBtStatus.setOnClickListener {
+        binding.appBarMain.imgBtStatus.setOnClickListener {
             // Your logout logic
-                navController.navigate(R.id.id_boomBarrierFragment)
+            navController.navigate(R.id.id_boomBarrierFragment)
         }
 
         // Update toolbar title based on navigation
@@ -263,9 +274,6 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         handler.post(runnable) // Start periodic API call
-
-
-
 
     }
 

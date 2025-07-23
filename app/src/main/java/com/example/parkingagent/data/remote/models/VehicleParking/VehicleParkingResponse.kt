@@ -52,5 +52,14 @@ val BookingNumber: String? = null,
 	@field:SerializedName("VehicleType")
 	val VehicleType: String? = null,
 
+	@field:SerializedName("IsGST")
+	val isGST: String? = null,
+
+	@field:SerializedName("BreakUpAmount")
+	val breakUpAmount: Double? = null,
+
+	@field:SerializedName("GSTAmount")
+	val gstAmount: Double? = null,
+
 
 ) : Parcelable

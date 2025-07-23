@@ -47,6 +47,15 @@ data class CollectionInsertData(
 	@field:SerializedName("Amount")
 	val amount: Double? = null,
 
+	@field:SerializedName("IsGST")
+	val isGST: String? = null,
+
+	@field:SerializedName("BreakUpAmount")
+	val breakUpAmount: Double? = null,
+
+	@field:SerializedName("GSTAmount")
+	val gstAmount: Double? = null,
+
 	@field:SerializedName("Token")
 	val token: String? = null
 ) : Parcelable

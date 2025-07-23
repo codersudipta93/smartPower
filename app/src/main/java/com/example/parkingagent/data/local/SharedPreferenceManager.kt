@@ -1,5 +1,5 @@
-package com.example.parkingagent.data.local
 
+package com.example.parkingagent.data.local
 import android.content.Context
 import android.content.SharedPreferences
 
@@ -69,6 +69,18 @@ class SharedPreferenceManager @Inject constructor(
             remove(TOKEN_KEY)
         }
     }
+
+    fun saveLastPairedMacAddress(macAddress: String) {
+        sharedPreferences.edit().putString(LAST_PAIRED_DEVICE, macAddress).apply()
+        Log.d("MAC_SAVE", "Saved MAC: $macAddress")
+    }
+
+    fun getLastPairedMacAddress(): String? {
+        val mac = sharedPreferences.getString(LAST_PAIRED_DEVICE, null)
+        Log.d("MAC_GET", "Fetched MAC: $mac")
+        return mac
+    }
+
 
     fun setLoginStatus(isLoggedIn: Boolean) {
         sharedPreferences.edit {
@@ -176,7 +188,7 @@ class SharedPreferenceManager @Inject constructor(
         private const val APP_INSTALLED_VERSION = "0.0.1"
         private const val APP_CURRENT_VERSION = ""
         private const val KEY_SLIP_HEADER_FOOTER = "slip_HF"
-
+        private const val LAST_PAIRED_DEVICE = "last_paired_mac_address"
 
 
     }

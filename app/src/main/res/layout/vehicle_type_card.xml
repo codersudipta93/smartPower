@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:layout_marginHorizontal="4dp"
+    android:elevation="4dp"
+    android:padding="8dp"
+    android:visibility="visible"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="12dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tvVehicleTypeTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Vehicle Type"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#333333"
+            android:padding="12dp"
+            android:background="#E0E0E0"
+            android:fontFamily="@font/gilroy_medium"/>
+
+        <!-- Column Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:background="#FAFAFA">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.5"
+                android:text=""
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:textStyle="bold"
+                android:fontFamily="@font/gilroy_medium"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Count"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:textStyle="bold"
+                android:gravity="center_vertical"
+                android:fontFamily="@font/gilroy_medium"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Amount"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:textStyle="bold"
+                android:gravity="end"
+                android:fontFamily="@font/gilroy_medium"/>
+        </LinearLayout>
+
+        <!-- Cash Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.5"
+                android:text="Cash"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:fontFamily="@font/gilroy_medium"/>
+
+            <TextView
+                android:id="@+id/tvCashCount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text=""
+                android:gravity="center"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:fontFamily="@font/gilroy_medium"/>
+
+            <TextView
+                android:id="@+id/tvCashAmount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text=""
+                android:gravity="end"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:fontFamily="@font/gilroy_medium"/>
+        </LinearLayout>
+
+        <!-- Card Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.5"
+                android:text="Card"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:fontFamily="@font/gilroy_medium"/>
+
+            <TextView
+                android:id="@+id/tvCardCount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text=""
+                android:gravity="center"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:fontFamily="@font/gilroy_medium"/>
+
+            <TextView
+                android:id="@+id/tvCardAmount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text=""
+                android:gravity="end"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:fontFamily="@font/gilroy_medium"/>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

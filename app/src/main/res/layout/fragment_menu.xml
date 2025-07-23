@@ -71,8 +71,22 @@
         app:layout_constraintTop_toBottomOf="@id/id_txt_location"
         />
 
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/id_txt_version"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:fontFamily="@font/gilroy_regular"
+        android:textSize="@dimen/_12sdp"
+        android:text="version number"
+        android:layout_marginTop="@dimen/_4sdp"
+        app:layout_constraintStart_toStartOf="@+id/id_txt_fullname"
+        app:layout_constraintTop_toBottomOf="@+id/id_txt_fullname"
+        />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewMenu"
+        android:layout_marginTop="@dimen/_12sdp"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         tools:listitem="@layout/menu_item"
