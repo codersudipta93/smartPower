@@ -91,7 +91,9 @@ class CardOutFragment:BaseFragment<FragmentCardOutBinding>() {
             val ndefMessage = ndef.ndefMessage
             ndef.close()
 
-            viewModel.parkVehicle(tag.id.joinToString(separator = "") { String.format("%02X", it) },1)
+            val cardId = tag.id.joinToString(separator = "") { String.format("%02X", it) }
+            Log.d("card no", cardId)
+            viewModel.parkVehicle(cardId,1)
             for (record in ndefMessage.records) {
                 if (record.tnf == NdefRecord.TNF_MIME_MEDIA &&
                     record.type.contentEquals("application/json".toByteArray(Charsets.US_ASCII))) {
@@ -102,17 +104,17 @@ class CardOutFragment:BaseFragment<FragmentCardOutBinding>() {
                     val contact=jsonObject.optString("contact", "")
 //                    Log.d("jksahfkja",inTimeStr);
 
-                    if (!vehicleNo.isNullOrBlank()){
-                        activity?.runOnUiThread {
-                            binding.edtVehicleNo.setText(vehicleNo)
-                        }
-                    }
-
-                    if (!contact.isNullOrBlank()){
-                        activity?.runOnUiThread {
-                            binding.edtContact.setText(contact)
-                        }
-                    }
+//                    if (!vehicleNo.isNullOrBlank()){
+//                        activity?.runOnUiThread {
+//                            binding.edtVehicleNo.setText(vehicleNo)
+//                        }
+//                    }
+//
+//                    if (!contact.isNullOrBlank()){
+//                        activity?.runOnUiThread {
+//                            binding.edtContact.setText(contact)
+//                        }
+//                    }
 
 
 
@@ -161,9 +163,9 @@ class CardOutFragment:BaseFragment<FragmentCardOutBinding>() {
                             showAlertMsg(it.message)
                         }
                         is CardInOutViewModel.VehicleCardEvents.VehicleCardParked -> {
-                            binding.edtDuration.setText(it.data.duration)
-                            binding.edtInTime.setText(it.data.inTime)
-                            binding.edtOutTime.setText(it.data.outTime)
+                           // binding.edtDuration.setText(it.data.duration)
+                            //binding.edtInTime.setText(it.data.inTime)
+                            //binding.edtOutTime.setText(it.data.outTime)
                             showAlertMsg(it.data.msg.toString())
                             //Toast.makeText(context, it.data.msg, Toast.LENGTH_LONG).show()
                             //(requireActivity() as MainActivity).btManager.sendData("1".toByteArray())

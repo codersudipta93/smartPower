@@ -111,7 +111,6 @@ class BluetoothConnectionManager @Inject constructor(@ApplicationContext private
                 socket?.connect()
                 Log.d("BTConnectionManager", "Connected to ${device.name}")
                 Log.d("BTConnectionManager", "mac address ${device}")
-
                 sharedPreferenceManager.saveLastPairedMacAddress(device.toString())
                 Toast.makeText(context, "Connected to ${device.name}", Toast.LENGTH_LONG).show()
 

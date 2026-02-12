@@ -2,7 +2,6 @@
 package com.example.parkingagent.data.local
 import android.content.Context
 import android.content.SharedPreferences
-
 import android.util.Log
 import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
@@ -111,10 +110,9 @@ class SharedPreferenceManager @Inject constructor(
 
     fun saveIpAddress(ip: String) {
         sharedPreferences.edit {
-            putString(KEY_IP, ip)
+            putString(KEY_IP, ip).commit()
         }
     }
-
 
     fun getIpAddress(): String? =
         sharedPreferences.getString(KEY_IP, null)
@@ -125,13 +123,25 @@ class SharedPreferenceManager @Inject constructor(
         }
     }
 
+    fun getPort(): String? =
+        sharedPreferences.getString(KEY_PORT, null)
+
+
+    fun saveANPRForOut(option: String) {
+        sharedPreferences.edit {
+            putString(KEY_ANPR_OUT, option)
+        }
+    }
+
+    fun getANPRForOut(): String? =
+        sharedPreferences.getString(KEY_ANPR_OUT, null)
 
     fun getBaseUrl(): String {
-        return sharedPreferences.getString(KEY_BASE_URL, "http://45.249.111.51/SmartPowerAPI/api/") ?: "http://45.249.111.51/SmartPowerAPI/api/"
+        return sharedPreferences.getString(KEY_BASE_URL, "http://103.231.40.240/SmartPowerAPI/api/") ?: "http://103.231.40.240/SmartPowerAPI/api/"
     }
 
     fun getInstalledVersion(): String {
-        return sharedPreferences.getString(APP_INSTALLED_VERSION, "0.0.1") ?: "0.0.1"
+        return sharedPreferences.getString(APP_INSTALLED_VERSION, "0.0.8") ?: "0.0.8"
     }
 
 
@@ -144,8 +154,7 @@ class SharedPreferenceManager @Inject constructor(
     fun getCurrentAppVersion(): String? =
         sharedPreferences.getString(APP_CURRENT_VERSION, null)
 
-    fun getPort(): String? =
-        sharedPreferences.getString(KEY_PORT, null)
+
 
     fun setFullName(name: String) {
         sharedPreferences.edit {
@@ -182,10 +191,11 @@ class SharedPreferenceManager @Inject constructor(
         private const val KEY_USER_ID = "user_id"
         private const val KEY_IP = "ip_address"
         private const val KEY_PORT = "port_number"
+        private const val KEY_ANPR_OUT = "anpr_for_out"
         private const val KEY_FULL_NAME = "full_name"
         private const val KEY_LOCATION = "location"
-        private const val KEY_BASE_URL = "http://45.249.111.51/SmartPowerAPI/api/"
-        private const val APP_INSTALLED_VERSION = "0.0.1"
+        private const val KEY_BASE_URL = "http://103.231.40.240/SmartPowerAPI/api/"
+        private const val APP_INSTALLED_VERSION = "0.0.8"
         private const val APP_CURRENT_VERSION = ""
         private const val KEY_SLIP_HEADER_FOOTER = "slip_HF"
         private const val LAST_PAIRED_DEVICE = "last_paired_mac_address"

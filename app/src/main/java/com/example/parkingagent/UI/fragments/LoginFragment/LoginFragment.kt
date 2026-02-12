@@ -36,7 +36,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.Dev
     private lateinit var deviceId: String
     private lateinit var deviceSerialNumber: String
     private lateinit var sessionManager: SharedPreferenceManager
-//    private lateinit var deviceImeiNumber: String
+    //private lateinit var deviceImeiNumber: String
 
 
     override fun getLayoutResourceId(): Int {
@@ -47,7 +47,7 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.Dev
         super.initView()
         sessionManager= SharedPreferenceManager(requireContext())
         deviceInfoManager = DeviceInfoManager(this)
-//        deviceInfoManager.checkAndRequestPermissions()
+        //deviceInfoManager.checkAndRequestPermissions()
         binding.btnLoginContinue.setOnClickListener({
             deviceInfoManager.checkAndRequestPermissions()
         })
@@ -57,8 +57,6 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.Dev
     }
 
     private fun agentLogin(){
-
-
 
         if (binding.edtEmail.text?.trim()?.isEmpty() == true){
             binding.edtEmail.error="Please enter User Id"

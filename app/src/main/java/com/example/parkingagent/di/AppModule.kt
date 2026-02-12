@@ -19,6 +19,8 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
+import android.util.Log
+
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
@@ -43,34 +45,74 @@ object AppModule {
     @PrimaryRetrofit
     fun providePrimaryRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://45.249.111.51/SmartPowerAPI/api/")
+            .baseUrl("http://103.231.40.240/SmartPowerAPI/api/")
             .addConverterFactory(GsonConverterFactory.create())
             .addConverterFactory(ScalarsConverterFactory.create())
             .client(okHttpClient)
             .build()
     }
 
+//    // Secondary Retrofit instance using dynamic base URL from shared preferences.
+//    @Singleton
+//    @Provides
+//    @SecondaryRetrofit
+//    fun provideSecondaryRetrofit(
+//        okHttpClient: OkHttpClient,
+//        sharedPreferenceManager: SharedPreferenceManager
+//    ): Retrofit {
+//        // Retrieve IP and port from shared preferences
+//        val ip = sharedPreferenceManager.getIpAddress()
+//        val port = sharedPreferenceManager.getPort()
+//        Log.d("IP Address", sharedPreferenceManager.getIpAddress().toString(), null)
+//        // You might want to provide a default or throw an error if null.
+//        val baseUrl = if (!ip.isNullOrBlank() && !port.isNullOrBlank()) {
+//            "http://$ip:$port/"
+//        } else {
+//            // Fallback URL (or you may throw an exception)
+//            "http://default.example.com/"
+//        }
+//
+//        return Retrofit.Builder()
+//            .baseUrl(baseUrl)
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .client(okHttpClient)
+//            .build()
+//    }
+
+
     // Secondary Retrofit instance using dynamic base URL from shared preferences.
     @Singleton
     @Provides
     @SecondaryRetrofit
     fun provideSecondaryRetrofit(
-        okHttpClient: OkHttpClient,
         sharedPreferenceManager: SharedPreferenceManager
     ): Retrofit {
-        // Retrieve IP and port from shared preferences
-        val ip = sharedPreferenceManager.getIpAddress()
-        val port = sharedPreferenceManager.getPort()
-        // You might want to provide a default or throw an error if null.
-        val baseUrl = if (!ip.isNullOrBlank() && !port.isNullOrBlank()) {
-            "http://$ip:$port/"
-        } else {
-            // Fallback URL (or you may throw an exception)
-            "http://default.example.com/"
-        }
+        val okHttpClient = OkHttpClient.Builder()
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(true)
+            .addInterceptor(HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            })
+            // 🔹 Interceptor to dynamically update IP & port for every request
+            .addInterceptor { chain ->
+                val ip = sharedPreferenceManager.getIpAddress()
+                val port = sharedPreferenceManager.getPort()
+
+                val newUrl = chain.request().url.newBuilder()
+                    .scheme("http")
+                    .host(ip ?: "default.example.com")
+                    .port(port?.toIntOrNull() ?: 80)
+                    .build()
+
+                Log.d("DynamicBaseUrl", "Using IP: $ip, Port: $port")
+                chain.proceed(chain.request().newBuilder().url(newUrl).build())
+            }
+            .build()
 
         return Retrofit.Builder()
-            .baseUrl(baseUrl)
+            .baseUrl("http://default.example.com/") // Placeholder — will be replaced dynamically
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .build()

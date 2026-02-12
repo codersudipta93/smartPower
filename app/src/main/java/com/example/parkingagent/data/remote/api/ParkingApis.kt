@@ -25,8 +25,6 @@ interface ParkingApis {
 @POST("Device/VehicleParking")
 fun vehicleParking(@Header("Authorization") token:String,@Body vehicleParkingReqBody: VehicleParkingReqBody): Call<VehicleParkingResponse>
 
-
-
     @POST("Device/getVehicleTypedropdown")
     fun getVehicleTypedropdown(@Header("Authorization") token:String,@Body searchVehicleReqBody:VehicleSearchParkingReqBody): Call<VehicleParkingResponse>
 
@@ -48,7 +46,7 @@ fun guestRegistration(@Header("Authorization") token:String,@Body guestRegistrat
 fun guestRecharge(@Header("Authorization") token:String,@Body GuestRechargeReqBody: GuestRechargeReqBody): Call<GuestRegistrationResponse>
 
 @POST("Device/CollectionInsert")
-fun collectionInsert(@Header("Authorization") token:String,@Body collectionReqBody: CollectionInsertReqBody): Call<CollectionInsertResponse>
+fun collectionInsert(@Header("Authorization") token:String, @Body collectionReqBody: CollectionInsertReqBody): Call<CollectionInsertResponse>
 
 @POST("Device/GetRateByEntity")
 fun getRateByEntity(@Body parkingRateResponse: ParkingRateReqBody): Call<ParkingRateResponse>

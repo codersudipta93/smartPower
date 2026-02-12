@@ -3,7 +3,9 @@ package com.example.parkingagent.UI.fragments.qrInOut
 import androidx.lifecycle.ViewModel
 import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.example.parkingagent.UI.fragments.home.HomeViewModel.ParkingVehicleEvents
 import com.example.parkingagent.data.local.SharedPreferenceManager
+import com.example.parkingagent.data.remote.api.LocalNetworkApis
 import com.example.parkingagent.data.remote.api.ParkingApis
 import com.example.parkingagent.data.remote.models.CollectionInsert.CollectionInsertData
 import com.example.parkingagent.data.remote.models.CollectionInsert.CollectionInsertReqBody
@@ -11,6 +13,7 @@ import com.example.parkingagent.data.remote.models.CollectionInsert.CollectionIn
 import com.example.parkingagent.data.remote.models.VehicleParking.VehicleParkingReqBody
 import com.example.parkingagent.data.remote.models.VehicleParking.VehicleSearchParkingReqBody
 import com.example.parkingagent.data.remote.models.VehicleParking.VehicleParkingResponse
+import com.example.parkingagent.data.remote.models.anprDataResponse.ANPRVehicleResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -23,12 +26,13 @@ import javax.inject.Inject
 @HiltViewModel
 class QrInOutViewModel @Inject constructor(
     val client:ParkingApis,
-    val sharedPreferenceManager: SharedPreferenceManager
+    val sharedPreferenceManager: SharedPreferenceManager,
+    val localClient: LocalNetworkApis,
+
 ) : ViewModel() {
 
     private val _mutualSharedflow= MutableSharedFlow<ParkingVehicleEvents>()
     val mutualSharedflow: SharedFlow<ParkingVehicleEvents> = _mutualSharedflow
-
 
 
     fun searchAndParkVehicle(vehicleNumber:String,deviceId:String, userId:String){
@@ -79,6 +83,39 @@ class QrInOutViewModel @Inject constructor(
         })
 
 
+    }
+
+    fun getLatestVehicleData(device:String){
+        val deviceId = device
+        val latestVehicleCall=localClient.getANPRVehicle(deviceId)
+        latestVehicleCall.enqueue(object:Callback<ANPRVehicleResponse>{
+
+            override fun onResponse(
+                call: Call<ANPRVehicleResponse?>,
+                response: Response<ANPRVehicleResponse?>
+            ) {
+                viewModelScope.launch {
+
+                    if (response.isSuccessful && response.body()?.status==true){
+                        _mutualSharedflow.emit(ParkingVehicleEvents.ANPRVehicleSuccessful(response.body()!!))
+                    }
+                    else {
+                        _mutualSharedflow.emit(ParkingVehicleEvents.VehicleParkingFailed(response.body()?.msg?:"Unknown Error"))
+                    }
+                }
+
+            }
+
+            override fun onFailure(
+                call: Call<ANPRVehicleResponse?>,
+                t: Throwable
+            ) {
+                viewModelScope.launch {
+                    _mutualSharedflow.emit(ParkingVehicleEvents.VehicleParkingFailed(t.message?:"Unknown Error"))
+                }
+            }
+
+        })
     }
 
     fun parkedVehicle(vehicleNumber:String,deviceId:String,BookingNumber:String,vehicleTypeId:String) {
@@ -136,6 +173,7 @@ class QrInOutViewModel @Inject constructor(
 
 
     fun collectionInsert(vehicleNumber:String,amount: Double,IsCollected:String,DeviceId:String,VehicleTypeId:String, InTime:String,OutTime:String ){
+        Log.d("API call", "true")
         val reqBody= CollectionInsertReqBody(sharedPreferenceManager.getEntityId(),vehicleNumber,sharedPreferenceManager.getUserId(),amount,IsCollected,VehicleTypeId,DeviceId,InTime,OutTime)
         val collectionInsertCall=client.collectionInsert(sharedPreferenceManager.getAccessToken().toString(),reqBody)
 
@@ -151,13 +189,13 @@ class QrInOutViewModel @Inject constructor(
                         _mutualSharedflow.emit(ParkingVehicleEvents.CollectionInsertSuccessful(response.body()!!.collectionInsertData!!))
                     }
                     else {
-                        _mutualSharedflow.emit(ParkingVehicleEvents.VehicleParkingFailed(response.body()?.msg?:"Unknown Error"))
+                        _mutualSharedflow.emit(ParkingVehicleEvents.CollectionInsertFailed(response.body()?.msg?:"Unknown Error"))
                     }
                 }
             }
             override fun onFailure(call: Call<CollectionInsertResponse>, t: Throwable) {
                 viewModelScope.launch {
-                    _mutualSharedflow.emit(ParkingVehicleEvents.VehicleParkingFailed(t.message?:"Unknown Error"))
+                    _mutualSharedflow.emit(ParkingVehicleEvents.CollectionInsertFailed(t.message?:"Unknown Error"))
                 }
             }
 
@@ -172,5 +210,9 @@ class QrInOutViewModel @Inject constructor(
         class VehicleParkingFailed(val message:String):ParkingVehicleEvents()
 
         class CollectionInsertSuccessful(val collectionInsertData: CollectionInsertData):ParkingVehicleEvents()
+
+        class CollectionInsertFailed(val message:String):ParkingVehicleEvents()
+
+        class ANPRVehicleSuccessful(val anprVehicleResponse: ANPRVehicleResponse): ParkingVehicleEvents()
     }
 }

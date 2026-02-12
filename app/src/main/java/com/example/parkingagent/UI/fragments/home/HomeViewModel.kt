@@ -16,7 +16,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import javax.inject.Inject
-
+import android.util.Log
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -25,7 +25,7 @@ class HomeViewModel @Inject constructor(
     val sharedPreferenceManager: SharedPreferenceManager
 ):ViewModel(){
 
-    private val _mutualSharedflow= MutableSharedFlow<ParkingVehicleEvents>()
+    private val _mutualSharedflow = MutableSharedFlow<ParkingVehicleEvents>()
     val mutualSharedflow: SharedFlow<ParkingVehicleEvents> = _mutualSharedflow
 
     fun parkedVehicle(vehicleNumber:String,VehicleTypeId:String,deviceId:String,BookingNumber:String){
@@ -36,7 +36,6 @@ class HomeViewModel @Inject constructor(
             override fun onResponse(
                 call: Call<VehicleParkingResponse>,
                 response: Response<VehicleParkingResponse>
-                
             ) {
                 viewModelScope.launch {
                     if (response.isSuccessful && response.body()?.status ==true){
@@ -46,7 +45,6 @@ class HomeViewModel @Inject constructor(
                         _mutualSharedflow.emit(ParkingVehicleEvents.VehicleParkingFailed(response.body()?.msg?:"Unknown Error"))
                     }
                 }
-
             }
 
             override fun onFailure(call: Call<VehicleParkingResponse>, t: Throwable) {
@@ -58,22 +56,23 @@ class HomeViewModel @Inject constructor(
     }
 
 
-    fun getLatestVehicleData(){
-        val latestVehicleCall=localClient.getANPRVehicle()
+    fun getLatestVehicleData(device:String){
+        val deviceId = device
+        val latestVehicleCall=localClient.getANPRVehicle(deviceId)
         latestVehicleCall.enqueue(object:Callback<ANPRVehicleResponse>{
+
             override fun onResponse(
                 call: Call<ANPRVehicleResponse?>,
                 response: Response<ANPRVehicleResponse?>
             ) {
                 viewModelScope.launch {
 
-                    if (response.isSuccessful && response.body()?.status ==true){
+                    if (response.isSuccessful && response.body()?.status==true){
                         _mutualSharedflow.emit(ParkingVehicleEvents.ANPRVehicleSuccessful(response.body()!!))
                     }
                     else {
                         _mutualSharedflow.emit(ParkingVehicleEvents.VehicleParkingFailed(response.body()?.msg?:"Unknown Error"))
                     }
-
                 }
 
             }
@@ -85,7 +84,6 @@ class HomeViewModel @Inject constructor(
                 viewModelScope.launch {
                     _mutualSharedflow.emit(ParkingVehicleEvents.VehicleParkingFailed(t.message?:"Unknown Error"))
                 }
-
             }
 
         })
@@ -93,9 +91,7 @@ class HomeViewModel @Inject constructor(
 
     sealed class ParkingVehicleEvents {
         class VehicleParkingSuccessful(val vehicleParkingResponse: VehicleParkingResponse):ParkingVehicleEvents()
-
         class VehicleParkingFailed(val message:String):ParkingVehicleEvents()
-
         class ANPRVehicleSuccessful(val anprVehicleResponse: ANPRVehicleResponse):ParkingVehicleEvents()
     }
 

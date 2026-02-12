@@ -23,20 +23,38 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.92" />
 
-        <!-- Vehicle Number -->
+        <!-- Vehicle Number Label -->
         <TextView
             android:id="@+id/txt_vehicle_no"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Vehicle Number"
+
             android:textColor="@color/black"
             android:fontFamily="@font/gilroy_medium"
             android:textSize="14sp"
+            android:layout_marginTop="@dimen/_10sdp"
             app:layout_constraintStart_toStartOf="@id/guideline_start"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="@dimen/_10sdp"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Modified: Removed endIcon from TextInputLayout and added width constraint -->
+        <!-- ANPR Button (aligned to right of label) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_get_vehicle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/primary"
+            android:padding="@dimen/_6sdp"
+            android:text="ANPR    "
+            app:icon="@drawable/ic_search"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            app:cornerRadius="10dp"
+            android:layout_marginTop="@dimen/_10sdp"
+            app:layout_constraintTop_toTopOf="@id/txt_vehicle_no"
+            app:layout_constraintBottom_toBottomOf="@id/txt_vehicle_no"
+            app:layout_constraintEnd_toEndOf="@id/guideline_end" />
+
+        <!-- Vehicle Number Input -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/vehicle_no_layout"
             android:layout_width="0dp"
@@ -44,7 +62,7 @@
             app:layout_constraintTop_toBottomOf="@id/txt_vehicle_no"
             app:layout_constraintStart_toStartOf="@id/guideline_start"
             app:layout_constraintEnd_toStartOf="@+id/btn_search"
-            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_marginTop="@dimen/_22sdp"
             android:layout_marginEnd="@dimen/_8sdp"
             app:hintEnabled="false"
             android:background="@null"
@@ -68,7 +86,7 @@
                 android:background="@drawable/bg_email_edit_text"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Added: New Search Button -->
+        <!-- Search Button (right of input) -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_search"
             android:layout_width="wrap_content"
@@ -85,7 +103,6 @@
             app:layout_constraintBottom_toBottomOf="@id/vehicle_no_layout"
             app:layout_constraintEnd_toEndOf="@id/guideline_end" />
 
-        <!-- Rest of your original layout remains unchanged -->
         <!-- Entry Date Time -->
         <TextView
             android:id="@+id/txt_entry_datetime"
@@ -117,6 +134,7 @@
             app:layout_constraintEnd_toEndOf="@id/guideline_end" />
 
         <!-- Out Time -->
+
         <TextView
             android:id="@+id/txt_out_time"
             android:layout_width="wrap_content"
@@ -206,7 +224,7 @@
             app:layout_constraintStart_toStartOf="@id/guideline_start"
             app:layout_constraintEnd_toEndOf="@id/guideline_end" />
 
-        <!-- Buttons -->
+        <!-- Bottom Buttons -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_collect"
             android:layout_width="0dp"

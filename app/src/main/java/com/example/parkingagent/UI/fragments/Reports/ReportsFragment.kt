@@ -68,7 +68,9 @@ class ReportsFragment : BaseFragment<FragmentReportsBinding>() {
 //            showDatePicker()
 //        }
 
+
         binding.btnPrint.setOnClickListener{
+
             printDailyReport()
         }
 
@@ -310,240 +312,363 @@ class ReportsFragment : BaseFragment<FragmentReportsBinding>() {
 
 
 
+//     private fun printDailyReport() {
+//        PrinterSdk.getInstance().getPrinter(requireContext(), object : PrinterSdk.PrinterListen {
+//            override fun onDefPrinter(printer: PrinterSdk.Printer?) {
+//                if (printer == null) {
+//                    Toast.makeText(requireContext(), "Printer not available", Toast.LENGTH_SHORT).show()
+//                    return
+//                }
+//
+//                val canvasWidth = 384
+//                var currentY = 10
+//                val lineHeight = 38
+//
+//                printer.canvasApi()?.initCanvas(
+//                    BaseStyle.getStyle()
+//                        .setWidth(384)
+//                        .setHeight(0)
+//                )
+//
+//                fun centerX(text: String, textSize: Int): Int {
+//                    // 0.55 instead of 0.6 for better centering in some fonts
+//                    val charWidth = (textSize * 0.55).toInt()
+//                    val textWidth = charWidth * text.length
+//                    val x = (canvasWidth - textWidth) / 2
+//                    return x.coerceAtLeast(0)
+//                }
+//
+//                fun renderCenteredText(text: String, size: Int = 25, bold: Boolean = false) {
+//                    val posX = centerX(text, size)+10
+//                    printer?.canvasApi()?.renderText(
+//                        text,
+//                        TextStyle.getStyle()
+//                            .setTextSize(size)
+//                            .enableBold(bold)
+//                            .setPosX(posX)
+//                            .setPosY(currentY)
+//                    )
+//                    currentY += lineHeight
+//                }
+//
+//                fun renderHeaderText(text: String, size: Int = 25, bold: Boolean = false) {
+//                    val posX = centerX(text, size)+25
+//                    printer?.canvasApi()?.renderText(
+//                        text,
+//                        TextStyle.getStyle()
+//                            .setTextSize(size)
+//                            .enableBold(bold)
+//                            .setPosX(posX)
+//                            .setPosY(currentY)
+//                    )
+//                    currentY += lineHeight
+//                }
+//
+//
+//                fun renderLine(text: String) {
+//                    printer?.canvasApi()?.renderText(
+//                        text,
+//                        TextStyle.getStyle()
+//                            .setTextSize(22)
+//                            .enableBold(true)
+//                            .setPosX(25) // Added left margin
+//                            .setPosY(currentY)
+//                    )
+//                    currentY += lineHeight
+//                }
+//
+//                fun renderAmount(text: String) {
+//                    printer?.canvasApi()?.renderText(
+//                        text,
+//                        TextStyle.getStyle()
+//                            .setTextSize(25)
+//                            .enableBold(true)
+//                            .setPosX(25) // Added left margin
+//                            .setPosY(currentY)
+//                    )
+//                    currentY += lineHeight
+//                }
+//
+//
+//                fun renderMultilineCenteredText(text: String, size: Int = 25, bold: Boolean = false) {
+//                    val lines = text.split(", ")
+//                    for (line in lines) {
+//                        val words = line.trim().split(" ")
+//                        val sb = StringBuilder()
+//                        var lineWidth = 0
+//
+//                        for (word in words) {
+//                            val wordWidth = (size * 0.55 * word.length).toInt()
+//                            if (lineWidth + wordWidth > 375) {
+//                                renderCenteredText(sb.toString().trim(), size, bold)
+//                                sb.clear()
+//                                lineWidth = 0
+//                            }
+//                            sb.append("$word ")
+//                            lineWidth += wordWidth + (size / 2) // spacing
+//                        }
+//
+//                        if (sb.isNotEmpty()) {
+//                            renderCenteredText(sb.toString().trim(), size, bold)
+//                        }
+//                    }
+//                }
+//
+//
+//                val slip = sessionManager.getSlipHeaderFooter()
+//                val header1 = JSONObject(slip ?: "{}").optString("Header1")
+//                  if(header1.isNotBlank()) {
+//                    val lines = header1.split("|")
+//                    for (line in lines) {
+//                        renderCenteredText(line.trim(), size = 28, bold = true)
+//                    }
+//                    currentY += 1 // Spacing
+//                }
+//
+//
+//                val header2 = JSONObject(slip ?: "{}").optString("Header2")
+//                val footer1 = JSONObject(slip ?: "{}").optString("Footer1")
+//                val footer2 = JSONObject(slip ?: "{}").optString("Footer2")
+//
+//                val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+//                val currentDateTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
+//                    Date()
+//                )
+//
+//                if (header2.isNotEmpty()) {
+//                    renderCenteredText(header2, size = 22)
+//                    currentY += 1
+//                }
+//
+//                renderHeaderText("COLLECTION SUMMARY", size = 28, bold = true)
+//                renderCenteredText("AGENT: ${sessionManager.getFullName()}", size = 22)
+//
+//                renderLine("---------------------------------")
+//
+//                renderLine("From Date : "+binding.tvFromDateTime.text.toString())
+//                renderLine("To Date   : "+binding.tvToDateTime.text.toString())
+//
+//                renderLine("---------------------------------")
+//
+//
+//                val vehicleArray = collectionList
+//
+//                if (vehicleArray != null) {
+//                    for (i in 0 until vehicleArray.length()) {
+//                        val vehicleItem = vehicleArray.getJSONObject(i)
+//                        val vehicleName = vehicleItem.optString("VehicleTypeName", "")
+//                        val cashCount = vehicleItem.optString("CashCount", "0")
+//                        val cardCount = vehicleItem.optString("CardCount", "0")
+//                        val notCollectedCount = vehicleItem.optString("NotCollectedCount", "0")
+//                        val cashAmount = vehicleItem.optString("CashAmount", "0.00")
+//                        val cardAmount = vehicleItem.optString("CardAmount", "0.00")
+//                        val notCollectedAmount = vehicleItem.optString("NotCollectedAmount", "0.00")
+//                        currentY += 10
+//                        renderAmount(vehicleName.uppercase())
+//                        currentY += 10
+//                        renderLine("           COUNT      AMOUNT")
+//
+//                        renderLine("CASH        $cashCount         $cashAmount")
+//                        renderLine("CARD        $cardCount         $cardAmount")
+//
+//                    }
+//                }
+//
+//                currentY += 20
+//                renderLine("=================================")
+//                renderAmount("TOTAL COUNT   :  "+binding.tvTotalCount.text.toString())
+//                renderAmount("TOTAL AMOUNT  :  "+binding.tvTotalAmount.text.toString())
+//                renderLine("==================================")
+//
+//                currentY += 25
+//
+//                // Footer
+//                if (footer1.isNotEmpty()) {
+//                    renderCenteredText(footer1, size = 22, bold = true)
+//                    currentY += 5
+//                }
+//
+//                if (footer2.isNotEmpty()) {
+//                    renderCenteredText(footer2, size = 20)
+//                }
+//
+//                renderLine("---------------------------------")
+//                renderCenteredText("Printed On : $currentDateTime", size = 22)
+//
+//                // Print
+//                printer.canvasApi()?.printCanvas(1, null)
+//
+//            }
+//
+//            override fun onPrinters(printers: MutableList<PrinterSdk.Printer>?) {
+//                Toast.makeText(requireContext(), "Report printed successfully", Toast.LENGTH_SHORT).show()
+//            }
+//        })
+//    }
+
+    private var isPrinting = false
 
     private fun printDailyReport() {
+        if (isPrinting) {
+            Toast.makeText(requireContext(), "Printing in progress, please wait...", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        isPrinting = true
 
         PrinterSdk.getInstance().getPrinter(requireContext(), object : PrinterSdk.PrinterListen {
             override fun onDefPrinter(printer: PrinterSdk.Printer?) {
                 if (printer == null) {
                     Toast.makeText(requireContext(), "Printer not available", Toast.LENGTH_SHORT).show()
+                    isPrinting = false
                     return
                 }
 
                 val canvasWidth = 384
-                var currentY = 10
                 val lineHeight = 38
+                var currentY = 10
+                val renderActions = mutableListOf<() -> Unit>()
 
-                printer.canvasApi()?.initCanvas(
-                    BaseStyle.getStyle()
-                        .setWidth(384)
-                        .setHeight(1410)
-                )
-
+                // Helpers
                 fun centerX(text: String, textSize: Int): Int {
-                    // 0.55 instead of 0.6 for better centering in some fonts
                     val charWidth = (textSize * 0.55).toInt()
                     val textWidth = charWidth * text.length
-                    val x = (canvasWidth - textWidth) / 2
-                    return x.coerceAtLeast(0)
+                    return ((canvasWidth - textWidth) / 2).coerceAtLeast(0)
                 }
 
-                fun renderCenteredText(text: String, size: Int = 25, bold: Boolean = false) {
-                    val posX = centerX(text, size)+10
-                    printer?.canvasApi()?.renderText(
-                        text,
-                        TextStyle.getStyle()
-                            .setTextSize(size)
-                            .enableBold(bold)
-                            .setPosX(posX)
-                            .setPosY(currentY)
-                    )
-                    currentY += lineHeight
-                }
-
-                fun renderHeaderText(text: String, size: Int = 25, bold: Boolean = false) {
-                    val posX = centerX(text, size)+25
-                    printer?.canvasApi()?.renderText(
-                        text,
-                        TextStyle.getStyle()
-                            .setTextSize(size)
-                            .enableBold(bold)
-                            .setPosX(posX)
-                            .setPosY(currentY)
-                    )
-                    currentY += lineHeight
-                }
-
-
-                fun renderLine(text: String) {
-                    printer?.canvasApi()?.renderText(
-                        text,
-                        TextStyle.getStyle()
-                            .setTextSize(22)
-                            .enableBold(true)
-                            .setPosX(25) // Added left margin
-                            .setPosY(currentY)
-                    )
-                    currentY += lineHeight
-                }
-
-                fun renderAmount(text: String) {
-                    printer?.canvasApi()?.renderText(
-                        text,
-                        TextStyle.getStyle()
-                            .setTextSize(25)
-                            .enableBold(true)
-                            .setPosX(25) // Added left margin
-                            .setPosY(currentY)
-                    )
-                    currentY += lineHeight
-                }
-
-
-                fun renderMultilineCenteredText(text: String, size: Int = 25, bold: Boolean = false) {
-                    val lines = text.split(", ")
-                    for (line in lines) {
-                        val words = line.trim().split(" ")
-                        val sb = StringBuilder()
-                        var lineWidth = 0
-
-                        for (word in words) {
-                            val wordWidth = (size * 0.55 * word.length).toInt()
-                            if (lineWidth + wordWidth > 375) {
-                                renderCenteredText(sb.toString().trim(), size, bold)
-                                sb.clear()
-                                lineWidth = 0
-                            }
-                            sb.append("$word ")
-                            lineWidth += wordWidth + (size / 2) // spacing
-                        }
-
-                        if (sb.isNotEmpty()) {
-                            renderCenteredText(sb.toString().trim(), size, bold)
-                        }
+                fun addCenteredText(text: String, size: Int = 25, bold: Boolean = false) {
+                    val posY = currentY
+                    val posX = centerX(text, size) + 10
+                    renderActions.add {
+                        printer.canvasApi()?.renderText(
+                            text,
+                            TextStyle.getStyle()
+                                .setTextSize(size)
+                                .enableBold(bold)
+                                .setPosX(posX)
+                                .setPosY(posY)
+                        )
                     }
+                    currentY += lineHeight
+                }
+
+                fun addLeftText(text: String, size: Int = 22, bold: Boolean = false) {
+                    val posY = currentY
+                    renderActions.add {
+                        printer.canvasApi()?.renderText(
+                            text,
+                            TextStyle.getStyle()
+                                .setTextSize(size)
+                                .enableBold(bold)
+                                .setPosX(0) // ✅ Changed from 25 to 0 for true left alignment
+                                .setPosY(posY)
+                        )
+                    }
+                    currentY += lineHeight
                 }
 
 
-
-
+                // Slip config
                 val slip = sessionManager.getSlipHeaderFooter()
-                val header1 = JSONObject(slip ?: "{}").optString("Header1")
-                  if(header1.isNotBlank()) {
-                    val lines = header1.split("|")
-                    for (line in lines) {
-                        renderCenteredText(line.trim(), size = 28, bold = true)
+                val slipJson = JSONObject(slip ?: "{}")
+                val header1 = slipJson.optString("Header1")
+                val header2 = slipJson.optString("Header2")
+                val footer1 = slipJson.optString("Footer1")
+                val footer2 = slipJson.optString("Footer2")
+
+                if (header1.isNotBlank()) {
+                    header1.split("|").forEach { line ->
+                        addCenteredText(line.trim(), size = 23, bold = true)
                     }
-                    currentY += 1 // Spacing
-                }
-
-
-                val header2 = JSONObject(slip ?: "{}").optString("Header2")
-                val footer1 = JSONObject(slip ?: "{}").optString("Footer1")
-                val footer2 = JSONObject(slip ?: "{}").optString("Footer2")
-
-                val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-                val currentDateTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
-                    Date()
-                )
-
-//                if (header1.isNotEmpty()) {
-//                    renderCenteredText(header1, size = 25, bold = true)
-//                    currentY += 2
-//                }
-
-                if (header2.isNotEmpty()) {
-                    renderCenteredText(header2, size = 22)
-                    currentY += 1
-                }
-
-                renderHeaderText("COLLECTION SUMMARY", size = 28, bold = true)
-                renderCenteredText("AGENT: ${sessionManager.getFullName()}", size = 22)
-
-                renderLine("---------------------------------")
-
-                renderLine("From Date : "+binding.tvFromDateTime.text.toString())
-                renderLine("To Date   : "+binding.tvToDateTime.text.toString())
-
-                renderLine("---------------------------------")
-
-//                renderAmount("TWO WHEELER")
-//                currentY += 10
-//                renderLine("          COUNT       AMOUNT")
-//                //renderLine("CASH      "+binding.cashTwoWheelerCount.text.toString()+"          "+binding.cashTwoWheelerAmount.text.toString())
-//                //renderLine("CARD      "+binding.cardTwoWheelerCount.text.toString()+"          "+binding.cardTwoWheelerAmount.text.toString())
-//
-//                renderLine("---------------------------------")
-//
-//                renderAmount("FOUR WHEELER")
-//                currentY += 10
-//                renderLine("           COUNT      AMOUNT")
-//                //renderLine("CASH       "+binding.cashFourWheelerCount.text.toString()+"        "+binding.cashFourWheelerAmount.text.toString())
-//               // renderLine("CARD       "+binding.cardFourWheelerCount.text.toString()+"        "+binding.cardFourWheelerAmount.text.toString())
-//
-
-
-                val vehicleArray = collectionList
-
-                if (vehicleArray != null) {
-                    for (i in 0 until vehicleArray.length()) {
-                        val vehicleItem = vehicleArray.getJSONObject(i)
-                        val vehicleName = vehicleItem.optString("VehicleTypeName", "")
-                        val cashCount = vehicleItem.optString("CashCount", "0")
-                        val cardCount = vehicleItem.optString("CardCount", "0")
-                        val notCollectedCount = vehicleItem.optString("NotCollectedCount", "0")
-                        val cashAmount = vehicleItem.optString("CashAmount", "0.00")
-                        val cardAmount = vehicleItem.optString("CardAmount", "0.00")
-                        val notCollectedAmount = vehicleItem.optString("NotCollectedAmount", "0.00")
-                        currentY += 10
-                        renderAmount(vehicleName.uppercase())
-                        currentY += 10
-                        renderLine("           COUNT      AMOUNT")
-
-                        renderLine("CASH        $cashCount         $cashAmount")
-                        renderLine("CARD        $cardCount         $cardAmount")
-
-                    }
-                }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                //======
-                currentY += 20
-                renderLine("=================================")
-                renderAmount("TOTAL COUNT   :  "+binding.tvTotalCount.text.toString())
-                renderAmount("TOTAL AMOUNT  :  "+binding.tvTotalAmount.text.toString())
-                renderLine("==================================")
-
-
-                currentY += 25
-
-                // Footer
-                if (footer1.isNotEmpty()) {
-                    renderCenteredText(footer1, size = 22, bold = true)
                     currentY += 5
                 }
 
-                if (footer2.isNotEmpty()) {
-                    renderCenteredText(footer2, size = 20)
+                if (header2.isNotEmpty()) {
+                    header2.split("|").forEach { line ->
+                        addCenteredText(line.trim(), size = 22)
+                    }
                 }
 
-                renderLine("---------------------------------")
-                renderCenteredText("Printed On : $currentDateTime", size = 22)
+                addCenteredText("COLLECTION SUMMARY", size = 28, bold = true)
+                addCenteredText("AGENT: ${sessionManager.getFullName()}", size = 22)
 
-                // Print
-                printer.canvasApi()?.printCanvas(1, null)
+                addLeftText("---------------------------------", bold = true)
+                addLeftText("From Date : ${binding.tvFromDateTime.text}")
+                addLeftText("To Date   : ${binding.tvToDateTime.text}")
+                addLeftText("---------------------------------", bold = true)
 
+                val vehicleArray = collectionList
+                if (vehicleArray != null) {
+                    for (i in 0 until vehicleArray.length()) {
+                        val vehicle = vehicleArray.getJSONObject(i)
+                        val vehicleName = vehicle.optString("VehicleTypeName", "")
+                        val cashCount = vehicle.optString("CashCount", "0")
+                        val cardCount = vehicle.optString("CardCount", "0")
+                        val cashAmount = vehicle.optString("CashAmount", "0.00")
+                        val cardAmount = vehicle.optString("CardAmount", "0.00")
+
+                        currentY += 10
+                        addLeftText(vehicleName.uppercase(), size = 25, bold = true)
+                        currentY += 5
+                        addLeftText("           COUNT      AMOUNT")
+                        addLeftText("CASH        $cashCount         $cashAmount")
+                        addLeftText("CARD        $cardCount         $cardAmount")
+                    }
+                }
+
+                currentY += 20
+                addLeftText("=================================", bold = true)
+                addLeftText("TOTAL COUNT   : ${binding.tvTotalCount.text}", size = 25, bold = true)
+                addLeftText("TOTAL AMOUNT  : ${binding.tvTotalAmount.text}", size = 25, bold = true)
+                addLeftText("==================================", bold = true)
+                currentY += 20
+
+                if (footer1.isNotEmpty()) {
+                    addCenteredText(footer1, size = 22, bold = true)
+                }
+
+                if (footer2.isNotEmpty()) {
+                    addCenteredText(footer2, size = 20)
+                }
+
+                addLeftText("---------------------------------", bold = true)
+                val dateTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+                addCenteredText("Printed On : $dateTime", size = 22)
+                currentY += 25 // ✅ spacing added here
+
+                try {
+                    // Init canvas
+                    val finalHeight = currentY + 50
+                    printer.canvasApi()?.initCanvas(
+                        BaseStyle.getStyle()
+                            .setWidth(canvasWidth)
+                            .setHeight(finalHeight)
+                    )
+
+                    // Render content
+                    renderActions.forEach { it.invoke() }
+
+                    // Print
+                    printer.canvasApi()?.printCanvas(1, null)
+
+                    // Reset flag
+                    isPrinting = false
+                    Toast.makeText(requireContext(), "Report printed successfully", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    isPrinting = false
+                    Toast.makeText(requireContext(), "Print failed: ${e.message}", Toast.LENGTH_LONG).show()
+                    Log.e("PrintError", "Exception: ${e.message}")
+                }
             }
 
             override fun onPrinters(printers: MutableList<PrinterSdk.Printer>?) {
-                Toast.makeText(requireContext(), "Report printed successfully", Toast.LENGTH_SHORT).show()
+                // Not needed unless you want to list printers manually
             }
         })
     }
+
+
+
 
 
     private fun printDailyReportOld() {
@@ -641,7 +766,7 @@ class ReportsFragment : BaseFragment<FragmentReportsBinding>() {
                   if(header1.isNotBlank()) {
                     val lines = header1.split("|")
                     for (line in lines) {
-                        renderCenteredText(line.trim(), size = 28, bold = true)
+                        renderCenteredText(line.trim(), size = 23, bold = true)
                     }
                     currentY += 1 // Spacing
                 }

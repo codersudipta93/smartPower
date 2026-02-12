@@ -143,7 +143,7 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
             .setNegativeButton("Update") { d, _ ->
                 d.dismiss()
 
-                val url = "http://45.249.111.51/smartpowerapk/"
+                val url = "http://103.231.40.240/smartpowerapk/"
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 requireContext().startActivity(intent)
@@ -365,272 +365,603 @@ class MenuFragment : BaseFragment<FragmentMenuBinding>() {
 
 
 
+//    private var isPrinting = false
+//    private fun printDailyReport(responseBody: String) {
+//        isPrinting = true
+//        PrinterSdk.getInstance().getPrinter(requireContext(), object : PrinterSdk.PrinterListen {
+//            override fun onDefPrinter(printer: PrinterSdk.Printer?) {
+//                if (printer == null) {
+//                   // Toast.makeText(requireContext(), "Printer not available", Toast.LENGTH_SHORT).show()
+//                    return
+//                }
+//
+//                val canvasWidth = 384
+//                var currentY = 10
+//                val lineHeight = 38
+//
+//                printer.canvasApi()?.initCanvas(
+//                    BaseStyle.getStyle()
+//                        .setWidth(384)
+//                        .setHeight(1440)
+//                )
+//
+//                fun centerX(text: String, textSize: Int): Int {
+//                    // 0.55 instead of 0.6 for better centering in some fonts
+//                    val charWidth = (textSize * 0.55).toInt()
+//                    val textWidth = charWidth * text.length
+//                    val x = (canvasWidth - textWidth) / 2
+//                    return x.coerceAtLeast(0)
+//                }
+//
+//                fun renderCenteredText(text: String, size: Int = 25, bold: Boolean = false) {
+//                    val posX = centerX(text, size)+10
+//                    printer?.canvasApi()?.renderText(
+//                        text,
+//                        TextStyle.getStyle()
+//                            .setTextSize(size)
+//                            .enableBold(bold)
+//                            .setPosX(posX)
+//                            .setPosY(currentY)
+//                    )
+//                    currentY += lineHeight
+//                }
+//
+//                fun renderHeaderText(text: String, size: Int = 25, bold: Boolean = false) {
+//                    val posX = centerX(text, size)+25
+//                    printer?.canvasApi()?.renderText(
+//                        text,
+//                        TextStyle.getStyle()
+//                            .setTextSize(size)
+//                            .enableBold(bold)
+//                            .setPosX(posX)
+//                            .setPosY(currentY)
+//                    )
+//                    currentY += lineHeight
+//                }
+//
+//
+//                fun renderLine(text: String) {
+//                    printer?.canvasApi()?.renderText(
+//                        text,
+//                        TextStyle.getStyle()
+//                            .setTextSize(22)
+//                            .enableBold(true)
+//                            .setPosX(25) // Added left margin
+//                            .setPosY(currentY)
+//                    )
+//                    currentY += lineHeight
+//                }
+//
+//                fun renderAmount(text: String) {
+//                    printer?.canvasApi()?.renderText(
+//                        text,
+//                        TextStyle.getStyle()
+//                            .setTextSize(25)
+//                            .enableBold(true)
+//                            .setPosX(25) // Added left margin
+//                            .setPosY(currentY)
+//                    )
+//                    currentY += lineHeight
+//                }
+//
+//
+//                fun renderMultilineCenteredText(text: String, size: Int = 25, bold: Boolean = false) {
+//                    val lines = text.split(", ")
+//                    for (line in lines) {
+//                        val words = line.trim().split(" ")
+//                        val sb = StringBuilder()
+//                        var lineWidth = 0
+//
+//                        for (word in words) {
+//                            val wordWidth = (size * 0.55 * word.length).toInt()
+//                            if (lineWidth + wordWidth > 375) {
+//                                renderCenteredText(sb.toString().trim(), size, bold)
+//                                sb.clear()
+//                                lineWidth = 0
+//                            }
+//                            sb.append("$word ")
+//                            lineWidth += wordWidth + (size / 2) // spacing
+//                        }
+//
+//                        if (sb.isNotEmpty()) {
+//                            renderCenteredText(sb.toString().trim(), size, bold)
+//                        }
+//                    }
+//                }
+//
+//
+//                val jsonObject = JSONObject(responseBody)
+//
+//                val dataObject = jsonObject.optJSONObject("Data")
+//                Log.d("dataObject", dataObject.toString())
+//                val loginTime = dataObject.optString("LoginTime", "")
+//                val logoutTime = dataObject.optString("LogoutTime", "")
+//                val fullName = dataObject.optString("FullName", "")
+//                val totalCount = dataObject.optString("TotalCount", "0")
+//                val totalAmount = dataObject.optString("TotalCash", "0.00") // Note: This is a special character key
+//
+//
+//
+//
+//                val slip = sessionManager.getSlipHeaderFooter()
+//                val header1 = JSONObject(slip ?: "{}").optString("Header1")
+//                val header2 = JSONObject(slip ?: "{}").optString("Header2")
+//                val footer1 = JSONObject(slip ?: "{}").optString("Footer1")
+//                val footer2 = JSONObject(slip ?: "{}").optString("Footer2")
+//
+//                val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+//                val currentDateTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
+//                    Date()
+//                )
+//
+//
+//
+//                if(header1.isNotBlank()) {
+//                    val lines = header1.split("|")
+//                    for (line in lines) {
+//                        renderCenteredText(line.trim(), size = 28, bold = true)
+//                    }
+//                    currentY += 1 // Spacing
+//                }
+//
+//
+//
+//                if (header2.isNotEmpty()) {
+//                    renderCenteredText(header2, size = 22)
+//                    currentY += 5
+//                }
+//
+//                renderHeaderText("DAILY EXIT SUMMARY", size = 28, bold = true)
+//                renderCenteredText("AGENT: ${fullName}", size = 22)
+//
+//                renderLine("---------------------------------")
+//
+//                renderLine("Login Time: ${loginTime}")
+//                renderLine("Logout Time: ${logoutTime}")
+//
+//                renderLine("---------------------------------")
+//
+//                val vehicleArray = collectionList
+//                Log.d("vehicle array" , vehicleArray.toString())
+//
+//                if (vehicleArray != null) {
+//                    for (i in 0 until vehicleArray.length()) {
+//
+//                        val vehicleItem = vehicleArray.getJSONObject(i)
+//                        Log.d("vehicleItem", vehicleItem.toString())
+//                        val vehicleName = vehicleItem.optString("VehicleTypeName", "")
+//                        val cashCount = vehicleItem.optString("CashCount", "0")
+//                        val cardCount = vehicleItem.optString("CardCount", "0")
+//                        val notCollectedCount = vehicleItem.optString("NotCollectedCount", "0")
+//                        val cashAmount = vehicleItem.optString("CashAmount", "0.00")
+//                        val cardAmount = vehicleItem.optString("CardAmount", "0.00")
+//                        val notCollectedAmount = vehicleItem.optString("NotCollectedAmount", "0.00")
+//                        currentY += 10
+//                        renderAmount(vehicleName.uppercase())
+//                        currentY += 10
+//                        renderLine("           COUNT      AMOUNT")
+//
+//                        renderLine("CASH        $cashCount         $cashAmount")
+//                        renderLine("CARD        $cardCount         $cardAmount")
+//
+//                    }
+//                }
+//
+//
+//                currentY += 20
+//                renderLine("=================================")
+//                renderAmount("TOTAL COUNT   :  ${totalCount}")
+//                renderAmount("TOTAL AMOUNT  :  Rs. ${totalAmount}")
+//                renderLine("==================================")
+//
+//
+//                currentY += 35
+//
+//                // Footer
+//                if (footer1.isNotEmpty()) {
+//                    renderCenteredText(footer1, size = 22, bold = true)
+//                    currentY += 5
+//                }
+//
+//                if (footer2.isNotEmpty()) {
+//                    renderCenteredText(footer2, size = 20)
+//                }
+//
+//                renderLine("---------------------------------")
+//                renderCenteredText("Printed On: $currentDateTime", size = 22)
+//
+//                try {
+//                    // Print
+//                    printer.canvasApi()?.printCanvas(1, null)
+//
+//                    // Use the main thread to handle post-print actions
+//                    requireActivity().runOnUiThread {
+//                        try {
+//                            // Mark printing as complete
+//                            isPrinting = false
+//
+//                            // Show toast
+//                           // Toast.makeText(requireContext(), "Report printed successfully", Toast.LENGTH_SHORT).show()
+//
+//                            // Add a small delay before logout
+//                            Handler(Looper.getMainLooper()).postDelayed({
+//                                // Check if fragment is still attached
+//                                if (isAdded && !isDetached()) {
+//                                    performLogout()
+//                                }
+//                            }, 500)
+//                        } catch (e: Exception) {
+//                            Log.e("PrintError", "Error in UI thread after print: ${e.message}")
+//                        }
+//                    }
+//                } catch (e: Exception) {
+//                    Log.e("PrintError", "Error during printing: ${e.message}")
+//                    isPrinting = false
+//                }
+//
+//            }
+//
+//            override fun onPrinters(printers: MutableList<PrinterSdk.Printer>?) {
+//
+//                //Toast.makeText(requireContext(), "Report printed successfully", Toast.LENGTH_SHORT).show()
+//            }
+//
+//
+//        })
+//
+//
+//    }
+
+
+
+//    private var isPrinting = false
+//
+//    private fun printDailyReport(responseBody: String) {
+//        isPrinting = true
+//
+//        PrinterSdk.getInstance().getPrinter(requireContext(), object : PrinterSdk.PrinterListen {
+//            override fun onDefPrinter(printer: PrinterSdk.Printer?) {
+//                if (printer == null) return
+//
+//                val canvasWidth = 384
+//                var currentY = 10
+//                val lineHeight = 38
+//
+//                printer.canvasApi()?.initCanvas(
+//                    BaseStyle.getStyle()
+//                        .setWidth(canvasWidth)
+//                        .setHeight(1500) // You can dynamically increase this if needed
+//                )
+//
+//                // Centered text X position calculation
+//                fun centerX(text: String, textSize: Int): Int {
+//                    val charWidth = (textSize * 0.55).toInt()
+//                    val textWidth = charWidth * text.length
+//                    return ((canvasWidth - textWidth) / 2).coerceAtLeast(0)
+//                }
+//
+//                // Render functions
+//                fun addCenteredText(text: String, size: Int = 25, bold: Boolean = false) {
+//                    val posX = centerX(text, size) + 10
+//                    printer.canvasApi()?.renderText(
+//                        text,
+//                        TextStyle.getStyle()
+//                            .setTextSize(size)
+//                            .enableBold(bold)
+//                            .setPosX(posX)
+//                            .setPosY(currentY)
+//                    )
+//                    currentY += lineHeight
+//                }
+//
+//                fun addLineText(text: String) {
+//                    printer.canvasApi()?.renderText(
+//                        text,
+//                        TextStyle.getStyle()
+//                            .setTextSize(22)
+//                            .enableBold(true)
+//                            .setPosX(0) // ✅ Changed from 25 to 0 for perfect left alignment
+//                            .setPosY(currentY)
+//                    )
+//                    currentY += lineHeight
+//                }
+//
+//
+//                fun addAmountText(text: String) {
+//                    printer.canvasApi()?.renderText(
+//                        text,
+//                        TextStyle.getStyle()
+//                            .setTextSize(25)
+//                            .enableBold(true)
+//                            .setPosX(0) // ✅ Align to left edge
+//                            .setPosY(currentY)
+//                    )
+//                    currentY += lineHeight
+//                }
+//
+//                // Extract data
+//                val jsonObject = JSONObject(responseBody)
+//                val dataObject = jsonObject.optJSONObject("Data")
+//                val loginTime = dataObject.optString("LoginTime", "")
+//                val logoutTime = dataObject.optString("LogoutTime", "")
+//                val fullName = dataObject.optString("FullName", "")
+//                val totalCount = dataObject.optString("TotalCount", "0")
+//                val totalAmount = dataObject.optString("TotalCash", "0.00")
+//
+//                val slip = sessionManager.getSlipHeaderFooter()
+//                val header1 = JSONObject(slip ?: "{}").optString("Header1")
+//                val header2 = JSONObject(slip ?: "{}").optString("Header2")
+//                val footer1 = JSONObject(slip ?: "{}").optString("Footer1")
+//                val footer2 = JSONObject(slip ?: "{}").optString("Footer2")
+//
+//                val currentDateTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+//
+//                // Header 1
+//                if (header1.isNotBlank()) {
+//                    header1.split("|").forEach {
+//                        addCenteredText(it.trim(), size = 23, bold = true)
+//                    }
+//                    currentY += 5
+//                }
+//
+//                if (header2.isNotBlank()) {
+//                    header2.split("|").forEach {
+//                        addCenteredText(it.trim(), size = 22)
+//                    }
+//                    currentY += 5
+//                }
+//
+//                // Title
+//                addCenteredText("DAILY EXIT SUMMARY", size = 28, bold = true)
+//                addCenteredText("AGENT: $fullName", size = 22)
+//                addLineText("---------------------------------")
+//                addLineText("Login Time : $loginTime")
+//                addLineText("Logout Time: $logoutTime")
+//                addLineText("---------------------------------")
+//
+//                // Vehicle collection loop
+//                val vehicleArray = collectionList
+//                if (vehicleArray != null) {
+//                    for (i in 0 until vehicleArray.length()) {
+//                        val item = vehicleArray.getJSONObject(i)
+//                        val name = item.optString("VehicleTypeName", "")
+//                        val cashCount = item.optString("CashCount", "0")
+//                        val cardCount = item.optString("CardCount", "0")
+//                        val cashAmount = item.optString("CashAmount", "0.00")
+//                        val cardAmount = item.optString("CardAmount", "0.00")
+//
+//                        currentY += 10
+//                        addAmountText(name.uppercase())
+//                        currentY += 10
+//                        addLineText("           COUNT      AMOUNT")
+//                        addLineText("CASH        $cashCount         $cashAmount")
+//                        addLineText("CARD        $cardCount         $cardAmount")
+//                    }
+//                }
+//
+//                currentY += 20
+//                addLineText("=================================")
+//                addAmountText("TOTAL COUNT   :  $totalCount")
+//                addAmountText("TOTAL AMOUNT  :  Rs. $totalAmount")
+//                addLineText("==================================")
+//
+//                currentY += 28
+//
+//                // Footer
+//                if (footer1.isNotEmpty()) {
+//                    addCenteredText(footer1, size = 22, bold = true)
+//                    currentY += 5
+//                }
+//
+//                if (footer2.isNotEmpty()) {
+//                    addCenteredText(footer2, size = 20)
+//                }
+//
+//                addLineText("---------------------------------")
+//
+//                // Print date
+//                addCenteredText("Printed On: $currentDateTime", size = 22)
+//                currentY += 2  // ✅ Extra space after "Printed On"
+//
+//                // Print the canvas
+//                try {
+//                    printer.canvasApi()?.printCanvas(1, null)
+//
+//                    requireActivity().runOnUiThread {
+//                        isPrinting = false
+//                        Handler(Looper.getMainLooper()).postDelayed({
+//                            if (isAdded && !isDetached) {
+//                                performLogout()
+//                            }
+//                        }, 500)
+//                    }
+//                } catch (e: Exception) {
+//                    Log.e("PrintError", "Error during printing: ${e.message}")
+//                    isPrinting = false
+//                }
+//            }
+//
+//            override fun onPrinters(printers: MutableList<PrinterSdk.Printer>?) {
+//                // Optional: Printer list callback
+//            }
+//        })
+//    }
+
+
+
     private var isPrinting = false
+
     private fun printDailyReport(responseBody: String) {
         isPrinting = true
+
         PrinterSdk.getInstance().getPrinter(requireContext(), object : PrinterSdk.PrinterListen {
             override fun onDefPrinter(printer: PrinterSdk.Printer?) {
-                if (printer == null) {
-                   // Toast.makeText(requireContext(), "Printer not available", Toast.LENGTH_SHORT).show()
-                    return
-                }
+                if (printer == null) return
 
                 val canvasWidth = 384
                 var currentY = 10
                 val lineHeight = 38
-
-                printer.canvasApi()?.initCanvas(
-                    BaseStyle.getStyle()
-                        .setWidth(384)
-                        .setHeight(1440)
-                )
+                val renderActions = mutableListOf<() -> Unit>()
 
                 fun centerX(text: String, textSize: Int): Int {
-                    // 0.55 instead of 0.6 for better centering in some fonts
                     val charWidth = (textSize * 0.55).toInt()
                     val textWidth = charWidth * text.length
-                    val x = (canvasWidth - textWidth) / 2
-                    return x.coerceAtLeast(0)
+                    return ((canvasWidth - textWidth) / 2).coerceAtLeast(0)
                 }
 
-                fun renderCenteredText(text: String, size: Int = 25, bold: Boolean = false) {
-                    val posX = centerX(text, size)+10
-                    printer?.canvasApi()?.renderText(
-                        text,
-                        TextStyle.getStyle()
-                            .setTextSize(size)
-                            .enableBold(bold)
-                            .setPosX(posX)
-                            .setPosY(currentY)
-                    )
-                    currentY += lineHeight
-                }
-
-                fun renderHeaderText(text: String, size: Int = 25, bold: Boolean = false) {
-                    val posX = centerX(text, size)+25
-                    printer?.canvasApi()?.renderText(
-                        text,
-                        TextStyle.getStyle()
-                            .setTextSize(size)
-                            .enableBold(bold)
-                            .setPosX(posX)
-                            .setPosY(currentY)
-                    )
-                    currentY += lineHeight
-                }
-
-
-                fun renderLine(text: String) {
-                    printer?.canvasApi()?.renderText(
-                        text,
-                        TextStyle.getStyle()
-                            .setTextSize(22)
-                            .enableBold(true)
-                            .setPosX(25) // Added left margin
-                            .setPosY(currentY)
-                    )
-                    currentY += lineHeight
-                }
-
-                fun renderAmount(text: String) {
-                    printer?.canvasApi()?.renderText(
-                        text,
-                        TextStyle.getStyle()
-                            .setTextSize(25)
-                            .enableBold(true)
-                            .setPosX(25) // Added left margin
-                            .setPosY(currentY)
-                    )
-                    currentY += lineHeight
-                }
-
-
-                fun renderMultilineCenteredText(text: String, size: Int = 25, bold: Boolean = false) {
-                    val lines = text.split(", ")
-                    for (line in lines) {
-                        val words = line.trim().split(" ")
-                        val sb = StringBuilder()
-                        var lineWidth = 0
-
-                        for (word in words) {
-                            val wordWidth = (size * 0.55 * word.length).toInt()
-                            if (lineWidth + wordWidth > 375) {
-                                renderCenteredText(sb.toString().trim(), size, bold)
-                                sb.clear()
-                                lineWidth = 0
-                            }
-                            sb.append("$word ")
-                            lineWidth += wordWidth + (size / 2) // spacing
-                        }
-
-                        if (sb.isNotEmpty()) {
-                            renderCenteredText(sb.toString().trim(), size, bold)
-                        }
+                fun addCenteredText(text: String, size: Int = 25, bold: Boolean = false) {
+                    val posY = currentY
+                    val posX = centerX(text, size) + 10
+                    renderActions.add {
+                        printer.canvasApi()?.renderText(
+                            text,
+                            TextStyle.getStyle()
+                                .setTextSize(size)
+                                .enableBold(bold)
+                                .setPosX(posX)
+                                .setPosY(posY)
+                        )
                     }
+                    currentY += lineHeight
                 }
 
+                fun addLeftText(text: String, size: Int = 22, bold: Boolean = false) {
+                    val posY = currentY
+                    renderActions.add {
+                        printer.canvasApi()?.renderText(
+                            text,
+                            TextStyle.getStyle()
+                                .setTextSize(size)
+                                .enableBold(bold)
+                                .setPosX(0)
+                                .setPosY(posY)
+                        )
+                    }
+                    currentY += lineHeight
+                }
+
+                fun addAmountText(text: String) {
+                    val posY = currentY
+                    renderActions.add {
+                        printer.canvasApi()?.renderText(
+                            text,
+                            TextStyle.getStyle()
+                                .setTextSize(25)
+                                .enableBold(true)
+                                .setPosX(0)
+                                .setPosY(posY)
+                        )
+                    }
+                    currentY += lineHeight
+                }
 
                 val jsonObject = JSONObject(responseBody)
-
                 val dataObject = jsonObject.optJSONObject("Data")
-                Log.d("dataObject", dataObject.toString())
                 val loginTime = dataObject.optString("LoginTime", "")
                 val logoutTime = dataObject.optString("LogoutTime", "")
                 val fullName = dataObject.optString("FullName", "")
                 val totalCount = dataObject.optString("TotalCount", "0")
-                val totalAmount = dataObject.optString("TotalCash", "0.00") // Note: This is a special character key
-
-
-
+                val totalAmount = dataObject.optString("TotalCash", "0.00")
 
                 val slip = sessionManager.getSlipHeaderFooter()
-                val header1 = JSONObject(slip ?: "{}").optString("Header1")
-                val header2 = JSONObject(slip ?: "{}").optString("Header2")
-                val footer1 = JSONObject(slip ?: "{}").optString("Footer1")
-                val footer2 = JSONObject(slip ?: "{}").optString("Footer2")
+                val slipJson = JSONObject(slip ?: "{}")
+                val header1 = slipJson.optString("Header1")
+                val header2 = slipJson.optString("Header2")
+                val footer1 = slipJson.optString("Footer1")
+                val footer2 = slipJson.optString("Footer2")
 
-                val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-                val currentDateTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
-                    Date()
-                )
+                val currentDateTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
 
-
-
-                if(header1.isNotBlank()) {
-                    val lines = header1.split("|")
-                    for (line in lines) {
-                        renderCenteredText(line.trim(), size = 28, bold = true)
+                if (header1.isNotBlank()) {
+                    header1.split("|").forEach {
+                        addCenteredText(it.trim(), size = 23, bold = true)
                     }
-                    currentY += 1 // Spacing
-                }
-
-
-
-                if (header2.isNotEmpty()) {
-                    renderCenteredText(header2, size = 22)
                     currentY += 5
                 }
 
-                renderHeaderText("DAILY EXIT SUMMARY", size = 28, bold = true)
-                renderCenteredText("AGENT: ${fullName}", size = 22)
+                if (header2.isNotBlank()) {
+                    header2.split("|").forEach {
+                        addCenteredText(it.trim(), size = 22)
+                    }
+                    currentY += 5
+                }
 
-                renderLine("---------------------------------")
-
-                renderLine("Login Time: ${loginTime}")
-                renderLine("Logout Time: ${logoutTime}")
-
-                renderLine("---------------------------------")
-
-//                renderAmount("TWO WHEELER")
-//                currentY += 10
-//                renderLine("          COUNT       AMOUNT")
-//                renderLine("CASH      ${twoWhCashCount}          Rs. ${twoWhCashAmount}")
-//                renderLine("CARD      ${twoWhCardCount}          Rs. ${twoWhCardAmount}")
-//
-//                renderLine("---------------------------------")
-//
-//                renderAmount("FOUR WHEELER")
-//                currentY += 10
-//                renderLine("           COUNT      AMOUNT")
-//                renderLine("CASH       ${fourWhCashCount}         Rs. ${fourWhCashAmount}")
-//                renderLine("CARD       ${fourWhCardCount}         Rs. ${fourWhCardAmount}")
-
+                addCenteredText("DAILY EXIT SUMMARY", size = 28, bold = true)
+                addCenteredText("AGENT: $fullName", size = 22)
+                addLeftText("---------------------------------", bold = true)
+                addLeftText("Login Time : $loginTime")
+                addLeftText("Logout Time: $logoutTime")
+                addLeftText("---------------------------------", bold = true)
 
                 val vehicleArray = collectionList
-                Log.d("vehicle array" , vehicleArray.toString())
-
                 if (vehicleArray != null) {
                     for (i in 0 until vehicleArray.length()) {
+                        val item = vehicleArray.getJSONObject(i)
+                        val name = item.optString("VehicleTypeName", "")
+                        val cashCount = item.optString("CashCount", "0")
+                        val cardCount = item.optString("CardCount", "0")
+                        val cashAmount = item.optString("CashAmount", "0.00")
+                        val cardAmount = item.optString("CardAmount", "0.00")
 
-                        val vehicleItem = vehicleArray.getJSONObject(i)
-                        Log.d("vehicleItem", vehicleItem.toString())
-                        val vehicleName = vehicleItem.optString("VehicleTypeName", "")
-                        val cashCount = vehicleItem.optString("CashCount", "0")
-                        val cardCount = vehicleItem.optString("CardCount", "0")
-                        val notCollectedCount = vehicleItem.optString("NotCollectedCount", "0")
-                        val cashAmount = vehicleItem.optString("CashAmount", "0.00")
-                        val cardAmount = vehicleItem.optString("CardAmount", "0.00")
-                        val notCollectedAmount = vehicleItem.optString("NotCollectedAmount", "0.00")
                         currentY += 10
-                        renderAmount(vehicleName.uppercase())
+                        addAmountText(name.uppercase())
                         currentY += 10
-                        renderLine("           COUNT      AMOUNT")
-
-                        renderLine("CASH        $cashCount         $cashAmount")
-                        renderLine("CARD        $cardCount         $cardAmount")
-
+                        addLeftText("           COUNT      AMOUNT")
+                        addLeftText("CASH        $cashCount         $cashAmount")
+                        addLeftText("CARD        $cardCount         $cardAmount")
                     }
                 }
 
-
-
-
-
-
                 currentY += 20
-                renderLine("=================================")
-                renderAmount("TOTAL COUNT   :  ${totalCount}")
-                renderAmount("TOTAL AMOUNT  :  Rs. ${totalAmount}")
-                renderLine("==================================")
-
-
+                addLeftText("=================================", bold = true)
+                addAmountText("TOTAL COUNT   :  $totalCount")
+                addAmountText("TOTAL AMOUNT  :  Rs. $totalAmount")
+                addLeftText("==================================", bold = true)
                 currentY += 35
 
-                // Footer
                 if (footer1.isNotEmpty()) {
-                    renderCenteredText(footer1, size = 22, bold = true)
+                    addCenteredText(footer1, size = 22, bold = true)
                     currentY += 5
                 }
 
                 if (footer2.isNotEmpty()) {
-                    renderCenteredText(footer2, size = 20)
+                    addCenteredText(footer2, size = 20)
                 }
 
-                renderLine("---------------------------------")
-                renderCenteredText("Printed On: $currentDateTime", size = 22)
+                addLeftText("---------------------------------", bold = true)
+                addCenteredText("Printed On: $currentDateTime", size = 22)
+                currentY += 25
 
                 try {
-                    // Print
+                    val finalHeight = currentY + 50
+                    printer.canvasApi()?.initCanvas(
+                        BaseStyle.getStyle()
+                            .setWidth(canvasWidth)
+                            .setHeight(finalHeight)
+                    )
+
+                    renderActions.forEach { it.invoke() }
                     printer.canvasApi()?.printCanvas(1, null)
 
-                    // Use the main thread to handle post-print actions
                     requireActivity().runOnUiThread {
-                        try {
-                            // Mark printing as complete
-                            isPrinting = false
-
-                            // Show toast
-                           // Toast.makeText(requireContext(), "Report printed successfully", Toast.LENGTH_SHORT).show()
-
-                            // Add a small delay before logout
-                            Handler(Looper.getMainLooper()).postDelayed({
-                                // Check if fragment is still attached
-                                if (isAdded && !isDetached()) {
-                                    performLogout()
-                                }
-                            }, 500)
-                        } catch (e: Exception) {
-                            Log.e("PrintError", "Error in UI thread after print: ${e.message}")
-                        }
+                        isPrinting = false
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            if (isAdded && !isDetached) {
+                                performLogout()
+                            }
+                        }, 500)
                     }
                 } catch (e: Exception) {
                     Log.e("PrintError", "Error during printing: ${e.message}")
                     isPrinting = false
                 }
-
-
             }
 
-            override fun onPrinters(printers: MutableList<PrinterSdk.Printer>?) {
-
-                //Toast.makeText(requireContext(), "Report printed successfully", Toast.LENGTH_SHORT).show()
-            }
-
-
+            override fun onPrinters(printers: MutableList<PrinterSdk.Printer>?) {}
         })
-
-
     }
+
+
 
 }
 

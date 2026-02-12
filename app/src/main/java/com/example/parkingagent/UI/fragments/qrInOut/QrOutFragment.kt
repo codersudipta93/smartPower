@@ -1,5 +1,5 @@
 package com.example.parkingagent.UI.fragments.qrInOut
-
+import kotlinx.coroutines.delay
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.ComponentName
@@ -10,6 +10,8 @@ import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+
+import android.widget.AdapterView
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
@@ -22,6 +24,7 @@ import com.example.parkingagent.R
 import com.example.parkingagent.UI.base.BaseFragment
 import com.example.parkingagent.data.local.SharedPreferenceManager
 import com.example.parkingagent.data.remote.models.CollectionInsert.CollectionInsertData
+import com.example.parkingagent.data.remote.models.CollectionInsert.CollectionInsertResponse
 import com.example.parkingagent.data.remote.models.VehicleParking.VehicleParkingResponse
 //import com.example.parkingagent.UI.fragments.more.MoreViewModel
 import com.example.parkingagent.databinding.FragmentMoreBinding
@@ -60,6 +63,15 @@ import com.example.parkingagent.UI.fragments.qrInOut.QrInOutViewModel.ParkingVeh
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import androidx.lifecycle.viewModelScope
+import com.google.android.material.button.MaterialButton
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
+import com.example.parkingagent.UI.fragments.home.HomeViewModel
+
+import android.view.KeyEvent
+
+
 @AndroidEntryPoint
 class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
 
@@ -70,18 +82,26 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
     }
     private var latestVehicleParkingResponse: VehicleParkingResponse? = null
     private var latestCollectionInsertDataResponse: CollectionInsertData? = null
-    private var isReceiptPrinted = false
+
     private val _mutualSharedflow= MutableSharedFlow<ParkingVehicleEvents>()
     val mutualSharedflow: SharedFlow<ParkingVehicleEvents> = _mutualSharedflow
 
     private val viewModel: QrInOutViewModel by viewModels()
     private var scanInterface: IScanInterface? = null
-    // Flag to track if processing is in progress
+
+    // Flag to track if processing is in progress for search vehicle
     private var isProcessing = false
+
+    // Flag to track if collection insert is in progress
+    private var isCollectionProcessing = false
+
+    // Last click time for debouncing
+    private var lastClickTime = 0L
+
+    private var printerEnable = false
 
     @Inject
     lateinit var sharedPreferenceManager: SharedPreferenceManager
-
 
     private val br = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -90,6 +110,7 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
             // Disable both vehicle input and search button
             binding.edtVehicleNo.isEnabled = false
             binding.btnSearch.isEnabled = false
+
 
             binding.edtVehicleNo.setText("")
             when (intent?.action) {
@@ -139,7 +160,33 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
         registerReceiver()
         setupButton()
         observeViewModel()
+
+        // Prevent physical scan key from triggering ANPR button click
+        binding.btnGetVehicle.isFocusable = false
+        binding.btnGetVehicle.isFocusableInTouchMode = false
+
+        binding.btnGetVehicle.setOnKeyListener { _, keyCode, _ ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER ||
+                keyCode == KeyEvent.KEYCODE_BUTTON_L1 ||
+                keyCode == KeyEvent.KEYCODE_CAMERA
+            ) {
+                return@setOnKeyListener true   // Block hardware key
+            }
+            false
+        }
+
+
+
+
+
         Log.d("QR out device id", Utils.getDeviceId(requireActivity()))
+        val savedAnprOut = sharedPreferenceManager.getANPRForOut()
+        Log.d("anpr status",savedAnprOut.toString())
+        if(savedAnprOut.toString() == "Yes"){
+            binding.btnGetVehicle.visibility = View.VISIBLE
+        }else{
+            binding.btnGetVehicle.visibility = View.GONE
+        }
 
         binding.btnSearch.setOnClickListener {
             Log.d("Hey", "Search button clicked")
@@ -147,9 +194,10 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
             val editText = view?.findViewById<TextInputEditText>(R.id.edt_vehicleNo)
             val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(editText?.windowToken, 0)
-
             searchVehicle()
         }
+
+
     }
 
     // Helper method to enable input elements
@@ -157,6 +205,20 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
         binding.edtVehicleNo.isEnabled = true
         binding.btnSearch.isEnabled = true
         isProcessing = false
+    }
+
+    // Helper method to enable collection buttons
+    private fun enableCollectionButtons() {
+        binding.btnCollect.isEnabled = true
+        binding.btnNotCollect.isEnabled = true
+        isCollectionProcessing = false
+    }
+
+    // Helper method to disable collection buttons
+    private fun disableCollectionButtons() {
+        binding.btnCollect.isEnabled = false
+        binding.btnNotCollect.isEnabled = false
+        isCollectionProcessing = true
     }
 
     fun searchVehicle() {
@@ -171,12 +233,14 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
         binding.btnSearch.isEnabled = false
 
         (requireActivity() as MainActivity).binding.loading.visibility = View.VISIBLE
-        //(requireActivity() as MainActivity).btManager.sendData("1".toByteArray())
+
         viewModel.searchAndParkVehicle(
             binding.edtVehicleNo.text.toString(),
             Utils.getDeviceId(requireActivity()),
             sharedPreferenceManager.getUserId().toString()
         )
+
+        printerEnable = true
     }
 
     private fun bindScannerService() {
@@ -205,8 +269,8 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
             val entryDateTime = jsonData.optString("entryDateTime", "")
             val bookingNumber = jsonData.optString("bookingNumber", "")
             val VehicleTypeId = jsonData.optString("VehicleTypeId", "")
+
             if (vehicleNumber.isNotEmpty() && entryDateTime.isNotEmpty()) {
-                isReceiptPrinted = false
                 (requireActivity() as MainActivity).binding.loading.visibility = View.VISIBLE
                 viewModel.parkedVehicle(
                     vehicleNumber,
@@ -214,6 +278,8 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
                     bookingNumber,
                     VehicleTypeId
                 )
+
+                printerEnable = true
             } else {
                 showToast("Invalid QR Code data.")
                 enableInputElements()
@@ -226,30 +292,64 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
 
     private fun setupButton() {
         binding.btnCollect.setOnClickListener {
-            openBoom("1")
+            val currentTime = SystemClock.elapsedRealtime()
+            if (currentTime - lastClickTime > 2000) { // 2 second debounce
+                lastClickTime = currentTime
+                openBoom("1")
+            } else {
+                showToast("Please wait before clicking again...")
+            }
         }
 
         binding.btnNotCollect.setOnClickListener {
-            openBoom("0")
+            val currentTime = SystemClock.elapsedRealtime()
+            if (currentTime - lastClickTime > 2000) { // 2 second debounce
+                lastClickTime = currentTime
+                openBoom("0")
+            } else {
+                showToast("Please wait before clicking again...")
+            }
         }
 
 
+        binding.btnGetVehicle.setOnClickListener {
+            (requireActivity() as MainActivity).binding.loading.visibility=View.VISIBLE
+            viewModel.getLatestVehicleData(Utils.getDeviceId(requireContext()))
+        }
     }
 
     private fun openBoom(IsCollected: String) {
-        if (binding.edtVehicleNo.text.toString().trim().isEmpty() || binding.edtEntryDateTime.text.toString().trim().isEmpty()) {
+        // Check if collection is already processing
+        if (isCollectionProcessing) {
+            showToast("Collection processing in progress, please wait...")
+            return
+        }
+
+        // Validate required fields
+        if (binding.edtVehicleNo.text.toString().trim().isEmpty() ||
+            binding.edtEntryDateTime.text.toString().trim().isEmpty()) {
             showToast("Please ensure all fields are filled before exiting.")
             return
         }
+
+        // Check if parking response is available
+        if (latestVehicleParkingResponse == null) {
+            showToast("No parking data available. Please search vehicle first.")
+            return
+        }
+
         Log.d("In Time", binding.edtOutTime.text.toString())
+        Log.d("Parking API data res2", latestVehicleParkingResponse?.vehicleTypeId.toString())
 
-        Log.d("Parking API data res2", latestVehicleParkingResponse?.vehicleTypeId.toString());
+        // Disable collection buttons and set processing flag
+        disableCollectionButtons()
 
-       // (requireActivity() as MainActivity).btManager.sendData("1".toByteArray())
+        // Show loading
+        (requireActivity() as MainActivity).binding.loading.visibility = View.VISIBLE
 
         viewModel.collectionInsert(
             binding.edtVehicleNo.text.toString(),
-            binding.edtChargableAmount.text.toString().toDouble(),
+            binding.edtChargableAmount.text.toString().toDoubleOrNull() ?: 0.0,
             IsCollected,
             latestVehicleParkingResponse?.deviceId.toString(),
             latestVehicleParkingResponse?.vehicleTypeId.toString(),
@@ -258,12 +358,107 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
         )
     }
 
-    private fun printReceipt(response: VehicleParkingResponse) {
+    private fun observeViewModel() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.mutualSharedflow.collectLatest {
+                    (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
+                    when (it) {
+                        is QrInOutViewModel.ParkingVehicleEvents.VehicleParkingSuccessful -> {
+                            Log.d("vehicleParkingResponse", it.vehicleParkingResponse.toString())
+                            showToast(it.vehicleParkingResponse.msg.toString())
+
+                            binding.edtVehicleNo.setText(it.vehicleParkingResponse.vehicleNo ?: "")
+                            binding.edtOutTime.setText(it.vehicleParkingResponse.outTime ?: "N/A")
+                            binding.edtEntryDateTime.setText(it.vehicleParkingResponse.inTime ?: "N/A")
+                            binding.edtDuration.setText(it.vehicleParkingResponse.duration ?: "N/A")
+                            binding.edtChargableAmount.setText(it.vehicleParkingResponse.chargableAmount?.toString() ?: "N/A")
+
+                            // Store the response for later use.
+                            latestVehicleParkingResponse = it.vehicleParkingResponse
+
+                            // Re-enable input elements and collection buttons
+                            enableInputElements()
+                            enableCollectionButtons()
+                        }
+
+                        is QrInOutViewModel.ParkingVehicleEvents.VehicleParkingFailed -> {
+                            showToast("Exit failed: ${it.message}")
+                            Log.d(TAG, "Exit failed: ${it.message}")
+
+                            // Re-enable input elements
+                            enableInputElements()
+                            clearFields()
+                        }
+
+                        is QrInOutViewModel.ParkingVehicleEvents.CollectionInsertSuccessful -> {
+                            latestCollectionInsertDataResponse = it.collectionInsertData
+
+                            // Control relay
+                            (requireActivity() as MainActivity).btManager.controlRelayWithAutoOff(1)
+
+                            latestVehicleParkingResponse?.let { response ->
+                                latestCollectionInsertDataResponse?.let { insertRes ->
+                                    if(insertRes.status == true){
+                                        Log.d("collection 1", insertRes.toString())
+                                        Log.d("collection result", insertRes.toString())
+                                        showToast(it.collectionInsertData.msg.toString())
+                                        Log.d("collectiontype", it.collectionInsertData.isCollected.toString())
+
+                                        printReceipt(response,it.collectionInsertData.isCollected.toString())
+                                    } else {
+                                        Log.d("collection 0", insertRes.toString())
+                                        showToast(insertRes.msg.toString())
+                                    }
+                                }
+                            } ?: run {
+                                //showToast("it is double clicked..")
+                            }
+
+                            // Clear fields and re-enable buttons
+                            clearFields()
+                            enableInputElements()
+                            enableCollectionButtons()
+                        }
+
+                        is QrInOutViewModel.ParkingVehicleEvents.CollectionInsertFailed -> {
+                            showToast("Collection insert failed: ${it.message}")
+                            Log.d(TAG, "Collection insert failed: ${it.message}")
+
+                            // Re-enable buttons
+                            enableInputElements()
+                            enableCollectionButtons()
+                        }
+
+                        is QrInOutViewModel.ParkingVehicleEvents.ANPRVehicleSuccessful -> {
+                             Log.d("TANPR",it.anprVehicleResponse.vehicleNo.toString())
+                             binding.edtVehicleNo.setText(it.anprVehicleResponse.vehicleNo)
+                             searchVehicle()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun clearFields() {
+        binding.edtVehicleNo.text?.clear()
+        binding.edtEntryDateTime.text?.clear()
+        binding.edtOutTime.text?.clear()
+        binding.edtDuration.text?.clear()
+        binding.edtChargableAmount.text?.clear()
+
+        // Reset parking response
+        latestVehicleParkingResponse = null
+        latestCollectionInsertDataResponse = null
+    }
+
+    private fun printReceipt(response: VehicleParkingResponse,collectionType:String) {
         Log.d("printing response", response.toString())
+        printerEnable = false
         PrinterSdk.getInstance().getPrinter(this.context, object : PrinterSdk.PrinterListen {
             override fun onDefPrinter(p0: PrinterSdk.Printer?) {
                 // Increase canvas height as needed.
-
                 val canvasWidth = 384
                 var currentY = 10
                 val lineHeight = 38
@@ -297,8 +492,8 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
                     p0?.canvasApi()?.renderText(
                         text,
                         TextStyle.getStyle()
-                            .setTextSize(22)  // Increase font size
-                            .enableBold(true)    // Make text bold for better visibility
+                            .setTextSize(22)    // Increase font size
+                            .enableBold(true)  // Make text bold for better visibility
                             .setPosX(0)
                             .setPosY(currentY)
                     )
@@ -341,25 +536,26 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
                     }
                 }
 
-
                 val slip = sharedPreferenceManager.getSlipHeaderFooter();
                 val header1 = JSONObject(slip ?: "{}").optString("Header1")
                 val header2 = JSONObject(slip ?: "{}").optString("Header2")
                 val footer1 = JSONObject(slip ?: "{}").optString("Footer1")
                 val footer2 = JSONObject(slip ?: "{}").optString("Footer2")
 
-                  if(header1.isNotBlank()) {
+                if(header1.isNotBlank()) {
                     val lines = header1.split("|")
                     for (line in lines) {
-                        renderCenteredText(line.trim(), size = 28, bold = true)
+                        renderCenteredText(line.trim(), size = 23, bold = true)
                     }
                     currentY += 1 // Spacing
                 }
 
-
-                if (header2 != "") {
-                    renderCenteredText(header2.uppercase(), size = 24, bold = false)
-                    renderLine("---------------------------------")
+                if(header2.isNotBlank()) {
+                    val lines = header2.split("|")
+                    for (line in lines) {
+                        renderCenteredText(line.trim(), size = 22)
+                    }
+                    currentY += 1 // Spacing
                 }
                 currentY += 10 // Spacing
 
@@ -371,13 +567,17 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
                 renderLine("Duration     : ${response.duration ?: "N/A"}")
 
                 renderLine("---------------------------------")
-                if (response.isGST  == "True") {
-                    renderLine("Amount       : ${response.breakUpAmount ?: "N/A"}")
-                    renderLine("GST          : ${response.gstAmount ?: "N/A"}")
 
+                if (response.isGST  == "True") {
+                    val gstString = response.gstAmount.toString()
+                    val halfGst = gstString.toDoubleOrNull()?.div(2)
+
+                    renderLine("Amount       : ${if (collectionType == "false") "0.00" else response.breakUpAmount ?: "N/A"}")
+                    renderLine("CGST:9%      : ${if (collectionType == "false") "0.00" else halfGst ?: "N/A"}")
+                    renderLine("SGST:9%      : ${if (collectionType == "false") "0.00" else halfGst ?: "N/A"}")
                 }
 
-                renderAmount("Pay CASH   : ₹${response.chargableAmount}")
+                renderAmount("Pay CASH   : ₹${if (collectionType == "false") "0.00" else response.chargableAmount ?: "N/A"}")
                 renderLine("---------------------------------")
 
                 currentY += 10
@@ -393,81 +593,9 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
             }
 
             override fun onPrinters(printers: MutableList<PrinterSdk.Printer>?) {
-                Toast.makeText(requireContext(), "Print successful", Toast.LENGTH_LONG).show()
+                //Toast.makeText(requireContext(), "Print Successful", Toast.LENGTH_LONG).show()
             }
         })
-    }
-
-    private fun observeViewModel() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.mutualSharedflow.collectLatest {
-                    (requireActivity() as MainActivity).binding.loading.visibility = View.GONE
-                    when (it) {
-                        is QrInOutViewModel.ParkingVehicleEvents.VehicleParkingSuccessful -> {
-                            Log.d("vehicleParkingResponse", it.vehicleParkingResponse.toString())
-                            showToast(it.vehicleParkingResponse.msg.toString())
-
-                            binding.edtVehicleNo.setText(it.vehicleParkingResponse.vehicleNo ?: "")
-                            binding.edtOutTime.setText(it.vehicleParkingResponse.outTime ?: "N/A")
-                            binding.edtEntryDateTime.setText(it.vehicleParkingResponse.inTime ?: "N/A")
-                            binding.edtDuration.setText(it.vehicleParkingResponse.duration ?: "N/A")
-                            binding.edtChargableAmount.setText(it.vehicleParkingResponse.chargableAmount?.toString() ?: "N/A")
-
-                       //     (requireActivity() as MainActivity).btManager.sendData("1".toByteArray())
-
-                            // Store the response for later use.
-                            latestVehicleParkingResponse = it.vehicleParkingResponse
-
-                            // Re-enable input elements
-                            enableInputElements()
-                        }
-
-                        is QrInOutViewModel.ParkingVehicleEvents.VehicleParkingFailed -> {
-                            showToast("Exit failed: ${it.message}")
-                            Log.d(TAG, "Exit failed: ${it.message}")
-
-                            // Re-enable input elements
-                            enableInputElements()
-                        }
-
-                        is QrInOutViewModel.ParkingVehicleEvents.CollectionInsertSuccessful -> {
-                            Log.d("colection data.......", it.collectionInsertData.toString())
-                            latestCollectionInsertDataResponse = it.collectionInsertData
-                            // Prevent multiple prints
-                            if (!isReceiptPrinted) {
-                               // (requireActivity() as MainActivity).btManager.sendData("1".toByteArray())
-                                 (requireActivity() as MainActivity).btManager.controlRelayWithAutoOff(1)
-                                clearFields()
-                                showToast(it.collectionInsertData.msg.toString())
-
-                                // Use the stored VehicleParkingResponse data to print the receipt.
-                                latestVehicleParkingResponse?.let { response ->
-
-                                    latestCollectionInsertDataResponse?.let { insertRes ->
-                                        printReceipt(response)
-                                        isReceiptPrinted = true // Set flag to true after printing
-                                    }
-                                } ?: run {
-                                    showToast("No parking response data available to print receipt")
-                                }
-                            }
-
-                            // Re-enable input elements
-                            enableInputElements()
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun clearFields() {
-        binding.edtVehicleNo.text?.clear()
-        binding.edtEntryDateTime.text?.clear()
-        binding.edtOutTime.text?.clear()
-        binding.edtDuration.text?.clear()
-        binding.edtChargableAmount.text?.clear()
     }
 
     private fun showToast(message: String) {
@@ -476,7 +604,11 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        requireActivity().unregisterReceiver(br)
-        requireActivity().unbindService(conn)
+        try {
+            requireActivity().unregisterReceiver(br)
+            requireActivity().unbindService(conn)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error during cleanup: ${e.message}")
+        }
     }
 }

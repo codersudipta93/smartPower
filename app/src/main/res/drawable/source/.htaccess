@@ -1,0 +1,24 @@
+# PHP config / env file block
+<FilesMatch "(config\.php|keys\.php|\.env)">
+  Require all denied
+</FilesMatch>
+
+# Disable directory listing
+Options -Indexes
+
+# Protect API folder files
+<Directory "api">
+  AllowOverride All
+</Directory>
+
+# Block direct access to sensitive files
+<FilesMatch "\.(log|ini|json)$">
+  Require all denied
+</FilesMatch>
+
+# Basic security headers
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set X-XSS-Protection "1; mode=block"
+</IfModule>

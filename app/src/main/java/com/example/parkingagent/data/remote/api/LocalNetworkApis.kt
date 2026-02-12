@@ -6,9 +6,11 @@ import com.example.parkingagent.data.remote.models.anprDataResponse.ANPRVehicleR
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface LocalNetworkApis {
-
-    @POST("Smartpower/")
-    fun getANPRVehicle(): Call<ANPRVehicleResponse>
+    @POST("Smartpower/Vehicle.aspx")
+    fun getANPRVehicle(
+        @Query("deviceId") deviceId: String,
+    ): Call<ANPRVehicleResponse>
 }

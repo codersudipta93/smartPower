@@ -232,7 +232,7 @@ class NfcWriteFragment : BaseFragment<FragmentNfcWriteBinding>() {
 
 
     private fun registerGuest() {
-        Log.d("hi", "hello")
+        Log.d("hi", "hello this is guest registration")
         if (!validateForm()) return
 
         // Store form data
@@ -509,16 +509,20 @@ class NfcWriteFragment : BaseFragment<FragmentNfcWriteBinding>() {
                  if(header1.isNotBlank()) {
                     val lines = header1.split("|")
                     for (line in lines) {
-                        renderCenteredText(line.trim(), size = 28, bold = true)
+                        renderCenteredText(line.trim(), size = 23, bold = true)
                     }
                     currentY += 1 // Spacing
                 }
 
 
-                if(header2 != "" ) {
-                    renderCenteredText(header2.uppercase(), size = 24, bold = false)
-                    renderLine("---------------------------------")
+                if(header2.isNotBlank()) {
+                    val lines = header2.split("|")
+                    for (line in lines) {
+                        renderCenteredText(line.trim(), size = 22)
+                    }
+                    currentY += 1 // Spacing
                 }
+
                 currentY += 10 // Spacing
 
                 // Body

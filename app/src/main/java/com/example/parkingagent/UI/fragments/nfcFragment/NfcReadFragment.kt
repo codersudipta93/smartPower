@@ -51,7 +51,7 @@ import android.graphics.Color
 import android.nfc.*
 import android.nfc.tech.NdefFormatable
 import java.util.Date
-
+import android.view.WindowManager
 
 @AndroidEntryPoint
 class NfcReadFragment : BaseFragment<FragmentNfcReadBinding>(){
@@ -162,15 +162,16 @@ class NfcReadFragment : BaseFragment<FragmentNfcReadBinding>(){
                     Log.d("NFC_INPUT", "Amount: $amount, Date: $date")
                     //rechargeCardApi(amount,date)
                     showTapCardDialog("update_card", amount, date)
-
                 }
             }
 
             btnCancel.setOnClickListener {
                 dialog.dismiss()
             }
+            dialog.window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
 
             dialog.show()
+            dialog.window?.setDimAmount(0f)
         }
     }
 
@@ -425,15 +426,18 @@ class NfcReadFragment : BaseFragment<FragmentNfcReadBinding>(){
                 if(header1.isNotBlank()) {
                     val lines = header1.split("|")
                     for (line in lines) {
-                        renderCenteredText(line.trim(), size = 28, bold = true)
+                        renderCenteredText(line.trim(), size = 23, bold = true)
                     }
                     currentY += 1 // Spacing
                 }
 
 
-                if(header2 != "" ) {
-                    renderCenteredText(header2.uppercase(), size = 24, bold = false)
-                    renderLine("---------------------------------")
+                if(header2.isNotBlank()) {
+                    val lines = header2.split("|")
+                    for (line in lines) {
+                        renderCenteredText(line.trim(), size = 22)
+                    }
+                    currentY += 1 // Spacing
                 }
                 currentY += 10 // Spacing
 

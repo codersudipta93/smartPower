@@ -91,6 +91,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+
         btManager.initialize()
 
         Handler(Looper.getMainLooper()).postDelayed({

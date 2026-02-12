@@ -76,7 +76,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
     private var selectedVehicleTypeId: String? = null
     private val vehicleTypeList = mutableListOf<String>()
     private val vehicleTypeIdList = mutableListOf<String>()
-
+    private var isReceiptPrinted = false
     override fun getLayoutResourceId(): Int {
         return R.layout.fragment_home
     }
@@ -91,6 +91,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
         observeViewModel()
         registerReceiver()
         getDropdown()
+        isReceiptPrinted = false
     }
 
     private fun registerReceiver() {
@@ -234,12 +235,6 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
 //    }
 
 
-
-
-
-
-
-
     fun getDropdown() {
         (requireActivity() as MainActivity).binding.loading.visibility = View.VISIBLE
         val client = OkHttpClient()
@@ -353,11 +348,12 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
             Log.d("selectedVehicleTypeId", selectedVehicleTypeId.toString())
             (requireActivity() as MainActivity).binding.loading.visibility=View.VISIBLE
             viewModel.parkedVehicle(vehicleNumber, selectedVehicleTypeId!!, Utils.getDeviceId(requireContext()),"")
+            isReceiptPrinted = false
         }
 
         binding.btnGetVehicle.setOnClickListener {
             (requireActivity() as MainActivity).binding.loading.visibility=View.VISIBLE
-            viewModel.getLatestVehicleData()
+            viewModel.getLatestVehicleData(Utils.getDeviceId(requireContext()))
         }
 
     }
@@ -377,12 +373,21 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
 
                         is HomeViewModel.ParkingVehicleEvents.VehicleParkingSuccessful -> {
                             showToast("Vehicle parked successfully!")
+
                             //event.vehicleParkingResponse.BookingNumber.toString()
+                            if (!isReceiptPrinted) {
 
-                            printReceipt(event.vehicleParkingResponse.vehicleNo?:"Unknown",event.vehicleParkingResponse.vehicleTypeId.toString(), event.vehicleParkingResponse.inTime.toString(),event.vehicleParkingResponse.location.toString(),event.vehicleParkingResponse.BookingNumber.toString(),event.vehicleParkingResponse.VehicleType.toString())
-
+                                printReceipt(
+                                    event.vehicleParkingResponse.vehicleNo ?: "Unknown",
+                                    event.vehicleParkingResponse.vehicleTypeId.toString(),
+                                    event.vehicleParkingResponse.inTime.toString(),
+                                    event.vehicleParkingResponse.location.toString(),
+                                    event.vehicleParkingResponse.BookingNumber.toString(),
+                                    event.vehicleParkingResponse.VehicleType.toString()
+                                )
+                            }
                             //(requireActivity() as MainActivity).btManager.sendData("1".toByteArray())
-                             (requireActivity() as MainActivity).btManager.controlRelayWithAutoOff(1)
+                            (requireActivity() as MainActivity).btManager.controlRelayWithAutoOff(1)
 
                         }
                         is HomeViewModel.ParkingVehicleEvents.VehicleParkingFailed -> {
@@ -477,6 +482,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
 //,BookingNumber:String
     private fun printReceipt(vehicleNumber: String, vehicleTypeId: String, entryDateTime: String,location: String,BookingNumber:String,vehicleType:String) {
         // Create JSON object
+        isReceiptPrinted = true
         val jsonObject = JsonObject().apply {
             addProperty("vehicleNumber", vehicleNumber)
             addProperty("VehicleTypeId", vehicleTypeId)
@@ -546,14 +552,17 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
                 if(header1.isNotBlank()) {
                     val lines = header1.split("|")
                     for (line in lines) {
-                        renderCenteredText(line.trim(), size = 28, bold = true)
+                        renderCenteredText(line.trim(), size = 23, bold = true)
                     }
                     currentY += 1 // Spacing
                 }
 
-                if(header2 != "" ) {
-                    renderCenteredText(header2.uppercase(), size = 24, bold = false)
-                    renderLine("---------------------------------")
+                if(header2.isNotBlank()) {
+                    val lines = header2.split("|")
+                    for (line in lines) {
+                        renderCenteredText(line.trim(), size = 22)
+                    }
+                    currentY += 1 // Spacing
                 }
                 currentY += 10 // Spacing
 
@@ -589,6 +598,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>() {
 
             override fun onPrinters(p0: MutableList<PrinterSdk.Printer>?) {
                 Toast.makeText(requireContext(),"Print successful",Toast.LENGTH_LONG).show();
+
             }
 
         })

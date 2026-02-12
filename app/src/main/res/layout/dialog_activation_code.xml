@@ -19,7 +19,6 @@
             android:fontFamily="@font/gilroy_bold"
             android:gravity="center"
             android:layout_marginBottom="16dp"
-
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
@@ -29,7 +28,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:hint="Enter code here"
-            android:inputType="text"
+            android:inputType="number"
             android:textSize="16sp"
             android:textColor="@color/text_color_dark"
             android:paddingVertical="12dp"

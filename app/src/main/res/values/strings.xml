@@ -3,4 +3,11 @@
     <string name="action_settings">Settings</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- ANPR Out Options -->
+    <string-array name="anpr_out_options">
+        <item>Select</item>
+        <item>Yes</item>
+        <item>No</item>
+    </string-array>
 </resources>

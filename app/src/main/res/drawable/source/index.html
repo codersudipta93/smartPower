@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodScan AI - AI-Powered Food Nutrition Analyzer</title>
+<meta name="description" content="Upload a food photo and get instant AI nutrition insights. Track calories and macros effortlessly.">
+<meta name="keywords" content="food scanner, AI nutrition, calorie tracker, meal analyzer, health app">
+<meta name="author" content="FoodScan AI">
+<meta property="og:title" content="FoodScan AI - AI Food Nutrition Scanner">
+<meta property="og:description" content="Scan your food with AI-powered calorie estimation">
+<meta property="og:type" content="website">
+
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+<link rel="stylesheet" href="css/styles.css">
+
+
+<!-- Preload critical assets -->
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" as="script">
+<link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" as="script">
+</head>
+
+<body>
+
+<header>
+  <div class="container header-inner">
+    <a href="#" class="logo" aria-label="FoodScan AI Home">
+      <span>⚡🥗</span> FoodScanner AI
+    </a>
+
+    <nav class="main-nav" aria-label="Main navigation">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO SECTION -->
+<section class="hero">
+<div class="container hero-grid">
+
+<!-- LEFT CONTENT -->
+<div>
+    <h1>
+       Scan Your Food with<br>
+       <span>AI Calorie Estimator</span>
+    </h1>
+
+    <p>
+    Upload a meal photo and get instant AI nutrition insights.
+    Track calories and macros effortlessly.
+    <strong>Scan it. Know it. Eat smarter.</strong>
+</p>
+
+    <div class="hero-actions">
+        <button class="btn btn-primary" onclick="scrollToUpload()" aria-label="Get started with FoodScan AI">
+            Get Started For Free
+        </button>
+        <button class="btn btn-secondary" onclick="scrollToHowItWorks()" aria-label="Learn how it works">
+            How it Works
+        </button>
+    </div>
+
+    <div class="hero-meta">
+        <span>🎯 90%+ accuracy</span>
+        <span>⚡ Instant results</span>
+        <span>🔒 No account required</span>
+    </div>
+</div>
+
+<!-- RIGHT : UPLOAD AREA -->
+<div class="hero-upload">
+
+    <!-- UPLOAD BOX -->
+    <div class="upload-box" id="uploadBox" onclick="openFile()" role="button" aria-label="Upload food photo" tabindex="0">
+        <div class="upload-box-icon">⬆️</div>
+        <h3>Upload Your Food Photo</h3>
+        <p>Drop an image here or click to browse</p>
+        <button class="btn btn-primary" style="padding:10px 26px" aria-describedby="uploadBox">Choose File</button>
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="preview" id="previewBox" hidden>
+        <img id="previewImg" alt="Food preview">
+        <div class="preview-actions">
+            <button class="btn btn-primary" onclick="analyzeFood()" id="analyzeBtn">
+                Analyze Food
+            </button>
+            <button class="btn btn-secondary" onclick="openFile()">Change Photo</button>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" accept="image/*" aria-label="Select food image">
+
+    <!-- FEATURES -->
+    <div class="hero-features">
+        <div class="hero-feature">⚡ Instant Results</div>
+        <div class="hero-feature">🧠 AI Accuracy</div>
+    </div>
+
+</div>
+
+</div>
+</section>
+
+<!-- RESULT SECTION -->
+
+<section id="resultSection" class="result-section" hidden>
+    <div class="container">
+
+        <!-- HEADER -->
+        
+        <div class="result-header">
+            <button class="back-btn" onclick="goBack()" aria-label="Go back to upload">
+                ←
+            </button>
+            <h1 id="resultTitle">Food Name</h1>
+
+            <div class="result-actions">
+                <button class="ghost-btn" onclick="exportPDF()" aria-label="Export as PDF">
+                    Export PDF
+                </button>
+            </div>
+        </div>
+
+        <div class="result-card">
+
+            <!-- LEFT IMAGE -->
+            
+            <div class="result-image">
+                <img id="resultImage" alt="Analyzed food" />
+                <div id="servingText" class="serving-text"></div>
+                <div class="serving-control" aria-label="Adjust serving size">
+                    <button class="ghost-btn serving-btn" onclick="changeServing(-1)" aria-label="Decrease serving">
+                        −
+                    </button>
+                    <span id="servingCount" class="serving-count">1</span>
+                    <button class="ghost-btn serving-btn" onclick="changeServing(1)" aria-label="Increase serving">
+                        +
+                    </button>
+                </div>
+                
+                <div class="tip-box" id="confidenceNote"></div>
+                
+                <div class="extra-box">
+                    <h3>💚 Health Benefits</h3>
+                    <div class="tags" id="healthTags"></div>
+                </div>
+             
+                <div class="extra-box" style="margin-top:20px">
+                    <h3>📝 Ingredients</h3>
+                    <div id="ingredients"></div>
+                </div>
+            </div>
+
+            <!-- RIGHT CONTENT -->
+            
+            <div class="result-info">
+                <h2>Nutrition Summary</h2>
+                <p id="resultDesc"></p>
+
+                <div class="tags" id="resultTags"></div>
+
+                <div class="tip-box" id="sugarlevel"></div>
+
+                <div class="nutrition-grid" id="nutritionGrid"></div>
+                
+                <!-- EXTRA INFO -->
+                <div class="extra-section">
+                    <div class="extra-box">
+                        <h3>✅ Best For</h3>
+                        <div class="tags" id="bestFor"></div>
+                    </div>
+                
+                    <div class="extra-box warning">
+                        <h3>⚠️ Not Good For</h3>
+                        <div class="tags" id="notGoodFor"></div>
+                    </div>
+                </div>
+                
+                <div class="extra-section">
+                    <div class="extra-box" style="grid-column:1/-1">
+                        <h3>🥘 How to Make</h3>
+                        <ol id="howto"></ol>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES SECTION -->
+
+<section id="features" class="features-section">
+    <div class="container">
+        <h2 class="section-title">Why Choose FoodScan AI?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon" aria-hidden="true">🤖</div>
+                <h3 class="feature-title">AI-Powered Recognition</h3>
+                <p class="feature-description">Advanced AI instantly identifies food from photos with high accuracy</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" aria-hidden="true">📊</div>
+                <h3 class="feature-title">Complete Nutrition Data</h3>
+                <p class="feature-description">Get detailed info on calories, protein, carbs, fats, and more</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" aria-hidden="true">⚡</div>
+                <h3 class="feature-title">Real-Time Results</h3>
+                <p class="feature-description">Receive analysis in seconds, no waiting required</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" aria-hidden="true">📱</div>
+                <h3 class="feature-title">Mobile Friendly</h3>
+                <p class="feature-description">Works perfectly on all devices - phone, tablet, or desktop</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" aria-hidden="true">🔒</div>
+                <h3 class="feature-title">Privacy Focused</h3>
+                <p class="feature-description">No account required, your images are processed securely</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon" aria-hidden="true">🎨</div>
+                <h3 class="feature-title">Clean Interface</h3>
+                <p class="feature-description">Beautiful, intuitive design that's easy to use</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+
+<section id="how-it-works" class="how-it-works">
+    <div class="container">
+        <h2 class="section-title">How It Works</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3 class="step-header">Upload Photo</h3>
+                <p>Take a picture or upload an existing photo of your food</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3 class="step-header">AI Analysis</h3>
+                <p>Our advanced AI identifies the food and calculates nutrition</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3 class="step-header">Get Results</h3>
+                <p>View detailed nutritional information instantly on screen</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PRICING SECTION -->
+
+<section id="pricing" class="pricing-section">
+    <div class="container">
+        <h2 class="section-title">Simple Pricing</h2>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <div class="plan-name">Free</div>
+                <div class="plan-price">$0</div>
+                <div class="plan-period">Forever</div>
+                <ul class="plan-features">
+                    <li>5 scans per day</li>
+                    <li>Basic nutrition info</li>
+                    <li>Mobile & desktop access</li>
+                    <li>Community support</li>
+                </ul>
+                <button class="plan-button" onclick="scrollToUpload()">Get Started</button>
+            </div>
+            <div class="pricing-card">
+                <div class="plan-name">Pro</div>
+                <div class="plan-price">$9</div>
+                <div class="plan-period">per month</div>
+                <ul class="plan-features">
+                    <li>Unlimited scans</li>
+                    <li>Detailed nutrition data</li>
+                    <li>History & tracking</li>
+                    <li>Priority support</li>
+                    <li>Export reports</li>
+                </ul>
+                <button class="plan-button" onclick="scrollToUpload()">Upgrade Now</button>
+            </div>
+            <div class="pricing-card">
+                <div class="plan-name">Enterprise</div>
+                <div class="plan-price">$49</div>
+                <div class="plan-period">per month</div>
+                <ul class="plan-features">
+                    <li>Everything in Pro</li>
+                    <li>API access</li>
+                    <li>Custom integration</li>
+                    <li>White-label option</li>
+                    <li>Dedicated support</li>
+                </ul>
+                <button class="plan-button" onclick="scrollToUpload()">Contact Sales</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ SECTION -->
+
+<section id="faq" class="faq-section">
+    <div class="container">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)" role="button" tabindex="0" aria-expanded="false">
+                How accurate is the food recognition?
+                <span>+</span>
+            </div>
+            <div class="faq-answer">
+                Our AI model is trained on millions of food images and achieves over 90% accuracy in identifying common foods. For best results, ensure good lighting and a clear photo of the food.
+            </div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)" role="button" tabindex="0" aria-expanded="false">
+                Do I need to create an account?
+                <span>+</span>
+            </div>
+            <div class="faq-answer">
+                No! You can use FoodScan AI without creating an account. However, creating a free account allows you to save your scan history and track your nutrition over time.
+            </div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)" role="button" tabindex="0" aria-expanded="false">
+                What types of food can it recognize?
+                <span>+</span>
+            </div>
+            <div class="faq-answer">
+                FoodScan AI can recognize thousands of foods including fruits, vegetables, meats, prepared dishes, snacks, and beverages. It works best with single food items or simple dishes.
+            </div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)" role="button" tabindex="0" aria-expanded="false">
+                Is my data secure?
+                <span>+</span>
+            </div>
+            <div class="faq-answer">
+                Yes! We take privacy seriously. Images are processed securely and are not stored on our servers unless you choose to save them to your account. We never share your data with third parties.
+            </div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)" role="button" tabindex="0" aria-expanded="false">
+                Can I use this for meal planning?
+                <span>+</span>
+            </div>
+            <div class="faq-answer">
+                Absolutely! Many users scan their meals to track calories and nutrition. Pro users get access to history tracking and can export reports for comprehensive meal planning.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- REVIEWS SECTION -->
+
+<section id="reviews" class="reviews-section">
+    <div class="container">
+        <h2 class="section-title">What Our Users Say</h2>
+        <div class="reviews-grid">
+            <div class="review-card">
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <p>"This app is a game-changer! I can finally track my nutrition accurately without manually entering every meal. The AI is surprisingly accurate!"</p>
+                <div class="reviewer">
+                    <div class="reviewer-avatar">SM</div>
+                    <div>
+                        <strong>Sarah Miller</strong>
+                        <div style="font-size: 12px; color: #adadad;">Fitness Enthusiast</div>
+                    </div>
+                </div>
+            </div>
+            <div class="review-card">
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <p>"As a nutritionist, I recommend FoodScan AI to all my clients. It makes tracking so much easier and the data is reliable."</p>
+                <div class="reviewer">
+                    <div class="reviewer-avatar">DK</div>
+                    <div>
+                        <strong>Dr. David Kim</strong>
+                        <div style="font-size: 12px; color: #adadad;">Nutritionist</div>
+                    </div>
+                </div>
+            </div>
+            <div class="review-card">
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <p>"Simple, fast, and accurate. I've tried many nutrition apps, but this one is by far the easiest to use. Love it!"</p>
+                <div class="reviewer">
+                    <div class="reviewer-avatar">EP</div>
+                    <div>
+                        <strong>Emma Phillips</strong>
+                        <div style="font-size: 12px; color: #adadad;">Health Coach</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+
+<footer>
+    <div class="container">
+        <p>&copy; <span id="currentYear"></span> FoodScan AI. All rights reserved.</p>
+        <p style="margin-top: 10px; font-size: 14px; color: #9ca3af;">Made with ❤️ for healthier living</p>
+    </div>
+</footer>
+
+<!-- Load scripts at the end for better performance -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+<script src="js/app.js"></script>
+<script>
+    
+/* DRAG AND DROP */
+    
+function initDragAndDrop(){["dragenter","dragover","dragleave","drop"].forEach(e=>{appState.uploadBox.addEventListener(e,t=>{t.preventDefault(),t.stopPropagation()})}),["dragenter","dragover"].forEach(e=>{appState.uploadBox.addEventListener(e,()=>{appState.uploadBox.classList.add("dragover")})}),["dragleave","drop"].forEach(e=>{appState.uploadBox.addEventListener(e,()=>{appState.uploadBox.classList.remove("dragover")})}),appState.uploadBox.addEventListener("drop",e=>{const t=e.dataTransfer.files[0];if(!t||!t.type.startsWith("image/"))return void alert("Please drop a valid image file");const a=new DataTransfer;a.items.add(t),appState.fileInput.files=a.files;const o=new FileReader;o.onload=e=>{appState.previewImg.src=e.target.result,appState.uploadBox.style.display="none",appState.previewBox.style.display="block",appState.previewBox.hidden=!1},o.readAsDataURL(t)})}
+
+</script>
+
+
+</body>
+</html>
