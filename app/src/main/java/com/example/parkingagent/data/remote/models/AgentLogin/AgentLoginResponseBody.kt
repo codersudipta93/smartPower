@@ -33,4 +33,11 @@ data class AgentLoginResponseBody(
 
 	@field:SerializedName("Token")
 	val token: String? = null,
+
+	@field:SerializedName("KioskInApiUrl")
+	val KioskInApiUrl: String? = null,
+
+	@field:SerializedName("KioskOutApiUrl")
+	val KioskOutApiUrl: String? = null,
+
 ) : Parcelable

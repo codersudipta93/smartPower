@@ -52,8 +52,6 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.Dev
             deviceInfoManager.checkAndRequestPermissions()
         })
 
-
-
     }
 
     private fun agentLogin(){
@@ -113,6 +111,8 @@ class LoginFragment : BaseFragment<FragmentLoginBinding>(),DeviceInfoManager.Dev
                     when (it) {
 
                         is LoginViewModel.LoginEvents.LoginSuccess -> {
+
+
 
                             if (sessionManager.getEntityId()==0){
                                 showActivationCodeDialog()

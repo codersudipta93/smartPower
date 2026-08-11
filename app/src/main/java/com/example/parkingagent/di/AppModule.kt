@@ -45,7 +45,7 @@ object AppModule {
     @PrimaryRetrofit
     fun providePrimaryRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://103.231.40.240/SmartPowerAPI/api/")
+            .baseUrl("https://crpl.electropayroll.in/api/")
             .addConverterFactory(GsonConverterFactory.create())
             .addConverterFactory(ScalarsConverterFactory.create())
             .client(okHttpClient)

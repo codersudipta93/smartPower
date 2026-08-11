@@ -88,6 +88,11 @@ class LoginViewModel @Inject constructor(
                         response.body()?.location?.let { sessionManager.setLocation(it) }
                         if (sessionManager.getEntityId()!=0){
                            // sessionManager.setEntityId(response.body()?.entityId?:0)
+                            val body = response.body()
+                            Log.d("LOGIN_BODY", body?.KioskInApiUrl.toString())
+                            sessionManager.setKioskParkingInBaseUrl(body?.KioskInApiUrl.toString());
+                            sessionManager.setKioskParkingOutBaseUrl(body?.KioskOutApiUrl.toString());
+                            //sessionManager.setKioskParkingInBaseUrl("https://sudipta.com/");
                         }
 
                     }

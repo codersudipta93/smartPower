@@ -28,7 +28,7 @@ fun vehicleParking(@Header("Authorization") token:String,@Body vehicleParkingReq
     @POST("Device/getVehicleTypedropdown")
     fun getVehicleTypedropdown(@Header("Authorization") token:String,@Body searchVehicleReqBody:VehicleSearchParkingReqBody): Call<VehicleParkingResponse>
 
-    @POST("Device/VehicleParkingOutUsingVehcileNo")
+    @POST("Device/VehicleParkingOutUsingVehcileNoCopy")
 fun vehicleSearchAndParking(@Header("Authorization") token:String,@Body searchVehicleReqBody:VehicleSearchParkingReqBody): Call<VehicleParkingResponse>
 
 

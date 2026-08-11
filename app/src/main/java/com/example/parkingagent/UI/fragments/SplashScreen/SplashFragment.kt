@@ -21,6 +21,8 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import android.net.NetworkRequest
 import android.net.Network
+import com.example.parkingagent.MainActivity
+
 import com.example.parkingagent.utils.NetworkUtils
 @AndroidEntryPoint
 class SplashFragment : Fragment() {
@@ -56,6 +58,7 @@ class SplashFragment : Fragment() {
                 // Token exists: navigate directly to the menu screen
 
                 if(isConnected){
+                    (requireActivity() as MainActivity).isSplashCompleted = true
                     findNavController().navigate(R.id.action_splashFragment_to_menuFragment)
                 }else{
                     findNavController().navigate(R.id.action_global_noInternetFragment)

@@ -35,12 +35,14 @@ class QrInOutViewModel @Inject constructor(
     val mutualSharedflow: SharedFlow<ParkingVehicleEvents> = _mutualSharedflow
 
 
-    fun searchAndParkVehicle(vehicleNumber:String,deviceId:String, userId:String){
+    fun searchAndParkVehicle(vehicleNumber:String,deviceId:String, userId:String, VehicleTypeId:String){
         val vehicleParkingReqqBody = VehicleSearchParkingReqBody(
             deviceId,
             sharedPreferenceManager.getUserId(),
-            vehicleNumber
+            vehicleNumber,
+            VehicleTypeId
         )
+      Log.d("vehicleParkingReqqBody", vehicleParkingReqqBody.toString())
         val parkingVehicleCall = client.vehicleSearchAndParking(
             sharedPreferenceManager.getAccessToken().toString(),
             vehicleParkingReqqBody

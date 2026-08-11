@@ -137,11 +137,11 @@ class SharedPreferenceManager @Inject constructor(
         sharedPreferences.getString(KEY_ANPR_OUT, null)
 
     fun getBaseUrl(): String {
-        return sharedPreferences.getString(KEY_BASE_URL, "http://103.231.40.240/SmartPowerAPI/api/") ?: "http://103.231.40.240/SmartPowerAPI/api/"
+        return sharedPreferences.getString(KEY_BASE_URL, "https://crpl.electropayroll.in/api/") ?: "https://crpl.electropayroll.in/api/"
     }
 
     fun getInstalledVersion(): String {
-        return sharedPreferences.getString(APP_INSTALLED_VERSION, "0.0.8") ?: "0.0.8"
+        return sharedPreferences.getString(APP_INSTALLED_VERSION, "0.0.10") ?: "0.0.10"
     }
 
 
@@ -183,6 +183,27 @@ class SharedPreferenceManager @Inject constructor(
         return sharedPreferences.getString(KEY_SLIP_HEADER_FOOTER, null)
     }
 
+
+    fun setKioskParkingInBaseUrl(url: String) {
+        sharedPreferences.edit()
+            .putString(KioskInApiUrl, url)
+            .apply()
+    }
+
+    fun getKioskParkingInBaseUrl(): String {
+        return sharedPreferences.getString(KioskInApiUrl, "") ?: ""
+    }
+
+    fun setKioskParkingOutBaseUrl(url: String) {
+        sharedPreferences.edit()
+            .putString(KioskOutApiUrl, url)
+            .apply()
+    }
+
+    fun getKioskParkingOutBaseUrl(): String {
+        return sharedPreferences.getString(KioskOutApiUrl, "") ?: ""
+    }
+
     companion object {
         private const val TOKEN_MANAGER_NAME = "parking_token_pref"
         private const val TOKEN_KEY = "auth_token"
@@ -194,12 +215,12 @@ class SharedPreferenceManager @Inject constructor(
         private const val KEY_ANPR_OUT = "anpr_for_out"
         private const val KEY_FULL_NAME = "full_name"
         private const val KEY_LOCATION = "location"
-        private const val KEY_BASE_URL = "http://103.231.40.240/SmartPowerAPI/api/"
-        private const val APP_INSTALLED_VERSION = "0.0.8"
+        private const val KEY_BASE_URL = "https://crpl.electropayroll.in/api/"
+        private const val APP_INSTALLED_VERSION = "0.0.10"
         private const val APP_CURRENT_VERSION = ""
         private const val KEY_SLIP_HEADER_FOOTER = "slip_HF"
         private const val LAST_PAIRED_DEVICE = "last_paired_mac_address"
-
-
+        private const val KioskInApiUrl = "Kiosk_In_ApiUrl"
+        private const val KioskOutApiUrl = "Kiosk_Out_ApiUrl"
     }
 }

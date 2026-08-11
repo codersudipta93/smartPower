@@ -43,6 +43,19 @@ import android.net.Network
 import kotlinx.coroutines.*
 import android.os.Looper
 
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
+import java.io.IOException
+import org.json.JSONObject
+
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -52,11 +65,21 @@ class MainActivity : AppCompatActivity() {
     private lateinit var handler: Handler
     private lateinit var runnable: Runnable
 
+    private lateinit var handlerSec: Handler
+    private lateinit var runnableSec: Runnable
+
     public val sharedViewModel:SharedViewModel by viewModels()
+
+    private val client = OkHttpClient()
 
     private lateinit var connectivityManager: ConnectivityManager
     private lateinit var networkCallback: ConnectivityManager.NetworkCallback
     private var isBackEnabled = true
+
+    public var isSplashCompleted = false
+    public var isQrOutProcessing = false
+
+
     @Inject
     lateinit var sharedPreferenceManager: SharedPreferenceManager
 
@@ -82,6 +105,211 @@ class MainActivity : AppCompatActivity() {
         // Observe the API response
         observeHeartBeatApi()
 
+
+        handlerSec = Handler(Looper.getMainLooper())
+
+        runnableSec = object : Runnable {
+            override fun run() {
+
+
+                if (!isSplashCompleted) {
+                    handlerSec.postDelayed(this, 3000)
+                    return
+                }
+
+//                if (isQrOutProcessing) {
+//                    handlerSec.postDelayed(this, 5000)
+//                    return
+//                }
+
+                val KioskCarInUrl = sharedPreferenceManager.getKioskParkingInBaseUrl()
+                val KioskCarOutUrl = sharedPreferenceManager.getKioskParkingOutBaseUrl()
+
+                if (KioskCarInUrl.isNotEmpty()) {
+                    Log.d("KIOSK CAR IN BASE_URL", KioskCarInUrl)
+
+                    val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+
+// Current time
+                    val endCalendar = Calendar.getInstance()
+                    val endTime = formatter.format(endCalendar.time)
+
+// Current time - 30 seconds
+                    val startCalendar = Calendar.getInstance()
+                    startCalendar.add(Calendar.SECOND, -30)
+                    val startTime = formatter.format(startCalendar.time)
+
+                    Log.d("STIME", "StartTime = $startTime")
+                    Log.d("ETIME", "EndTime = $endTime")
+
+
+//                    "startTime": "2026-07-08 00:00:00",
+//                    "endTime": "2026-07-08 23:59:59"
+
+
+
+                    val json = """
+                       {
+                        "carNo": "",
+                        "pageNum": "1",
+                        "pageSize": "100",
+                        "startTime":"$startTime",
+                        "endTime":"$endTime"
+                    }
+                    """.trimIndent()
+
+                    Log.d("body",json)
+
+                    val body = json.toRequestBody("application/json".toMediaType())
+
+                    val request = Request.Builder()
+                        .url(KioskCarInUrl)
+                        .post(body)
+                        .build()
+
+                    client.newCall(request).enqueue(object : Callback {
+
+                        override fun onFailure(call: Call, e: IOException) {
+                            Log.e("CAR_IN", e.message ?: "Error")
+                        }
+
+                        override fun onResponse(call: Call, response: Response) {
+
+                            val result = response.body?.string()
+
+                            Log.d("CAR_IN_RESPONSE", result ?: "No Data")
+
+                            if (response.isSuccessful && result != null) {
+
+                                try {
+
+                                    val root = JSONObject(result)
+
+                                    val status = root.getInt("status")
+
+                                    if (status == 1) {
+
+                                        val data = root.getJSONArray("data")
+
+                                        if (data.length() > 0) {
+
+                                            for (i in 0 until data.length()) {
+
+                                                val item = data.getJSONObject(i)
+
+                                                val carNo = item.optString("carNo")
+
+                                                Log.d("CAR_NO", carNo)
+                                                if (item.has("carNo")) {
+                                                    insertVehicle(item.optString("carNo"))
+                                                } else {
+                                                    insertVehicle(item.optString("card"))
+                                                }
+                                            }
+ 
+                                        }
+
+                                    }
+
+                                } catch (e: Exception) {
+                                    Log.e("JSON", e.toString())
+                                }
+                            }
+                        }
+                    })
+                }
+
+                if (!isQrOutProcessing && KioskCarOutUrl.isNotEmpty()) {
+
+                    Log.d("KIOSK CAR OUT BASE_URL", KioskCarOutUrl)
+
+                    val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+
+                    // Current Time
+                    val endCalendar = Calendar.getInstance()
+                    val endTime = formatter.format(endCalendar.time)
+
+                    // Current Time - 10 sec
+                    val startCalendar = Calendar.getInstance()
+                    startCalendar.add(Calendar.SECOND, -10)
+                    val startTime = formatter.format(startCalendar.time)
+
+                    val json = """
+                    {
+                        "carNo": "",
+                        "pageNum": "1",
+                        "pageSize": "100",
+                        "startTime": "$startTime",
+                        "endTime": "$endTime"
+                    }
+                    """.trimIndent()
+
+                    Log.d("OUT_REQ_BODY", json)
+
+                    val body = json.toRequestBody("application/json".toMediaType())
+
+                    val request = Request.Builder()
+                        .url(KioskCarOutUrl)
+                        .post(body)
+                        .build()
+
+                    client.newCall(request).enqueue(object : Callback {
+
+                        override fun onFailure(call: Call, e: IOException) {
+                            Log.e("CAR_OUT", e.message ?: "Error")
+                        }
+
+                        override fun onResponse(call: Call, response: Response) {
+
+                            val result = response.body?.string()
+
+                            Log.d("CAR_OUT_RESPONSE", result ?: "No Data")
+
+                            if (!response.isSuccessful || result == null) return
+
+                            try {
+
+                                val root = JSONObject(result)
+
+                                if (root.optInt("status") == 1) {
+
+                                    val data = root.getJSONArray("data")
+
+                                    if (data.length() > 0) {
+
+                                        // First Item = Latest Car
+                                        val latestCar = data.getJSONObject(0)
+                                        Log.d("LATEST_CAR", latestCar.toString())
+                                        Log.d("LATEST_CAR_NO", latestCar.optString("carNo"))
+                                        Log.d("LATEST_CAR_TIME", latestCar.optString("time"))
+
+                                        val carNo = latestCar.optString("carNo")
+                                        val dateTime = latestCar.optString("time")
+
+                                        runOnUiThread {
+
+                                            if (latestCar.has("carNo")) {
+                                                isQrOutProcessing = true
+                                                openQrOutPage(latestCar.optString("carNo"), dateTime)
+                                            } else {
+                                                isQrOutProcessing = true
+                                                openQrOutPage(latestCar.optString("card"), dateTime)
+                                            }
+                                        }
+                                    }
+                                }
+
+                            } catch (e: Exception) {
+                                Log.e("JSON_ERROR", e.toString())
+                            }
+                        }
+                    })
+                }
+
+                handlerSec.postDelayed(this, 3000)
+            }
+        }
+
         // Setup periodic API call
         handler = Handler()
         runnable = object : Runnable {
@@ -90,7 +318,6 @@ class MainActivity : AppCompatActivity() {
                 handler.postDelayed(this, 5 * 60 * 1000) // 5 minutes
             }
         }
-
 
         btManager.initialize()
 
@@ -198,6 +425,71 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    fun openQrOutPage(carNo: String, dateTime: String) {
+
+        runOnUiThread {
+
+            if (navController.currentDestination?.id != R.id.id_qrOutFragment) {
+
+                val bundle = Bundle().apply {
+                    putString("carNo", carNo)
+                    putString("dateTime", dateTime)
+                }
+
+                navController.navigate(
+                    R.id.id_qrOutFragment,
+                    bundle,
+                    NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .build()
+                )
+            }
+        }
+    }
+
+
+    private fun insertVehicle(vehicleNo: String) {
+
+        val client = OkHttpClient()
+
+        val json = JSONObject().apply {
+            put("DeviceId", Utils.getDeviceId(this@MainActivity))
+            put("IOType", "0")
+            put("VehicleNo", vehicleNo)
+            put("VehicleTypeId", "9")
+            put("ParkingMode", "MAN")
+            put("UserId", sharedPreferenceManager.getUserId())
+            put("BookingNumber", "")
+        }
+
+        val body = json.toString()
+            .toRequestBody("application/json".toMediaType())
+        val request = Request.Builder()
+            .url(sharedPreferenceManager.getBaseUrl()+"Device/VehicleParking")
+            .addHeader("Authorization", sharedPreferenceManager.getAccessToken() ?: "")
+            .addHeader("Content-Type", "application/json")
+            .post(body)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+
+            override fun onFailure(call: Call, e: IOException) {
+                Log.e("INSERT", e.message ?: "")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+
+                Log.d(
+                    "INSERT_RESPONSE",
+                    response.body?.string() ?: ""
+                )
+
+            }
+
+        })
+    }
+
+
     override fun onBackPressed() {
         if (isBackEnabled) {
             super.onBackPressed()
@@ -275,12 +567,14 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         handler.post(runnable) // Start periodic API call
+        handlerSec.post(runnableSec)
 
     }
 
     override fun onPause() {
         super.onPause()
         handler.removeCallbacks(runnable) // Stop periodic API call
+        handlerSec.removeCallbacks(runnableSec)
     }
 
     override fun onDestroy() {
@@ -337,7 +631,6 @@ class MainActivity : AppCompatActivity() {
 //        navController = findNavController(R.id.navHostFragment)
         val navHostFrag = supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment
         navController = navHostFrag.navController
-
 
         // ==== Connection Bottom Navigation to nav Graph ========
 //        binding.bottomNavigation.setupWithNavController(navController)

@@ -10,7 +10,7 @@ import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
-
+import androidx.navigation.fragment.findNavController
 import android.widget.AdapterView
 import android.view.LayoutInflater
 import android.view.View
@@ -68,7 +68,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import com.example.parkingagent.UI.fragments.home.HomeViewModel
-
+import android.widget.ArrayAdapter
 import android.view.KeyEvent
 
 
@@ -99,6 +99,11 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
     private var lastClickTime = 0L
 
     private var printerEnable = false
+
+    private var selectedVehicleTypeId: String? = null
+
+    private val vehicleTypeList = mutableListOf<String>()
+    private val vehicleTypeIdList = mutableListOf<String>()
 
     @Inject
     lateinit var sharedPreferenceManager: SharedPreferenceManager
@@ -198,6 +203,165 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
         }
 
 
+
+
+        val  kioskCarOutUrl = sharedPreferenceManager.getKioskParkingOutBaseUrl()
+
+        if (kioskCarOutUrl.isNotEmpty()) {
+
+            // Load Vehicle Type
+            getDropdown()
+            val kioskCarNo = arguments?.getString("carNo") ?: ""
+            Log.d("data is coming", kioskCarNo)
+            if (kioskCarNo.isNotEmpty()) {
+
+                binding.edtVehicleNo.setText(kioskCarNo)
+
+                Handler(Looper.getMainLooper()).postDelayed({
+
+                    searchVehicle()
+
+                }, 300)
+            }
+        }else{
+            binding.txtVehicleType.visibility = View.GONE
+            binding.vehicleTypeDropdown.visibility = View.GONE
+        }
+    }
+
+
+    private fun getDropdown() {
+
+        val client = OkHttpClient()
+
+        val json = JSONObject().apply {
+            put("UserId", sharedPreferenceManager.getUserId().toString())
+            put("Token", sharedPreferenceManager.getAccessToken().toString())
+        }
+
+        val requestBody =
+            json.toString().toRequestBody("application/json".toMediaTypeOrNull())
+
+        val request = Request.Builder()
+            .url("${sharedPreferenceManager.getBaseUrl()}Device/GetVehicleType")
+            .addHeader("Content-Type", "application/json")
+            .post(requestBody)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+
+            override fun onFailure(call: Call, e: IOException) {
+
+                Log.e("API_ERROR", "Failed to call API", e)
+
+                requireActivity().runOnUiThread {
+                    Toast.makeText(
+                        requireContext(),
+                        "Vehicle Type API failed",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+
+                val responseBody = response.body?.string()
+
+                Log.d("VehicleType", responseBody ?: "")
+
+                if (!response.isSuccessful || responseBody == null) return
+
+                try {
+
+                    val rootObject = JSONObject(responseBody)
+
+                    val jsonArray = rootObject.getJSONArray("Data")
+
+                    vehicleTypeList.clear()
+                    vehicleTypeIdList.clear()
+
+                    // Placeholder
+                    vehicleTypeList.add("Select Vehicle Type")
+                    vehicleTypeIdList.add("")
+
+                    for (i in 0 until jsonArray.length()) {
+
+                        val obj = jsonArray.getJSONObject(i)
+
+                        if (obj.getBoolean("Status")) {
+
+                            vehicleTypeList.add(
+                                obj.getString("VehicleType")
+                            )
+
+                            vehicleTypeIdList.add(
+                                obj.getInt("VehicleTypeId").toString()
+                            )
+                        }
+                    }
+
+                    requireActivity().runOnUiThread {
+
+                        setupVehicleTypeDropdown()
+
+                    }
+
+                } catch (e: Exception) {
+
+                    Log.e("VehicleType", e.toString())
+
+                }
+
+            }
+        })
+    }
+
+    private fun setupVehicleTypeDropdown() {
+
+        val adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            vehicleTypeList
+        )
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        binding.vehicleTypeDropdown.adapter = adapter
+
+        binding.vehicleTypeDropdown.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+
+                    if (position == 0) {
+                        selectedVehicleTypeId = null
+                        return
+                    }
+
+                    selectedVehicleTypeId = vehicleTypeIdList[position]
+
+                    Log.d(
+                        "SelectedVehicleTypeId",
+                        selectedVehicleTypeId ?: ""
+                    )
+
+
+
+                    if (binding.edtVehicleNo.text.toString().isNotBlank()) {
+                        Log.d("selectedvehicle", binding.edtVehicleNo.text.toString())
+                        searchVehicle()
+                    }
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    selectedVehicleTypeId = null
+                }
+            }
     }
 
     // Helper method to enable input elements
@@ -237,7 +401,8 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
         viewModel.searchAndParkVehicle(
             binding.edtVehicleNo.text.toString(),
             Utils.getDeviceId(requireActivity()),
-            sharedPreferenceManager.getUserId().toString()
+            sharedPreferenceManager.getUserId().toString(),
+            selectedVehicleTypeId.toString()
         )
 
         printerEnable = true
@@ -292,16 +457,33 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
 
     private fun setupButton() {
         binding.btnCollect.setOnClickListener {
-            val currentTime = SystemClock.elapsedRealtime()
-            if (currentTime - lastClickTime > 2000) { // 2 second debounce
-                lastClickTime = currentTime
-                openBoom("1")
-            } else {
-                showToast("Please wait before clicking again...")
+            val isKioskMode = sharedPreferenceManager.getKioskParkingOutBaseUrl().isNotEmpty()
+            if (selectedVehicleTypeId.isNullOrEmpty() && isKioskMode) {
+                showToast("Please select a vehicle type")
+                return@setOnClickListener
+            }else{
+                val currentTime = SystemClock.elapsedRealtime()
+                if (currentTime - lastClickTime > 2000) { // 2 second debounce
+                    lastClickTime = currentTime
+                    openBoom("1")
+                } else {
+                    showToast("Please wait before clicking again...")
+                }
             }
+
+
         }
 
         binding.btnNotCollect.setOnClickListener {
+            Log.d("not collect btn", "Clicked")
+
+            val isKioskMode = sharedPreferenceManager.getKioskParkingOutBaseUrl().isNotEmpty()
+
+            if (isKioskMode && selectedVehicleTypeId.isNullOrEmpty()) {
+                showToast("Please select a vehicle type")
+                return@setOnClickListener
+            }
+
             val currentTime = SystemClock.elapsedRealtime()
             if (currentTime - lastClickTime > 2000) { // 2 second debounce
                 lastClickTime = currentTime
@@ -310,7 +492,6 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
                 showToast("Please wait before clicking again...")
             }
         }
-
 
         binding.btnGetVehicle.setOnClickListener {
             (requireActivity() as MainActivity).binding.loading.visibility=View.VISIBLE
@@ -596,6 +777,12 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
                 //Toast.makeText(requireContext(), "Print Successful", Toast.LENGTH_LONG).show()
             }
         })
+
+
+        if (sharedPreferenceManager.getKioskParkingOutBaseUrl().isNotEmpty()) {
+            (activity as? MainActivity)?.isQrOutProcessing = false
+            findNavController().popBackStack()
+        }
     }
 
     private fun showToast(message: String) {

@@ -15,4 +15,7 @@ data class VehicleSearchParkingReqBody(
 	@field:SerializedName("VehicleNo")
 	val vehicleNo: String? = null,
 
+	@field:SerializedName("VehicleTypeId")
+	val VehicleTypeId: String? = null,
+
 ) : Parcelable
