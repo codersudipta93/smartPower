@@ -574,19 +574,28 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
 
                         is QrInOutViewModel.ParkingVehicleEvents.CollectionInsertSuccessful -> {
                             latestCollectionInsertDataResponse = it.collectionInsertData
-
-                            // Control relay
+                            Log.d("MONTHLY_FLOW", "1. Collection Insert Success")
                             (requireActivity() as MainActivity).btManager.controlRelayWithAutoOff(1)
+
+                            var willPrint = false
 
                             latestVehicleParkingResponse?.let { response ->
                                 latestCollectionInsertDataResponse?.let { insertRes ->
                                     if(insertRes.status == true){
-                                        Log.d("collection 1", insertRes.toString())
                                         Log.d("collection result", insertRes.toString())
                                         showToast(it.collectionInsertData.msg.toString())
                                         Log.d("collectiontype", it.collectionInsertData.isCollected.toString())
+                                        Log.d(
+                                            "MONTHLY_FLOW",
+                                            "2. IsMonthly = ${insertRes.IsMonthly}"
+                                        )
 
-                                        printReceipt(response,it.collectionInsertData.isCollected.toString())
+                                        if (insertRes.IsMonthly != true) {
+                                            willPrint = true
+                                            printReceipt(response, it.collectionInsertData.isCollected.toString()) {
+                                                handleKioskNavigationSafely()
+                                            }
+                                        }
                                     } else {
                                         Log.d("collection 0", insertRes.toString())
                                         showToast(insertRes.msg.toString())
@@ -596,7 +605,12 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
                                 //showToast("it is double clicked..")
                             }
 
-                            // Clear fields and re-enable buttons
+                            if (!willPrint) {
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    handleKioskNavigationSafely()
+                                }, 300)
+                            }
+
                             clearFields()
                             enableInputElements()
                             enableCollectionButtons()
@@ -622,6 +636,29 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
         }
     }
 
+    private fun handleKioskNavigationSafely() {
+
+        if (!isAdded || view == null) return
+        Log.d("MONTHLY_FLOW", "3. Calling popBackStack")
+        if (sharedPreferenceManager.getKioskParkingOutBaseUrl().isNotEmpty()) {
+
+            val mainActivity = activity as? MainActivity
+
+            try {
+                Log.d("MONTHLY_FLOW", "1. Collection success")
+                findNavController().popBackStack()
+
+                // কিছুক্ষণ polling বন্ধ রাখবে
+                Handler(Looper.getMainLooper()).postDelayed({
+                    mainActivity?.isQrOutProcessing = false
+                }, 5000)
+
+            } catch (e: Exception) {
+                Log.e(TAG, "popBackStack failed: ${e.message}")
+            }
+        }
+    }
+
     private fun clearFields() {
         binding.edtVehicleNo.text?.clear()
         binding.edtEntryDateTime.text?.clear()
@@ -632,9 +669,10 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
         // Reset parking response
         latestVehicleParkingResponse = null
         latestCollectionInsertDataResponse = null
+
     }
 
-    private fun printReceipt(response: VehicleParkingResponse,collectionType:String) {
+    private fun printReceipt(response: VehicleParkingResponse, collectionType: String, onPrintFinished: () -> Unit) {
         Log.d("printing response", response.toString())
         printerEnable = false
         PrinterSdk.getInstance().getPrinter(this.context, object : PrinterSdk.PrinterListen {
@@ -770,7 +808,14 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
                 if (footer2 != "") {
                     renderCenteredText("$footer2", size = 21, bold = false)
                 }
-                p0?.canvasApi()?.printCanvas(1, null)
+                Log.d("PRINT_FLOW", "3. calling printCanvas - ${System.currentTimeMillis()}")
+                p0?.canvasApi()?.printCanvas(1, object : com.sunmi.printerx.api.PrintResult() {
+                    override fun onResult(code: Int, msg: String?) {
+                        Log.d("PRINT_FLOW", "4. onResult fired: code=$code msg=$msg - ${System.currentTimeMillis()}")
+                        onPrintFinished()
+                        Log.d("PRINT_FLOW", "5. onPrintFinished (navigation) called - ${System.currentTimeMillis()}")
+                    }
+                })
             }
 
             override fun onPrinters(printers: MutableList<PrinterSdk.Printer>?) {
@@ -779,10 +824,7 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
         })
 
 
-        if (sharedPreferenceManager.getKioskParkingOutBaseUrl().isNotEmpty()) {
-            (activity as? MainActivity)?.isQrOutProcessing = false
-            findNavController().popBackStack()
-        }
+
     }
 
     private fun showToast(message: String) {
@@ -791,6 +833,7 @@ class QrOutFragment : BaseFragment<FragmentQrOutBinding>() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        (activity as? MainActivity)?.isQrOutProcessing = false
         try {
             requireActivity().unregisterReceiver(br)
             requireActivity().unbindService(conn)

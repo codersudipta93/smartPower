@@ -61,5 +61,7 @@ val BookingNumber: String? = null,
 	@field:SerializedName("GSTAmount")
 	val gstAmount: Double? = null,
 
+	@field:SerializedName("IsMonthly")
+	val IsMonthly: String? = null,
 
 ) : Parcelable

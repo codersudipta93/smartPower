@@ -141,7 +141,7 @@ class SharedPreferenceManager @Inject constructor(
     }
 
     fun getInstalledVersion(): String {
-        return sharedPreferences.getString(APP_INSTALLED_VERSION, "0.0.10") ?: "0.0.10"
+        return sharedPreferences.getString(APP_INSTALLED_VERSION, "0.0.13") ?: "0.0.13"
     }
 
 
@@ -216,7 +216,7 @@ class SharedPreferenceManager @Inject constructor(
         private const val KEY_FULL_NAME = "full_name"
         private const val KEY_LOCATION = "location"
         private const val KEY_BASE_URL = "https://crpl.electropayroll.in/api/"
-        private const val APP_INSTALLED_VERSION = "0.0.10"
+        private const val APP_INSTALLED_VERSION = "0.0.13"
         private const val APP_CURRENT_VERSION = ""
         private const val KEY_SLIP_HEADER_FOOTER = "slip_HF"
         private const val LAST_PAIRED_DEVICE = "last_paired_mac_address"
@@ -224,3 +224,4 @@ class SharedPreferenceManager @Inject constructor(
         private const val KioskOutApiUrl = "Kiosk_Out_ApiUrl"
     }
 }
+

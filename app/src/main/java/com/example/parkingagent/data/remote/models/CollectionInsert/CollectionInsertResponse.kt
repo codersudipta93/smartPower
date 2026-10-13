@@ -57,5 +57,9 @@ data class CollectionInsertData(
 	val gstAmount: Double? = null,
 
 	@field:SerializedName("Token")
-	val token: String? = null
+	val token: String? = null,
+
+	@field:SerializedName("IsMonthly")
+	val IsMonthly: Boolean? = null,
+
 ) : Parcelable

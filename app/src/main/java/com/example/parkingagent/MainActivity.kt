@@ -80,6 +80,7 @@ class MainActivity : AppCompatActivity() {
     public var isQrOutProcessing = false
 
 
+    private var lastProcessedCarOutKey: String? = null   // notun variable
     @Inject
     lateinit var sharedPreferenceManager: SharedPreferenceManager
 
@@ -117,10 +118,10 @@ class MainActivity : AppCompatActivity() {
                     return
                 }
 
-//                if (isQrOutProcessing) {
-//                    handlerSec.postDelayed(this, 5000)
-//                    return
-//                }
+                if (isQrOutProcessing) {
+                    handlerSec.postDelayed(this, 3000)
+                    return
+                }
 
                 val KioskCarInUrl = sharedPreferenceManager.getKioskParkingInBaseUrl()
                 val KioskCarOutUrl = sharedPreferenceManager.getKioskParkingOutBaseUrl()
@@ -288,12 +289,83 @@ class MainActivity : AppCompatActivity() {
 
                                         runOnUiThread {
 
-                                            if (latestCar.has("carNo")) {
-                                                isQrOutProcessing = true
-                                                openQrOutPage(latestCar.optString("carNo"), dateTime)
+                                            val carKey = "$carNo|$dateTime"
+
+                                            if (carKey != lastProcessedCarOutKey) {
+                                                runOnUiThread {
+                                                    lastProcessedCarOutKey = carKey
+                                                    isQrOutProcessing = true
+                                                    if (latestCar.has("carNo")) {
+                                                        val carNumber = latestCar.optString("carNo")
+
+                                                        val json = JSONObject().apply {
+                                                            put("DeviceId", Utils.getDeviceId(this@MainActivity))
+                                                            put("VehicleNo", carNumber)
+                                                        }
+
+                                                        val body = json.toString().toRequestBody("application/json".toMediaType())
+
+                                                        val request = Request.Builder()
+                                                            .url(sharedPreferenceManager.getBaseUrl() + "Device/MonthlySubscriptionCheck")
+                                                            .addHeader("Authorization", sharedPreferenceManager.getAccessToken() ?: "")
+                                                            .addHeader("Content-Type", "application/json")
+                                                            .post(body)
+                                                            .build()
+
+                                                        client.newCall(request).enqueue(object : Callback {
+                                                            override fun onFailure(call: Call, e: IOException) {
+                                                                Log.e("MONTHLY_CHECK_FAIL", e.message ?: "Error")
+                                                                runOnUiThread {
+                                                                    isQrOutProcessing = false
+                                                                    Toast.makeText(this@MainActivity, "Network error: Vehicle check failed", Toast.LENGTH_SHORT).show()
+                                                                }
+                                                            }
+
+                                                            override fun onResponse(call: Call, response: Response) {
+                                                                val result = response.body?.string()
+                                                                Log.d("MONTHLY_CHECK_RESPONSE", result ?: "No Data")
+
+                                                                if (response.isSuccessful && result != null) {
+                                                                    try {
+                                                                        val root = JSONObject(result)
+                                                                        val isMonthly = root.optBoolean("IsMonthly", false)
+                                                                        val msg = root.optString("msg", "")
+
+                                                                        runOnUiThread {
+                                                                            if (isMonthly) {
+                                                                                val toastMsg = if (msg.isNotEmpty()) msg else "Monthly Vehicle: $carNumber"
+                                                                                Toast.makeText(this@MainActivity, toastMsg, Toast.LENGTH_LONG).show()
+
+                                                                                btManager.controlRelayWithAutoOff(1)
+
+                                                                                Handler(Looper.getMainLooper()).postDelayed({
+                                                                                    isQrOutProcessing = false
+                                                                                }, 3000)
+                                                                            } else {
+                                                                                openQrOutPage(carNumber, dateTime)
+                                                                            }
+                                                                        }
+                                                                    } catch (e: Exception) {
+                                                                        Log.e("JSON_ERROR", e.toString())
+                                                                        runOnUiThread {
+                                                                            isQrOutProcessing = false
+                                                                            Toast.makeText(this@MainActivity, "Data error: Check failed", Toast.LENGTH_SHORT).show()
+                                                                        }
+                                                                    }
+                                                                } else {
+                                                                    runOnUiThread {
+                                                                        isQrOutProcessing = false
+                                                                        Toast.makeText(this@MainActivity, "Server error: Check failed", Toast.LENGTH_SHORT).show()
+                                                                    }
+                                                                }
+                                                            }
+                                                        })
+                                                    } else {
+                                                        openQrOutPage(latestCar.optString("card"), dateTime)
+                                                    }
+                                                }
                                             } else {
-                                                isQrOutProcessing = true
-                                                openQrOutPage(latestCar.optString("card"), dateTime)
+                                                Log.d("KIOSK_DEDUPE", "Same car-out record ($carKey) already processed, skipping re-open")
                                             }
                                         }
                                     }
@@ -428,7 +500,10 @@ class MainActivity : AppCompatActivity() {
     fun openQrOutPage(carNo: String, dateTime: String) {
 
         runOnUiThread {
-
+            Log.d(
+                "MONTHLY_FLOW",
+                "4. openQrOutPage called again: carNo=$carNo"
+            )
             if (navController.currentDestination?.id != R.id.id_qrOutFragment) {
 
                 val bundle = Bundle().apply {
